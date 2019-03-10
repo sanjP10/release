@@ -38,6 +38,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.tag, "tag", "", "tag")
 }
 
+//Execute flow of subcommand
 func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	var exit = subcommands.ExitSuccess
 	var errors = checkValidateFlags(v)

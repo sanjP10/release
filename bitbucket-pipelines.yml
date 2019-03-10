@@ -8,7 +8,6 @@ definitions:
     - step: &lint
         name: linting
         script:
-#          - source bitbucket-pipelines-go.sh
           - go get -u golang.org/x/lint/golint
           - golint -set_exit_status ./...
 
