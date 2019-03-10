@@ -8,8 +8,7 @@ definitions:
     - step: &lint
         name: linting
         script:
-          - export GOPATH="$HOME/go"
-          - export PATH="$PATH:$GOPATH/bin"
+          - source bitbucket-pipelines-go.sh
           - go get -u golang.org/x/lint/golint
           - go list ./... | grep -v /vendor/ | xargs -L1 golint -set_exit_status
 
