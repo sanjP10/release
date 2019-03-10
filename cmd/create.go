@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// Create for create sub command
 type Create struct {
 	username string
 	password string
@@ -16,14 +17,20 @@ type Create struct {
 	repo     string
 }
 
-func (*Create) Name() string     { return "create" }
+// Name of sub command
+func (*Create) Name() string { return "create" }
+
+// Synopsis of sub command
 func (*Create) Synopsis() string { return "create release for bitbucket repo." }
+
+// Usage of sub command
 func (*Create) Usage() string {
 	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>]:
   creates tag against bitbucket repo
 `
 }
 
+// SetFlags required for create sub command
 func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.username, "username", "", "username")
 	f.StringVar(&c.password, "password", "", "password")
@@ -31,6 +38,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.tag, "tag", "", "tag")
 }
 
+// Execute flow for create sub command
 func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	var exit = subcommands.ExitSuccess
 	var errors = checkCreateFlags(c)

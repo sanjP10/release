@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// Validate for validate sub command
 type Validate struct {
 	username string
 	password string
@@ -16,14 +17,20 @@ type Validate struct {
 	tag      string
 }
 
-func (*Validate) Name() string     { return "validate" }
+// Name of subcommand
+func (*Validate) Name() string { return "validate" }
+
+// Synopsis of subcommand
 func (*Validate) Synopsis() string { return "validates release version to be created." }
+
+// Usage of subcommand
 func (*Validate) Usage() string {
 	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>]:
   validates tag against bitbucket repo
 `
 }
 
+// SetFlags for required flags of command
 func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.username, "username", "", "username")
 	f.StringVar(&v.password, "password", "", "password")
@@ -31,6 +38,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.tag, "tag", "", "tag")
 }
 
+//Execute flow of subcommand
 func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	var exit = subcommands.ExitSuccess
 	var errors = checkValidateFlags(v)
