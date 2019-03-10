@@ -30,15 +30,16 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 		fmt.Println("Error validate tag request")
 	}
 	request.SetBasicAuth(username, password)
-	resp, err := http.Client{}.Do(request)
+	client := &http.Client{}
+	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error validate tag request")
 	}
 
-	if resp.Status == "404" {
+	if resp.StatusCode == 404 {
 		validTag = true
 	}
-	if resp.Status == "200" {
+	if resp.StatusCode == 200 {
 		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -71,11 +72,12 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 	}
 	request.Header.Add("Content-Type", "application/json")
 	request.SetBasicAuth(username, password)
-	resp, err := http.Client{}.Do(request)
+	client := &http.Client{}
+	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error creating tag")
 	}
-	if resp.Status == "201" {
+	if resp.StatusCode == 201 {
 		createdTag = true
 	} else {
 		fmt.Println("Error creating tag")
