@@ -1,8 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/cloudreach/release/create"
-	"bitbucket.org/cloudreach/release/validate"
+	"bitbucket.org/cloudreach/release/cmd"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -12,8 +11,8 @@ import (
 func main() {
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
-	subcommands.Register(&validate.Validate{}, "")
-	subcommands.Register(&create.Create{}, "")
+	subcommands.Register(&cmd.Validate{}, "")
+	subcommands.Register(&cmd.Create{}, "")
 	flag.Parse()
 	ctx := context.Background()
 	os.Exit(int(subcommands.Execute(ctx)))

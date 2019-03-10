@@ -1,24 +1,19 @@
-image: python:2.7
+image: golang
 
 definitions:
   steps:
-    - step: &unit
-        name: unit tests
-        caches:
-          - pip
-        script:
-
-        artifacts:
-          - htmlcov/**
+#    - step: &unit
+#        name: unit tests
+#        script:
     - step: &lint
         name: linting
-        caches:
-          - pip
         script:
+          - go get -u golang.org/x/lint/golint
+          - go list ./... | grep -v /vendor/ | xargs -L1 golint -set_exit_status
 
 
 pipelines:
   default:
     - parallel:
        - step: *lint
-       - step: *unit
+#       - step: *unit
