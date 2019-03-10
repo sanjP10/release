@@ -15,4 +15,3 @@ pipelines:
   default:
     - parallel:
        - step: *lint
-#       - step: *unit
