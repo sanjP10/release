@@ -40,8 +40,8 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 
 // Execute flow for create sub command
 func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	var exit = subcommands.ExitSuccess
-	var errors = checkCreateFlags(c)
+	exit := subcommands.ExitSuccess
+	errors := checkCreateFlags(c)
 	if len(errors) > 0 {
 		exit = subcommands.ExitUsageError
 		_, err := os.Stderr.WriteString("required flags for create:\n" + strings.Join(errors, "\n"))

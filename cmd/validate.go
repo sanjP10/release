@@ -40,8 +40,8 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 
 //Execute flow of subcommand
 func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	var exit = subcommands.ExitSuccess
-	var errors = checkValidateFlags(v)
+	exit := subcommands.ExitSuccess
+	errors := checkValidateFlags(v)
 	if len(errors) > 0 {
 		exit = subcommands.ExitUsageError
 		_, err := os.Stderr.WriteString("required flags for validate:\n" + strings.Join(errors, "\n"))

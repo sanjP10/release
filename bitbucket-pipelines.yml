@@ -2,9 +2,10 @@ image: golang
 
 definitions:
   steps:
-#    - step: &unit
-#        name: unit tests
-#        script:
+    - step: &unit
+        name: unit tests
+        script:
+          - go test ./...
     - step: &lint
         name: linting
         script:
@@ -14,4 +15,5 @@ definitions:
 pipelines:
   default:
     - parallel:
+       - step: *unit
        - step: *lint
