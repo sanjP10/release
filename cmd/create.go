@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bitbucket.org/cloudreach/release/bitbucket"
 	"context"
 	"flag"
 	"fmt"
@@ -15,6 +16,7 @@ type Create struct {
 	password string
 	tag      string
 	repo     string
+	hash     string
 }
 
 // Name of sub command
@@ -36,6 +38,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.password, "password", "", "password")
 	f.StringVar(&c.repo, "repo", "", "repo")
 	f.StringVar(&c.tag, "tag", "", "tag")
+	f.StringVar(&c.hash, "hash", "", "hash")
 }
 
 // Execute flow for create sub command
@@ -44,9 +47,14 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 	errors := checkCreateFlags(c)
 	if len(errors) > 0 {
 		exit = subcommands.ExitUsageError
-		_, err := os.Stderr.WriteString("required flags for create:\n" + strings.Join(errors, "\n"))
+		_, err := os.Stderr.WriteString("missing flags for create:\n" + strings.Join(errors, "\n"))
 		if err != nil {
 			fmt.Println("Cannot write to stderr")
+			exit = subcommands.ExitFailure
+		}
+	} else {
+		success := bitbucket.CreateTag(c.username, c.password, c.repo, c.tag, c.hash)
+		if !success {
 			exit = subcommands.ExitFailure
 		}
 	}
@@ -66,6 +74,9 @@ func checkCreateFlags(c *Create) []string {
 	}
 	if len(c.tag) == 0 {
 		errors = append(errors, "-tag required")
+	}
+	if len(c.hash) == 0 {
+		errors = append(errors, "-hash required")
 	}
 	return errors
 }

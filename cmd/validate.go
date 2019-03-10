@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bitbucket.org/cloudreach/release/bitbucket"
 	"context"
 	"flag"
 	"fmt"
@@ -15,6 +16,7 @@ type Validate struct {
 	password string
 	repo     string
 	tag      string
+	hash     string
 }
 
 // Name of subcommand
@@ -36,6 +38,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.password, "password", "", "password")
 	f.StringVar(&v.repo, "repo", "", "repo")
 	f.StringVar(&v.tag, "tag", "", "tag")
+	f.StringVar(&v.hash, "hash", "", "hash")
 }
 
 //Execute flow of subcommand
@@ -44,9 +47,14 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	errors := checkValidateFlags(v)
 	if len(errors) > 0 {
 		exit = subcommands.ExitUsageError
-		_, err := os.Stderr.WriteString("required flags for validate:\n" + strings.Join(errors, "\n"))
+		_, err := os.Stderr.WriteString("missing flags for validate:\n" + strings.Join(errors, "\n"))
 		if err != nil {
 			fmt.Println("Cannot write to stderr")
+			exit = subcommands.ExitFailure
+		}
+	} else {
+		success := bitbucket.ValidateTag(v.username, v.password, v.repo, v.tag, v.hash)
+		if !success {
 			exit = subcommands.ExitFailure
 		}
 	}
@@ -66,6 +74,9 @@ func checkValidateFlags(v *Validate) []string {
 	}
 	if len(v.tag) == 0 {
 		errors = append(errors, "-tag required")
+	}
+	if len(v.hash) == 0 {
+		errors = append(errors, "-hash required")
 	}
 	return errors
 }
