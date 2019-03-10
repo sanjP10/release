@@ -10,7 +10,6 @@ definitions:
           - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
           - cd "${PACKAGE_PATH}"
           - go get -u github.com/golang/dep/cmd/dep
-          - dep init
           - dep ensure
           - go test ./...
     - step: &lint
