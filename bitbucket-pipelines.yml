@@ -9,6 +9,7 @@ definitions:
           - mkdir -pv "${PACKAGE_PATH}"
           - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
           - cd "${PACKAGE_PATH}"
+          - echo $BITBUCKET_COMMIT
           - go get -u github.com/golang/dep/cmd/dep
           - dep ensure
           - go test ./...

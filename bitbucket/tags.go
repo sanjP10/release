@@ -8,17 +8,13 @@ import (
 	"net/http"
 )
 
-type commitId struct {
-	hash string
-}
-
-type target struct {
-	Hash commitId `json:"hash"`
+type Target struct {
+	Hash string `json:"hash"`
 }
 
 type Tag struct {
-	name   string
-	Target target `json:"target"`
+	Name   string `json:"name"`
+	Target Target `json:"target"`
 }
 
 func ValidateTag(username string, password string, repo string, tag string, hash string) bool {
@@ -49,7 +45,7 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 		if err != nil {
 			fmt.Println("Error unmarshalling body")
 		}
-		if hash == res.Target.Hash.hash {
+		if hash == res.Target.Hash {
 			validTag = true
 		}
 	}
@@ -59,9 +55,9 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 func CreateTag(username string, password string, repo string, tag string, hash string) bool {
 	createdTag := false
 	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", repo)
-	commit := commitId{hash: hash}
-	targetObj := target{Hash: commit}
-	body := Tag{name: tag, Target: targetObj}
+	target := Target{hash}
+	body := &Tag{Name: tag, Target: target}
+
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		fmt.Println("error marshalling object:", err)
