@@ -9,7 +9,6 @@ definitions:
           - mkdir -pv "${PACKAGE_PATH}"
           - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
           - cd "${PACKAGE_PATH}"
-          - echo $BITBUCKET_COMMIT
           - go get -u github.com/golang/dep/cmd/dep
           - dep ensure
           - go test ./...
@@ -18,9 +17,15 @@ definitions:
         script:
           - go get -u golang.org/x/lint/golint
           - golint -set_exit_status ./...
+    - step: &integration
+        name: linting
+        script:
+          - go install
+          - release validate -username sanjP10 -password jWff8MJGb44qbx5DWUPL -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d0
 
 pipelines:
   default:
     - parallel:
        - step: *unit
        - step: *lint
+       - step: *integration
