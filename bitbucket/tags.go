@@ -24,7 +24,7 @@ type Tag struct {
 func ValidateTag(username string, password string, repo string, tag string, hash string) bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := false
-	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/cloudreach/%s/refs/tags/%s", repo, tag)
+	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", repo, tag)
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println("Error validate tag request")
@@ -58,7 +58,7 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 
 func CreateTag(username string, password string, repo string, tag string, hash string) bool {
 	createdTag := false
-	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/cloudreach/%s/refs/tags", repo)
+	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", repo)
 	commit := commitId{hash: hash}
 	targetObj := target{Hash: commit}
 	body := Tag{name: tag, Target: targetObj}
