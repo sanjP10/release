@@ -8,18 +8,18 @@ import (
 	"net/http"
 )
 
-// Structure of Bitbucket tag target
+// Target Structure of bitbucket tag target
 type Target struct {
 	Hash string `json:"hash"`
 }
 
-// Structure of bitbucket tag response command
+// Tag Structure of bitbucket tag response
 type Tag struct {
 	Name   string `json:"name"`
 	Target Target `json:"target"`
 }
 
-//Validate a tag does not exist or has the same hash
+//ValidateTag checks a tag does not exist or has the same hash
 func ValidateTag(username string, password string, repo string, tag string, hash string, client http.Client) bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := false
@@ -57,7 +57,7 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 	return validTag
 }
 
-// Create a tag
+// CreateTag creates a bitbucket tag
 func CreateTag(username string, password string, repo string, tag string, hash string, client http.Client) bool {
 	createdTag := false
 	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", repo)
