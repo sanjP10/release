@@ -39,7 +39,7 @@ definitions:
           # expecting fail as unauthorized
           - test $(release create -username blah -password blah -repo cloudreach/release -tag initial -hash blah; echo $?) -eq 1
           # expecting fail due to misuse
-          - test $(release create -username blah -password blah -repo cloudreach/release -tag initiale -hash blah; echo $?) -eq 2
+          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initiale -hash blah; echo $?) -eq 2
           - test $(release create; echo $?) -eq 2
 
 pipelines:
