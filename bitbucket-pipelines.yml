@@ -28,10 +28,10 @@ definitions:
           - dep ensure
           - go install
           # expecting release to exist and hash to be the same so is fine to pass
-          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash $BITBUCKET_COMMIT
+          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
           - test $(echo $?) -eq 0
           # expecting release to exist but hash to be different, expecting fail
-          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash blah
+          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash $BITBUCKET_COMMIT
           - test $(echo $?) -eq 1
           # expecting fail as unauthorized
           - release validate -username blah -password blah -repo cloudreach/release -tag initial -hash blah
