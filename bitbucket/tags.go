@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // Target Structure of bitbucket tag target
@@ -37,8 +38,11 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 	if resp.StatusCode == 404 {
 		validTag = true
 	}
-	if resp.StatusCode == 403 {
-		fmt.Println("Unauthorised, please check credentials")
+	if resp.StatusCode == 401 {
+		_, err := os.Stderr.WriteString("Unauthorised, please check credentials")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
 	}
 	if resp.StatusCode == 200 {
 		res := Tag{}
@@ -78,8 +82,11 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 	if err != nil {
 		fmt.Println("Error creating tag", err)
 	}
-	if resp.StatusCode == 403 {
-		fmt.Println("Error unmarshalling body")
+	if resp.StatusCode == 401 {
+		_, err := os.Stderr.WriteString("Unauthorised, please check credentials")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
 	}
 	if resp.StatusCode == 201 {
 		createdTag = true

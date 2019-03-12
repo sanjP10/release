@@ -21,10 +21,10 @@ func TestValidateTagNotExisting(t *testing.T) {
 		"repo", "tag", "hash", *client))
 }
 
-func TestValidateTagForbidden(t *testing.T) {
+func TestValidateTagUnauthorized(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing a 403
-	client := mockClient(http.StatusForbidden, nil, nil)
+	client := mockClient(http.StatusUnauthorized, nil, nil)
 	assertTest.False(ValidateTag("username",
 		"password",
 		"repo", "tag", "hash", *client))
@@ -63,10 +63,10 @@ func TestCreateTag(t *testing.T) {
 		"repo", "tag", "hash", *client))
 }
 
-func TestCreateTagForbidden(t *testing.T) {
+func TestCreateTagUnauthorized(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing a 403
-	client := mockClient(http.StatusForbidden, nil, nil)
+	client := mockClient(http.StatusUnauthorized, nil, nil)
 	assertTest.False(CreateTag("username",
 		"password",
 		"repo", "tag", "hash", *client))

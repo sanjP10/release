@@ -4,7 +4,6 @@ import (
 	"bitbucket.org/cloudreach/release/bitbucket"
 	"context"
 	"flag"
-	"fmt"
 	"github.com/google/subcommands"
 	"net/http"
 	"os"
@@ -50,8 +49,7 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		exit = subcommands.ExitUsageError
 		_, err := os.Stderr.WriteString("missing flags for create:\n" + strings.Join(errors, "\n"))
 		if err != nil {
-			fmt.Println("Cannot write to stderr", err)
-			exit = subcommands.ExitFailure
+			panic("Cannot write to stderr")
 		}
 	} else {
 		client := &http.Client{}
