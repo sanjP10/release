@@ -21,7 +21,28 @@ definitions:
         name: linting
         script:
           - go install
-          - release validate -username sanjP10 -password jWff8MJGb44qbx5DWUPL -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d0
+          # expecting release to exist and hash to be the same so is fine to pass
+          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash $BITBUCKET_COMMIT
+          - test $(echo $?) -eq 0
+          # expecting release to exist but hash to be different, expecting fail
+          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash blah
+          - test $(echo $?) -eq 1
+          # expecting fail as unauthorized
+          - release validate -username blah -password blah -repo cloudreach/release -tag initial -hash blah
+          - test $(echo $?) -eq 1
+          # expecting fail due to misuse
+          - release validate -username blah -password blah -repo cloudreach/release -tag initiale
+          - test $(echo $?) -eq 2
+          - release validate
+          - test $(echo $?) -eq 2
+          # expecting fail as unauthorized
+          - release create -username blah -password blah -repo cloudreach/release -tag initial -hash blah
+          - test $(echo $?) -eq 1
+          # expecting fail due to misuse
+          - release create -username blah -password blah -repo cloudreach/release -tag initiale
+          - test $(echo $?) -eq 2
+          - release create
+          - test $(echo $?) -eq 2
 
 pipelines:
   default:
@@ -29,3 +50,15 @@ pipelines:
        - step: *unit
        - step: *lint
        - step: *integration
+  master:
+    - parallel:
+        - step: *unit
+        - step: *lint
+        - step: *integration
+    - step:
+        name: create release
+        script:
+          - apt-get update && apt-get install -y && apt-get install jq -y
+          - VERSION=$(cat version.json | jq '.version'| tr -d \")
+          # Create version
+          - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag $VERSION -hash $BITBUCKET_COMMIT
