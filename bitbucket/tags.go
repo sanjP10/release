@@ -35,6 +35,9 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 	if resp.StatusCode == 404 {
 		validTag = true
 	}
+	if resp.StatusCode == 403 {
+		fmt.Println("Unauthorised, please check credentials")
+	}
 	if resp.StatusCode == 200 {
 		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
@@ -64,19 +67,22 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 	}
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		fmt.Println("Error creating tag request")
+		fmt.Println("Error creating tag request", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	request.SetBasicAuth(username, password)
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		fmt.Println("Error creating tag")
+		fmt.Println("Error creating tag", err)
+	}
+	if resp.StatusCode == 403 {
+		fmt.Println("Error unmarshalling body")
 	}
 	if resp.StatusCode == 201 {
 		createdTag = true
 	} else {
-		fmt.Println("Error creating tag")
+		fmt.Println("Error creating tag", err)
 	}
 	return createdTag
 }
