@@ -1,13 +1,8 @@
 package cmd
 
 import (
-	"context"
-	"flag"
 	"github.com/stretchr/testify/assert"
-	"reflect"
 	"testing"
-
-	"github.com/google/subcommands"
 )
 
 func TestCreate_Name(t *testing.T) {
@@ -31,63 +26,55 @@ func TestCreate_Usage(t *testing.T) {
 	assertTest.Equal(create.Usage(), expected)
 }
 
-func TestCreate_SetFlags(t *testing.T) {
-	type args struct {
-		f *flag.FlagSet
-	}
-	tests := []struct {
-		name string
-		c    *Create
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.c.SetFlags(tt.args.f)
-		})
-	}
-}
-
 func TestCreate_Execute(t *testing.T) {
-	type args struct {
-		in0 context.Context
-		f   *flag.FlagSet
-		in2 []interface{}
-	}
-	tests := []struct {
-		name string
-		c    *Create
-		args args
-		want subcommands.ExitStatus
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.Execute(tt.args.in0, tt.args.f, tt.args.in2...); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Create.Execute() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	createCmd := &Create{username: "test", password: "test", repo: "test", tag: "test", hash: "test"}
+
+	createCmd.Execute(nil, nil, nil)
 }
 
 func Test_checkCreateFlags(t *testing.T) {
-	type args struct {
-		c *Create
-	}
-	tests := []struct {
-		name string
-		args args
-		want []string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := checkCreateFlags(tt.args.c); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("checkCreateFlags() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	createCmd := &Create{}
+	errors := checkCreateFlags(createCmd)
+	expected := []string{
+		"-username required",
+		"-password required",
+		"-repo required",
+		"-tag required",
+		"-hash required"}
+	assertTest := assert.New(t)
+	assertTest.Equal(errors, expected)
+
+	createCmd.username = "testuser"
+	errors = checkCreateFlags(createCmd)
+	expected = []string{
+		"-password required",
+		"-repo required",
+		"-tag required",
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	createCmd.password = "password"
+	errors = checkCreateFlags(createCmd)
+	expected = []string{
+		"-repo required",
+		"-tag required",
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	createCmd.repo = "repo"
+	errors = checkCreateFlags(createCmd)
+	expected = []string{
+		"-tag required",
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	createCmd.tag = "tag"
+	errors = checkCreateFlags(createCmd)
+	expected = []string{
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	createCmd.hash = "hash"
+	validCreate := checkCreateFlags(createCmd)
+	assertTest.Empty(validCreate)
 }

@@ -31,24 +31,6 @@ func TestValidate_Usage(t *testing.T) {
 	assertTest.Equal(validate.Usage(), expected)
 }
 
-func TestValidate_SetFlags(t *testing.T) {
-	type args struct {
-		f *flag.FlagSet
-	}
-	tests := []struct {
-		name string
-		v    *Validate
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.v.SetFlags(tt.args.f)
-		})
-	}
-}
-
 func TestValidate_Execute(t *testing.T) {
 	type args struct {
 		in0 context.Context
@@ -73,21 +55,48 @@ func TestValidate_Execute(t *testing.T) {
 }
 
 func Test_checkValidateFlags(t *testing.T) {
-	type args struct {
-		v *Validate
-	}
-	tests := []struct {
-		name string
-		args args
-		want []string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := checkValidateFlags(tt.args.v); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("checkValidateFlags() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	validateCmd := &Validate{}
+	errors := checkValidateFlags(validateCmd)
+	expected := []string{
+		"-username required",
+		"-password required",
+		"-repo required",
+		"-tag required",
+		"-hash required"}
+	assertTest := assert.New(t)
+	assertTest.Equal(errors, expected)
+
+	validateCmd.username = "testuser"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-password required",
+		"-repo required",
+		"-tag required",
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.password = "password"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-repo required",
+		"-tag required",
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.repo = "repo"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-tag required",
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.tag = "tag"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-hash required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.hash = "hash"
+	validCreate := checkValidateFlags(validateCmd)
+	assertTest.Empty(validCreate)
 }

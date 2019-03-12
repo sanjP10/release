@@ -18,6 +18,14 @@
   version = "1.0.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:34ed0db2b263a112b757abe95cde852ffe49f6edefc787cc8bce4aa710e96c88"
+  name = "github.com/karupanerura/go-mock-http-response"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7c242a447d4553c81d3698330830cb22a178d60d"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -38,6 +46,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/google/subcommands",
+    "github.com/karupanerura/go-mock-http-response",
     "github.com/stretchr/testify/assert",
   ]
   solver-name = "gps-cdcl"

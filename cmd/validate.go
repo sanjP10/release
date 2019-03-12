@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/google/subcommands"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -49,11 +50,12 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 		exit = subcommands.ExitUsageError
 		_, err := os.Stderr.WriteString("missing flags for validate:\n" + strings.Join(errors, "\n"))
 		if err != nil {
-			fmt.Println("Cannot write to stderr")
+			fmt.Println("Cannot write to stderr", err)
 			exit = subcommands.ExitFailure
 		}
 	} else {
-		success := bitbucket.ValidateTag(v.username, v.password, v.repo, v.tag, v.hash)
+		client := &http.Client{}
+		success := bitbucket.ValidateTag(v.username, v.password, v.repo, v.tag, v.hash, *client)
 		if !success {
 			exit = subcommands.ExitFailure
 		}

@@ -17,7 +17,7 @@ type Tag struct {
 	Target Target `json:"target"`
 }
 
-func ValidateTag(username string, password string, repo string, tag string, hash string) bool {
+func ValidateTag(username string, password string, repo string, tag string, hash string, client http.Client) bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := false
 	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", repo, tag)
@@ -26,7 +26,6 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 		fmt.Println("Error validate tag request")
 	}
 	request.SetBasicAuth(username, password)
-	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error validate tag request")
@@ -55,7 +54,7 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 	return validTag
 }
 
-func CreateTag(username string, password string, repo string, tag string, hash string) bool {
+func CreateTag(username string, password string, repo string, tag string, hash string, client http.Client) bool {
 	createdTag := false
 	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", repo)
 	target := Target{hash}
@@ -71,7 +70,6 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 	}
 	request.Header.Add("Content-Type", "application/json")
 	request.SetBasicAuth(username, password)
-	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error creating tag", err)

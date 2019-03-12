@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/google/subcommands"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -49,11 +50,12 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		exit = subcommands.ExitUsageError
 		_, err := os.Stderr.WriteString("missing flags for create:\n" + strings.Join(errors, "\n"))
 		if err != nil {
-			fmt.Println("Cannot write to stderr")
+			fmt.Println("Cannot write to stderr", err)
 			exit = subcommands.ExitFailure
 		}
 	} else {
-		success := bitbucket.CreateTag(c.username, c.password, c.repo, c.tag, c.hash)
+		client := &http.Client{}
+		success := bitbucket.CreateTag(c.username, c.password, c.repo, c.tag, c.hash, *client)
 		if !success {
 			exit = subcommands.ExitFailure
 		}
