@@ -95,7 +95,7 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 		}
 	}
 
-	if resp.StatusCode == 201 {
+	if resp.StatusCode == 201 || resp.StatusCode == 400 {
 		createdTag = true
 	}
 	return createdTag

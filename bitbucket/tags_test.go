@@ -83,3 +83,15 @@ func TestCreateTagSuccessful(t *testing.T) {
 		"password",
 		"repo", "tag", "hash", *client))
 }
+
+func TestCreateTagAlreadyExists(t *testing.T) {
+	assertTest := assert.New(t)
+	// Testing 201 response
+	target := Target{Hash: "hash"}
+	tag := Tag{Name: "tag", Target: target}
+	jsonTag, _ := json.Marshal(tag)
+	client := mockClient(http.StatusCreated, nil, jsonTag)
+	assertTest.True(CreateTag("username",
+		"password",
+		"repo", "tag", "hash", *client))
+}
