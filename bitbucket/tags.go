@@ -39,7 +39,7 @@ func ValidateTag(username string, password string, repo string, tag string, hash
 		validTag = true
 	}
 	if resp.StatusCode == 401 {
-		_, err := os.Stderr.WriteString("Unauthorised, please check credentials")
+		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
@@ -83,15 +83,20 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 		fmt.Println("Error creating tag", err)
 	}
 	if resp.StatusCode == 401 {
-		_, err := os.Stderr.WriteString("Unauthorised, please check credentials")
+		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
 	}
+	if resp.StatusCode == 404 {
+		_, err := os.Stderr.WriteString("Repo not found\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+	}
+
 	if resp.StatusCode == 201 {
 		createdTag = true
-	} else {
-		fmt.Println("Error creating tag", err)
 	}
 	return createdTag
 }
