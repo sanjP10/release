@@ -1,0 +1,62 @@
+image: golang
+
+definitions:
+  steps:
+    - step: &unit
+        name: unit tests
+        script:
+          - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}"
+          - mkdir -pv "${PACKAGE_PATH}"
+          - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
+          - cd "${PACKAGE_PATH}"
+          - go get -u github.com/golang/dep/cmd/dep
+          - dep ensure
+          - go test ./...
+    - step: &lint
+        name: linting
+        script:
+          - go get -u golang.org/x/lint/golint
+          - golint -set_exit_status ./...
+    - step: &integration
+        name: integration
+        script:
+          - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}"
+          - mkdir -pv "${PACKAGE_PATH}"
+          - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
+          - cd "${PACKAGE_PATH}"
+          - go get -u github.com/golang/dep/cmd/dep
+          - dep ensure
+          - go install
+          # expecting release to exist and hash to be the same so is fine to pass
+          - test $(release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d; echo $?) -eq 0
+          # expecting release to exist but hash to be different, expecting fail
+          - test $(release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash $BITBUCKET_COMMIT; echo $?) -eq 1
+          # expecting fail as unauthorized
+          - test $(release validate -username blah -password blah -repo cloudreach/release -tag initial -hash blah; echo $?) -eq 1
+          # expecting fail due to misuse
+          - test $(release validate -username blah -password blah -repo cloudreach/release -tag initiale; echo $?) -eq 2
+          - test $(release validate; echo $?) -eq 2
+          # expecting fail as unauthorized
+          - test $(release create -username blah -password blah -repo cloudreach/release -tag initial -hash blah; echo $?) -eq 1
+          # expecting fail due to misuse
+          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release; echo $?) -eq 2
+          - test $(release create; echo $?) -eq 2
+
+pipelines:
+  default:
+    - parallel:
+       - step: *unit
+       - step: *lint
+       - step: *integration
+  master:
+    - parallel:
+        - step: *unit
+        - step: *lint
+        - step: *integration
+    - step:
+        name: create release
+        script:
+          - apt-get update && apt-get install -y && apt-get install jq -y
+          - VERSION=$(cat version.json | jq '.version'| tr -d \")
+          # Create version
+          - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag $VERSION -hash $BITBUCKET_COMMIT
