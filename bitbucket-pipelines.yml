@@ -36,6 +36,8 @@ definitions:
           # expecting fail due to misuse
           - test $(release validate -username blah -password blah -repo cloudreach/release -tag initiale; echo $?) -eq 2
           - test $(release validate; echo $?) -eq 2
+          # expecting tag that exists and being recreated to pass
+          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d; echo $?) -eq 0
           # expecting fail as unauthorized
           - test $(release create -username blah -password blah -repo cloudreach/release -tag initial -hash blah; echo $?) -eq 1
           # expecting fail due to misuse
