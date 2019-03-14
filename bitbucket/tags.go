@@ -20,6 +20,17 @@ type Tag struct {
 	Target Target `json:"target"`
 }
 
+// BadResponse structure of 400 response
+type BadResponse struct {
+	Type  string `json:"type"`
+	Error Error  `json:"error"`
+}
+
+// Error structure of error message response
+type Error struct {
+	Message string `json:"message"`
+}
+
 //ValidateTag checks a tag does not exist or has the same hash
 func ValidateTag(username string, password string, repo string, tag string, hash string, client http.Client) bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
@@ -95,8 +106,20 @@ func CreateTag(username string, password string, repo string, tag string, hash s
 		}
 	}
 
-	if resp.StatusCode == 201 || resp.StatusCode == 400 {
+	if resp.StatusCode == 201 {
 		createdTag = true
+	}
+
+	if resp.StatusCode == 400 {
+		res := BadResponse{}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println("Error reading body of error response")
+		}
+		err = json.Unmarshal(body, &res)
+		if res.Error.Message == fmt.Sprintf("tag \"%s\" already exists", tag) {
+			createdTag = true
+		}
 	}
 	return createdTag
 }

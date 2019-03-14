@@ -26,12 +26,6 @@ func TestCreate_Usage(t *testing.T) {
 	assertTest.Equal(create.Usage(), expected)
 }
 
-func TestCreate_Execute(t *testing.T) {
-	createCmd := &Create{username: "test", password: "test", repo: "test", tag: "test", hash: "test"}
-
-	createCmd.Execute(nil, nil, nil)
-}
-
 func Test_checkCreateFlags(t *testing.T) {
 	createCmd := &Create{}
 	errors := checkCreateFlags(createCmd)
