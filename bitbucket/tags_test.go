@@ -86,12 +86,24 @@ func TestCreateTagSuccessful(t *testing.T) {
 
 func TestCreateTagAlreadyExists(t *testing.T) {
 	assertTest := assert.New(t)
-	// Testing 201 response
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	// Testing 400 response has been created, should never happen if validate is called first
+	errorMessage := Error{Message: "tag \"test\" already exists"}
+	tag := BadResponse{Type: "error", Error: errorMessage}
 	jsonTag, _ := json.Marshal(tag)
-	client := mockClient(http.StatusCreated, nil, jsonTag)
+	client := mockClient(http.StatusBadRequest, nil, jsonTag)
 	assertTest.True(CreateTag("username",
 		"password",
-		"repo", "tag", "hash", *client))
+		"repo", "test", "hash", *client))
+}
+
+func TestCreateTagOtherError(t *testing.T) {
+	assertTest := assert.New(t)
+	// Testing 400 response has been created, should never happen if validate is called first
+	errorMessage := Error{Message: "something went wrong"}
+	tag := BadResponse{Type: "error", Error: errorMessage}
+	jsonTag, _ := json.Marshal(tag)
+	client := mockClient(http.StatusBadRequest, nil, jsonTag)
+	assertTest.False(CreateTag("username",
+		"password",
+		"repo", "test", "hash", *client))
 }
