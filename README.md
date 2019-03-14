@@ -33,6 +33,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     name: validate version
     image: golang
     script:
+      - VERSION_FILE=$(pwd)/version.json
       - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/cloudreach"
       - mkdir -pv "${PACKAGE_PATH}"
       - cd "${PACKAGE_PATH}"
@@ -42,7 +43,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
       - dep ensure
       - go install
       - apt-get update && apt-get install -y && apt-get install jq -y
-      - VERSION=$(cat version.json | jq '.version'| tr -d \")
+      - VERSION=$(cat $VERSION_FILE | jq '.version'| tr -d \")
       # Test version does not exist
       - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -tag $VERSION -hash $BITBUCKET_COMMIT
 
@@ -57,6 +58,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
     name: validate version
     image: golang
     script:
+      - VERSION_FILE=$(pwd)/version.json
       - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/cloudreach"
       - mkdir -pv "${PACKAGE_PATH}"
       - cd "${PACKAGE_PATH}"
@@ -66,6 +68,6 @@ To integrate this into bitbucket pipelines you can use the following as steps
       - dep ensure
       - go install
       - apt-get update && apt-get install -y && apt-get install jq -y
-      - VERSION=$(cat version.json | jq '.version'| tr -d \")
+      - VERSION=$(cat $VERSION_FILE | jq '.version'| tr -d \")
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -tag $VERSION -hash $BITBUCKET_COMMIT
 ```
