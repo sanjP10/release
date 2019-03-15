@@ -29,7 +29,7 @@ release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/releas
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
 ```
-- step: &version-validate
+- step:
     name: validate version
     image: golang
     script:
@@ -54,8 +54,8 @@ To integrte the `create` use this in the bitbucket pipeline after you merge to m
 To integrate this into bitbucket pipelines you can use the following as steps
 
 ```
-- step: &create version
-    name: validate version
+- step:
+    name: create version
     image: golang
     script:
       - VERSION_FILE=$(pwd)/version.json
