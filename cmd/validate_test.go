@@ -20,7 +20,7 @@ func TestValidate_Synopsis(t *testing.T) {
 func TestValidate_Usage(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>]:
+	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 	assertTest.Equal(validate.Usage(), expected)

@@ -39,7 +39,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.repo, "repo", "", "repo")
 	f.StringVar(&c.tag, "tag", "", "tag")
 	f.StringVar(&c.hash, "hash", "", "hash")
-	f.StringVar(&c.host, "host", "", "host")
+	f.StringVar(&c.host, "host", "api.bitbucket.org", "host")
 }
 
 // Execute flow for create sub command

@@ -29,7 +29,7 @@ release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/releas
 
 This is an example of `validate` command against a self-hosted bitbucket
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host mybitbucket.com
+release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com
 ```
 
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps

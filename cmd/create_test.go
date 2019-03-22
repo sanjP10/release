@@ -20,7 +20,7 @@ func TestCreate_Synopsis(t *testing.T) {
 func TestCreate_Usage(t *testing.T) {
 	create := &Create{}
 	assertTest := assert.New(t)
-	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>]:
+	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
   creates tag against bitbucket repo
 `
 	assertTest.Equal(create.Usage(), expected)

@@ -140,16 +140,16 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
-	gock.New("https://personal-bitbucket.com").
+	gock.New("https://api.personal-bitbucket.com").
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusNotFound)
 
-	gock.New("https://personal-bitbucket.com").
+	gock.New("https://api.personal-bitbucket.com").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusCreated).
 		JSON(tag)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", "personal-bitbucket.com"}
+	repo := RepoProperties{"username", "password", "repo", "tag", "hash", "api.personal-bitbucket.com"}
 	assertTest.True(repo.CreateTag())
 }
 
