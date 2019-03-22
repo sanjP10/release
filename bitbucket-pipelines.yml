@@ -43,9 +43,7 @@ definitions:
           # expecting fail due to misuse
           - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release; echo $?) -eq 2
           - test $(release create; echo $?) -eq 2
-          # Test version does not exist
-          - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -tag $VERSION -hash $BITBUCKET_COMMIT
-    - step: &validate-version
+      - step: &validate-version
         name: validate version
         script:
           - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}"
