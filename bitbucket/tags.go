@@ -16,12 +16,13 @@ type Bitbucket interface {
 }
 
 // RepoProperties properties for repo
-type RepoProperties struct{
+type RepoProperties struct {
 	Username string
 	Password string
-	Repo string
-	Tag string
-	Hash string
+	Repo     string
+	Tag      string
+	Hash     string
+	Host     string
 }
 
 // Target Structure of bitbucket tag target
@@ -50,7 +51,12 @@ type Error struct {
 func (r *RepoProperties) ValidateTag() bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := false
-	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
+	url := ""
+	if r.Host == "" {
+		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
+	} else {
+		url = fmt.Sprintf("https://%s/2.0/repositories/%s/refs/tags/%s", r.Host, r.Repo, r.Tag)
+	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println("Error validate tag request")
@@ -92,7 +98,13 @@ func (r *RepoProperties) ValidateTag() bool {
 func (r *RepoProperties) CreateTag() bool {
 	createTag := false
 	if r.ValidateTag() {
-		url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
+		url := ""
+		if r.Host == "" {
+			url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
+		} else {
+			url = fmt.Sprintf("https://%s/2.0/repositories/%s/refs/tags", r.Host, r.Repo)
+		}
+
 		target := Target{r.Hash}
 		body := &Tag{Name: r.Tag, Target: target}
 

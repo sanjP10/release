@@ -16,6 +16,7 @@ type Validate struct {
 	repo     string
 	tag      string
 	hash     string
+	host     string
 }
 
 // Name of subcommand
@@ -26,7 +27,7 @@ func (*Validate) Synopsis() string { return "validates release version to be cre
 
 // Usage of subcommand
 func (*Validate) Usage() string {
-	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>]:
+	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 }
@@ -51,7 +52,7 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 			panic("Cannot write to stderr")
 		}
 	} else {
-		tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: v.tag, Repo: v.repo, Hash: v.hash}
+		tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: v.tag, Repo: v.repo, Hash: v.hash, Host: v.host}
 		success := tag.ValidateTag()
 		if !success {
 			exit = subcommands.ExitFailure

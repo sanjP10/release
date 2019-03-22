@@ -16,6 +16,7 @@ type Create struct {
 	tag      string
 	repo     string
 	hash     string
+	host     string
 }
 
 // Name of sub command
@@ -26,7 +27,7 @@ func (*Create) Synopsis() string { return "create release for bitbucket repo." }
 
 // Usage of sub command
 func (*Create) Usage() string {
-	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>]:
+	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
   creates tag against bitbucket repo
 `
 }
@@ -38,6 +39,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.repo, "repo", "", "repo")
 	f.StringVar(&c.tag, "tag", "", "tag")
 	f.StringVar(&c.hash, "hash", "", "hash")
+	f.StringVar(&c.host, "host", "api.bitbucket.org", "host")
 }
 
 // Execute flow for create sub command
@@ -51,7 +53,7 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 			panic("Cannot write to stderr")
 		}
 	} else {
-		tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: c.tag, Hash: c.hash}
+		tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: c.tag, Hash: c.hash, Host: c.host}
 		success := tag.CreateTag()
 		if !success {
 			exit = subcommands.ExitFailure
