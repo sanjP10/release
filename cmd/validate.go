@@ -51,7 +51,7 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 			panic("Cannot write to stderr")
 		}
 	} else {
-		tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Repo: v.repo, Hash: v.hash}
+		tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: v.tag, Repo: v.repo, Hash: v.hash}
 		success := tag.ValidateTag()
 		if !success {
 			exit = subcommands.ExitFailure
