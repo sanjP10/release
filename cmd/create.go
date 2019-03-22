@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"github.com/google/subcommands"
-	"net/http"
 	"os"
 	"strings"
 )
@@ -52,8 +51,8 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 			panic("Cannot write to stderr")
 		}
 	} else {
-		client := &http.Client{}
-		success := bitbucket.CreateTag(c.username, c.password, c.repo, c.tag, c.hash, *client)
+		tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Hash: c.hash}
+		success := tag.CreateTag()
 		if !success {
 			exit = subcommands.ExitFailure
 		}

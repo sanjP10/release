@@ -18,12 +18,12 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:34ed0db2b263a112b757abe95cde852ffe49f6edefc787cc8bce4aa710e96c88"
-  name = "github.com/karupanerura/go-mock-http-response"
+  digest = "1:574f4e0c57e045c9d109d23c60c586b2198eaead53daa97ed5f65c616e22a9b0"
+  name = "github.com/h2non/parth"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7c242a447d4553c81d3698330830cb22a178d60d"
+  revision = "b4df798d65426f8c8ab5ca5f9987aec5575d26c9"
+  version = "v2.0.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -41,13 +41,21 @@
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
   version = "v1.3.0"
 
+[[projects]]
+  digest = "1:fb332c4b0e1944eb132e2075ea0447873a1081ecdabb140ff9696327ac8b947b"
+  name = "gopkg.in/h2non/gock.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba88c4862a27596539531ce469478a91bc5a0511"
+  version = "v1.0.14"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/google/subcommands",
-    "github.com/karupanerura/go-mock-http-response",
     "github.com/stretchr/testify/assert",
+    "gopkg.in/h2non/gock.v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"github.com/google/subcommands"
-	"net/http"
 	"os"
 	"strings"
 )
@@ -52,8 +51,8 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 			panic("Cannot write to stderr")
 		}
 	} else {
-		client := &http.Client{}
-		success := bitbucket.ValidateTag(v.username, v.password, v.repo, v.tag, v.hash, *client)
+		tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Repo: v.repo, Hash: v.hash}
+		success := tag.ValidateTag()
 		if !success {
 			exit = subcommands.ExitFailure
 		}
