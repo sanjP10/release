@@ -12,6 +12,7 @@ The flags for these commands are
 -repo <owner/org>/<repo name>
 -tag <tag name>
 -hash <commit sha>
+-host <bitbucket dns> (optional) (default is bitbucket.org)
 ```
 
 This is an example `validate` command
@@ -24,6 +25,11 @@ This is an example `create` command
 
 ```
 release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
+```
+
+This is an example of `validate` command against a self-hosted bitbucket
+```
+release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -tag initial -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host mybitbucket.com
 ```
 
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
