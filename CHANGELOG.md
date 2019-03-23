@@ -1,44 +1,44 @@
 # Changelog
 
-## 1.7
+## 1.6.1
 
 ### Fixed
 * Removed commented out code 
 
-## 1.6
+## 1.6.0
 
 ### Added
 * Add `-host` flag to allow for use with self hosted bitbucket
 
-## 1.5
+## 1.5.0
 
-# Updated
+### Updated
 * For `create` subcommand validate tag can be created
 * Updated unit tests to use gock, which records http calls
 
-## 1.4
+## 1.4.0
 
 ### Updated
 * Updated documentation
 
-## 1.3
+## 1.3.0
 
 ### Updated
 * Updated documentation
 
 
-## 1.2
+## 1.2.0
 
 ### Fixed
 * If a tag is redeployed on creation ensure that the error message is correct
 
 
-## 1.1
+## 1.1.0
 
 ### Updated
 * Updated readme documentation
 
-## 1.0
+## 1.0.0
 
 ### Added
 
