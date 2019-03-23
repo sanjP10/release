@@ -34,7 +34,6 @@ func TestValidateTagUnauthorized(t *testing.T) {
 func TestValidateTagExistingSameHash(t *testing.T) {
 	target := Target{Hash: "hash"}
 	tag := Tag{Name: "tag", Target: target}
-	//jsonTag, _ := json.Marshal(tag)
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -53,7 +52,6 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 	// Testing 200 response but hash is not the same
 	target := Target{Hash: "hash"}
 	tag := Tag{Name: "tag", Target: target}
-	//jsonTag, _ := json.Marshal(tag)
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
