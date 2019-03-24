@@ -5,7 +5,6 @@ import (
 	"bitbucket.org/cloudreach/release/changelog"
 	"context"
 	"flag"
-	"fmt"
 	"github.com/google/subcommands"
 	"os"
 	"strings"
@@ -80,7 +79,10 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 				if !success {
 					exit = subcommands.ExitFailure
 				} else {
-					fmt.Println(changelogObj.Changes)
+					_, err := os.Stdout.WriteString(changelogObj.Changes)
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
 				}
 			}
 		}
