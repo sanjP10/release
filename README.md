@@ -89,7 +89,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
 
 ```
 
-To integrte the `create` use this in the bitbucket pipeline after you merge to master
+To integrate the `create` use this in the bitbucket pipeline after you merge to master
 
 To integrate this into bitbucket pipelines you can use the following as steps
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2
+* Changelog amendments
+
 ## 2.0.1
 * Added additional stderr messages
 
