@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.9.0
+## 2.0.1
 * Added additional stderr messages
 
 ## 2.0.0
