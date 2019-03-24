@@ -57,26 +57,31 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 	} else {
 		changelogFile, err := changelog.ReadChangelogAsString(c.changelog)
 		if err != nil {
-			panic("Unable to read changelog file")
-		}
-		changelogObj := changelog.Properties{}
-		changelogObj.GetVersions(changelogFile)
-		validateSemantics := changelogObj.ValidateVersionSemantics()
-		if !validateSemantics {
-			exit = subcommands.ExitFailure
-			_, err := os.Stderr.WriteString("Invalid version semantics")
+			exit = subcommands.ExitUsageError
+			_, err := os.Stderr.WriteString("Unable to read changelog")
 			if err != nil {
 				panic("Cannot write to stderr")
 			}
 		} else {
-			changelogObj.RetrieveChanges(changelogFile)
-			desiredTag := changelogObj.ConvertToDesiredTag()
-			tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: desiredTag, Hash: c.hash, Host: c.host}
-			success := tag.CreateTag()
-			if !success {
+			changelogObj := changelog.Properties{}
+			changelogObj.GetVersions(changelogFile)
+			validSemantics := changelogObj.ValidateVersionSemantics()
+			if !validSemantics {
 				exit = subcommands.ExitFailure
+				_, err := os.Stderr.WriteString("Invalid version semantics")
+				if err != nil {
+					panic("Cannot write to stderr")
+				}
 			} else {
-				fmt.Println(changelogObj.Changes)
+				changelogObj.RetrieveChanges(changelogFile)
+				desiredTag := changelogObj.ConvertToDesiredTag()
+				tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: desiredTag, Hash: c.hash, Host: c.host}
+				success := tag.CreateTag()
+				if !success {
+					exit = subcommands.ExitFailure
+				} else {
+					fmt.Println(changelogObj.Changes)
+				}
 			}
 		}
 	}

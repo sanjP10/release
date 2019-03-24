@@ -65,7 +65,7 @@ func TestGetVersionsFirst(t *testing.T) {
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	assertTest.Equal("", changelog.previous)
-	assertTest.Equal("##1.0.0", changelog.desired)
+	assertTest.Equal("##0.0.0", changelog.desired)
 }
 
 func TestGetVersions(t *testing.T) {
@@ -84,7 +84,8 @@ func TestRetrieveChanges(t *testing.T) {
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	changelog.RetrieveChanges(file)
-	assertTest.Equal("### Updated\n* An update happened",changelog.Changes)
+	assertTest.Equal(`### Updated
+* An update happened`,changelog.Changes)
 }
 
 func TestFirstRetrieveChanges(t *testing.T) {
@@ -93,7 +94,8 @@ func TestFirstRetrieveChanges(t *testing.T) {
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	changelog.RetrieveChanges(file)
-	assertTest.Equal("### Added\n* Initial release",changelog.Changes)
+	assertTest.Equal(`### Added
+* Initial release`,changelog.Changes)
 }
 
 func TestConvertToDesiredTag(t *testing.T) {
