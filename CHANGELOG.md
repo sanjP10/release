@@ -1,19 +1,11 @@
 # Changelog
 
-## 2.0.3
-* Fix create
-
-## 2.0.2
-* Changelog amendments
-
-## 2.0.1
-* Added additional stderr messages
-
 ## 2.0.0
 * Removed `-tag` flag
 * Added `-changelog` flag
 * Retrieve tag name from changelog
 * Added semantic validations
+* Added additional stderr messages
 
 ## 1.7.0
 

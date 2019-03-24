@@ -4,7 +4,7 @@ Release is a binary that validates and creates tags against bitbucket by reading
 
 Requires a markdown formatted changelog, with the most recent changes at the top.
 
-The tht consists of a version must start with a `h2` markup and have a number afterwards.
+The that consists of a version must start with a `h2` markup and have a number afterwards.
 
 An example changelog would be 
 
