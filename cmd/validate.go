@@ -75,6 +75,10 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 				tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: desiredTag, Repo: v.repo, Hash: v.hash, Host: v.host}
 				success := tag.ValidateTag()
 				if !success {
+					_, err := os.Stderr.WriteString("Tag cannot be created or already exists")
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
 					exit = subcommands.ExitFailure
 				}
 			}

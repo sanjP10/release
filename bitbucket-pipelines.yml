@@ -85,3 +85,4 @@ pipelines:
             - go install
             # Create version
             - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+
