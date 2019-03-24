@@ -149,10 +149,11 @@ func (r *RepoProperties) CreateTag() bool {
 			err = json.Unmarshal(body, &res)
 			if res.Error.Message == fmt.Sprintf("tag \"%s\" already exists", r.Tag) {
 				createTag = true
-			}
-			_, errorWriting := os.Stderr.WriteString(res.Error.Message)
-			if errorWriting != nil {
-				panic("Cannot write to stderr")
+			} else {
+				_, errorWriting := os.Stderr.WriteString(res.Error.Message)
+				if errorWriting != nil {
+					panic("Cannot write to stderr")
+				}
 			}
 		}
 	}
