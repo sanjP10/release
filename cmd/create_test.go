@@ -21,7 +21,7 @@ func TestCreate_Usage(t *testing.T) {
 	create := &Create{}
 	assertTest := assert.New(t)
 	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
-  creates changelog against bitbucket repo
+  creates tag against bitbucket repo
 `
 	assertTest.Equal(create.Usage(), expected)
 }

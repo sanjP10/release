@@ -28,7 +28,7 @@ func (*Validate) Synopsis() string { return "validates release version to be cre
 
 // Usage of subcommand
 func (*Validate) Usage() string {
-	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog file>] [-host <host> (optional)]:
+	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 }

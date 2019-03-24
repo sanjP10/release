@@ -20,7 +20,7 @@ func TestValidate_Synopsis(t *testing.T) {
 func TestValidate_Usage(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changlog <changelog md file>] [-host <host> (optional)]:
+	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 	assertTest.Equal(validate.Usage(), expected)
@@ -33,7 +33,7 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-username required",
 		"-password required",
 		"-repo required",
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest := assert.New(t)
 	assertTest.Equal(errors, expected)
@@ -43,7 +43,7 @@ func Test_checkValidateFlags(t *testing.T) {
 	expected = []string{
 		"-password required",
 		"-repo required",
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
@@ -51,14 +51,14 @@ func Test_checkValidateFlags(t *testing.T) {
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
 		"-repo required",
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.repo = "repo"
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
