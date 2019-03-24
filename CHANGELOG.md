@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.0
+* Added additional stderr messages
+
 ## 2.0.0
 * Removed `-tag` flag
 * Added `-changelog` flag

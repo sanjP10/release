@@ -77,6 +77,10 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 				tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: desiredTag, Hash: c.hash, Host: c.host}
 				success := tag.CreateTag()
 				if !success {
+					_, err := os.Stderr.WriteString("Error creating Tag" + desiredTag)
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
 					exit = subcommands.ExitFailure
 				} else {
 					_, err := os.Stdout.WriteString(changelogObj.Changes)
