@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bitbucket.org/cloudreach/release/bitbucket"
+	"bitbucket.org/cloudreach/release/changelog"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -11,12 +12,12 @@ import (
 
 // Validate for validate sub command
 type Validate struct {
-	username string
-	password string
-	repo     string
-	tag      string
-	hash     string
-	host     string
+	username  string
+	password  string
+	repo      string
+	changelog string
+	hash      string
+	host      string
 }
 
 // Name of subcommand
@@ -27,7 +28,7 @@ func (*Validate) Synopsis() string { return "validates release version to be cre
 
 // Usage of subcommand
 func (*Validate) Usage() string {
-	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
+	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog file>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 }
@@ -37,7 +38,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.username, "username", "", "username")
 	f.StringVar(&v.password, "password", "", "password")
 	f.StringVar(&v.repo, "repo", "", "repo")
-	f.StringVar(&v.tag, "tag", "", "tag")
+	f.StringVar(&v.changelog, "changelog", "", "changelog")
 	f.StringVar(&v.hash, "hash", "", "hash")
 }
 
@@ -52,10 +53,26 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 			panic("Cannot write to stderr")
 		}
 	} else {
-		tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: v.tag, Repo: v.repo, Hash: v.hash, Host: v.host}
-		success := tag.ValidateTag()
-		if !success {
+		changelogFile, err := changelog.ReadChangelogAsString(v.changelog)
+		if err != nil {
+			panic("Unable to read changelog file")
+		}
+		changelogObj := changelog.Properties{}
+		changelogObj.GetVersions(changelogFile)
+		validateSemantics := changelogObj.ValidateVersionSemantics()
+		if !validateSemantics {
 			exit = subcommands.ExitFailure
+			_, err := os.Stderr.WriteString("Invalid version semantics")
+			if err != nil {
+				panic("Cannot write to stderr")
+			}
+		} else {
+			desiredTag := changelogObj.ConvertToDesiredTag()
+			tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: desiredTag, Repo: v.repo, Hash: v.hash, Host: v.host}
+			success := tag.ValidateTag()
+			if !success {
+				exit = subcommands.ExitFailure
+			}
 		}
 	}
 	return exit
@@ -72,8 +89,8 @@ func checkValidateFlags(v *Validate) []string {
 	if len(v.repo) == 0 {
 		errors = append(errors, "-repo required")
 	}
-	if len(v.tag) == 0 {
-		errors = append(errors, "-tag required")
+	if len(v.changelog) == 0 {
+		errors = append(errors, "-changelog required")
 	}
 	if len(v.hash) == 0 {
 		errors = append(errors, "-hash required")

@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"bitbucket.org/cloudreach/release/bitbucket"
+	"bitbucket.org/cloudreach/release/changelog"
 	"context"
 	"flag"
+	"fmt"
 	"github.com/google/subcommands"
 	"os"
 	"strings"
@@ -11,12 +13,12 @@ import (
 
 // Create for create sub command
 type Create struct {
-	username string
-	password string
-	tag      string
-	repo     string
-	hash     string
-	host     string
+	username  string
+	password  string
+	changelog string
+	repo      string
+	hash      string
+	host      string
 }
 
 // Name of sub command
@@ -27,7 +29,7 @@ func (*Create) Synopsis() string { return "create release for bitbucket repo." }
 
 // Usage of sub command
 func (*Create) Usage() string {
-	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
+	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
   creates tag against bitbucket repo
 `
 }
@@ -37,7 +39,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.username, "username", "", "username")
 	f.StringVar(&c.password, "password", "", "password")
 	f.StringVar(&c.repo, "repo", "", "repo")
-	f.StringVar(&c.tag, "tag", "", "tag")
+	f.StringVar(&c.changelog, "changelog", "", "changelog")
 	f.StringVar(&c.hash, "hash", "", "hash")
 	f.StringVar(&c.host, "host", "api.bitbucket.org", "host")
 }
@@ -53,10 +55,29 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 			panic("Cannot write to stderr")
 		}
 	} else {
-		tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: c.tag, Hash: c.hash, Host: c.host}
-		success := tag.CreateTag()
-		if !success {
+		changelogFile, err := changelog.ReadChangelogAsString(c.changelog)
+		if err != nil {
+			panic("Unable to read changelog file")
+		}
+		changelogObj := changelog.Properties{}
+		changelogObj.GetVersions(changelogFile)
+		validateSemantics := changelogObj.ValidateVersionSemantics()
+		if !validateSemantics {
 			exit = subcommands.ExitFailure
+			_, err := os.Stderr.WriteString("Invalid version semantics")
+			if err != nil {
+				panic("Cannot write to stderr")
+			}
+		} else {
+			changelogObj.RetrieveChanges(changelogFile)
+			desiredTag := changelogObj.ConvertToDesiredTag()
+			tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: desiredTag, Hash: c.hash, Host: c.host}
+			success := tag.CreateTag()
+			if !success {
+				exit = subcommands.ExitFailure
+			} else {
+				fmt.Println(changelogObj.Changes)
+			}
 		}
 	}
 	return exit
@@ -73,8 +94,8 @@ func checkCreateFlags(c *Create) []string {
 	if len(c.repo) == 0 {
 		errors = append(errors, "-repo required")
 	}
-	if len(c.tag) == 0 {
-		errors = append(errors, "-tag required")
+	if len(c.changelog) == 0 {
+		errors = append(errors, "-changelog required")
 	}
 	if len(c.hash) == 0 {
 		errors = append(errors, "-hash required")

@@ -2,201 +2,105 @@ package changelog
 
 import (
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/h2non/gock.v1"
-	"net/http"
+	"io/ioutil"
 	"testing"
 )
 
-func TestValidateTagNotExisting(t *testing.T) {
-	// Testing tag not existing
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusNotFound)
+func TestValidateVersionSemanticsNoPrevious(t *testing.T) {
+	// No previous
+	changelog := &Properties{previous: "", desired: "## 1.0.0"}
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.True(repo.ValidateTag())
+	assertTest.True(changelog.ValidateVersionSemantics())
 }
 
-func TestValidateTagUnauthorized(t *testing.T) {
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusUnauthorized)
+func TestValidateVersionSemantics(t *testing.T) {
+		// checking when previous is below the desired
+	changelog := &Properties{previous: "## 0.0.1", desired: "## 1.0.0"}
 	assertTest := assert.New(t)
-	// Testing a 403
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.False(repo.ValidateTag())
+	assertTest.True(changelog.ValidateVersionSemantics())
 }
 
-func TestValidateTagExistingSameHash(t *testing.T) {
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusOK).
-		JSON(tag)
-
+func TestValidateVersionSemanticsInvalid (t *testing.T) {
+	// checking when previous is above the desired
+	changelog := &Properties{previous: "## 1.0.1", desired: "## 1.0.0"}
 	assertTest := assert.New(t)
-	// Testing 200 response and hash is the same
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.True(repo.ValidateTag())
+	assertTest.False(changelog.ValidateVersionSemantics())
 }
 
-func TestValidateTagExistingMismatchHash(t *testing.T) {
+func TestConvertVersionToFloat(t *testing.T) {
+	// Checking version string formatted as '## major.minor.patch' converted to float
 	assertTest := assert.New(t)
-	// Testing 200 response but hash is not the same
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusOK).
-		JSON(tag)
-	repo := RepoProperties{"username", "password", "repo", "tag", "not_hash", ""}
-	assertTest.False(repo.ValidateTag())
+	actual := convertVersionToFloat("## 1.0.0")
+	assertTest.Equal(float64(100), actual)
 }
 
-func TestValidateTagOtherError(t *testing.T) {
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusServiceUnavailable)
+func TestConvertVersionToFloatNoSpace(t *testing.T) {
+	// Checking version string formatted as '## major.minor.patch' converted to float
 	assertTest := assert.New(t)
-	// Testing a 403
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.False(repo.ValidateTag())
+	actual := convertVersionToFloat("##1.0.0")
+	assertTest.Equal(float64(100), actual)
 }
 
-func TestCreateTagNotFound(t *testing.T) {
-	// Testing tag not existing
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusNotFound)
-
-	gock.New("https://api.bitbucket.org").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusNotFound).
-		JSON(tag)
-
+func TestReadChangelogAsStringNoFile(t *testing.T) {
+	// file doesn't exist
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.False(repo.CreateTag())
+	file, err := ReadChangelogAsString("blah.md")
+	assertTest.Empty(file)
+	assertTest.Error(err)
 }
 
-func TestCreateTagUnauthorized(t *testing.T) {
-	// Testing a 401
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusNotFound)
-
-	gock.New("https://api.bitbucket.org").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusUnauthorized).
-		JSON(tag)
+func TestReadChangelogAsString(t *testing.T) {
+	// checking file is returned as string
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.False(repo.CreateTag())
+	dat, _ := ioutil.ReadFile("../fixtures/Changelog.md")
+	expected := string(dat)
+	file, err := ReadChangelogAsString("../fixtures/Changelog.md")
+	assertTest.Equal(file, expected)
+	assertTest.Empty(err)
 }
 
-func TestCreateTagSuccessful(t *testing.T) {
-	// Testing 201 response
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusNotFound)
-
-	gock.New("https://api.bitbucket.org").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusCreated).
-		JSON(tag)
+func TestGetVersionsFirst(t *testing.T) {
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.True(repo.CreateTag())
+	file, _ := ReadChangelogAsString("../fixtures/FirstChangelog.md")
+	changelog := &Properties{}
+	changelog.GetVersions(file)
+	assertTest.Equal("", changelog.previous)
+	assertTest.Equal("##1.0.0", changelog.desired)
 }
 
-func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
-	// Testing 201 response
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.personal-bitbucket.com").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusNotFound)
-
-	gock.New("https://api.personal-bitbucket.com").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusCreated).
-		JSON(tag)
+func TestGetVersions(t *testing.T) {
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", "api.personal-bitbucket.com"}
-	assertTest.True(repo.CreateTag())
+	file, _ := ReadChangelogAsString("../fixtures/Changelog.md")
+	changelog := &Properties{}
+	changelog.GetVersions(file)
+	assertTest.Equal("##1.0.0", changelog.previous)
+	assertTest.Equal("##    1.1.0", changelog.desired)
 }
 
-func TestCreateTagAlreadyExists(t *testing.T) {
-	errorMessage := Error{Message: "tag \"test\" already exists"}
-	response := BadResponse{Type: "error", Error: errorMessage}
-	defer gock.Off() // Flush pending mocks after test execution
-	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/test").
-		Reply(http.StatusOK).
-		JSON(tag)
-	gock.New("https://api.bitbucket.org").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusBadRequest).
-		JSON(response)
+
+func TestRetrieveChanges(t *testing.T) {
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "test", "hash", ""}
-	assertTest.True(repo.CreateTag())
+	file, _ := ReadChangelogAsString("../fixtures/Changelog.md")
+	changelog := &Properties{}
+	changelog.GetVersions(file)
+	changelog.RetrieveChanges(file)
+	assertTest.Equal("### Updated\n* An update happened",changelog.Changes)
 }
 
-func TestCreateTagOtherError(t *testing.T) {
-	errorMessage := Error{Message: "something went wrong"}
-	response := BadResponse{Type: "error", Error: errorMessage}
-	defer gock.Off() // Flush pending mocks after test execution
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusOK)
-	gock.New("https://api.bitbucket.org").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusBadRequest).
-		JSON(response)
+func TestFirstRetrieveChanges(t *testing.T) {
 	assertTest := assert.New(t)
-	// Testing 400 response has been created, should never happen if validate is called first
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.False(repo.CreateTag())
+	file, _ := ReadChangelogAsString("../fixtures/FirstChangelog.md")
+	changelog := &Properties{}
+	changelog.GetVersions(file)
+	changelog.RetrieveChanges(file)
+	assertTest.Equal("### Added\n* Initial release",changelog.Changes)
 }
 
-func TestCreateTagOtherErrorResponse(t *testing.T) {
-	defer gock.Off() // Flush pending mocks after test execution
-	gock.New("https://api.bitbucket.org").
-		Get("/2.0/repositories/repo/refs/tags/tag").
-		Reply(http.StatusOK)
-	gock.New("https://api.bitbucket.org").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusServiceUnavailable)
+func TestConvertToDesiredTag(t *testing.T) {
 	assertTest := assert.New(t)
-	// Testing 400 response has been created, should never happen if validate is called first
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", ""}
-	assertTest.False(repo.CreateTag())
+	changelog := &Properties{desired:"##    1.1.0"}
+	assertTest.Equal("1.1.0", changelog.ConvertToDesiredTag())
+
+	changelog.desired = "##1.1.0"
+	assertTest.Equal("1.1.0", changelog.ConvertToDesiredTag())
 }

@@ -2,28 +2,30 @@ package changelog
 
 import (
 	"bufio"
-	"fmt"
 	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-// Bitbucket interface for bitbucket
+// Changelog interface for changelog.md file
 type Changelog interface {
-	create() bool
-	validate() bool
+	getChanges()
+	RetrieveChanges()
+	GetVersions()
+	ConvertToDesiredTag()
 }
 
-type ChangelogProperties struct {
+// Properties for changelog
+type Properties struct {
 	previous string
 	desired  string
-	changes  string
+	Changes  string
 }
 
-func (c *ChangelogProperties) getVersions(changelog string) {
-	changelogNum := regexp.MustCompile("##\\s\\d.+")
-	matches := changelogNum.FindAllString(changelog, -1)
+func (c *Properties) GetVersions(changelog string) {
+	changelogNumRegex := regexp.MustCompile("##\\s*\\d.+")
+	matches := changelogNumRegex.FindAllString(changelog, -1)
 	if len(matches) > 1 {
 		c.desired = matches[0]
 		c.previous = matches[1]
@@ -32,29 +34,28 @@ func (c *ChangelogProperties) getVersions(changelog string) {
 	}
 }
 
-func validateVersionSemantics(desiredVersion string, previousVersion string) bool {
-	previousVersionFloat, _ := convertVersionToFloat(previousVersion)
-	desiredVersionFloat, _ := convertVersionToFloat(desiredVersion)
-	return desiredVersionFloat > previousVersionFloat
+func (c *Properties) ValidateVersionSemantics() bool {
+	valid := false
+	if c.previous == "" {
+		valid = true
+	} else {
+		previousVersionFloat := convertVersionToFloat(c.previous)
+		desiredVersionFloat := convertVersionToFloat(c.desired)
+		valid = desiredVersionFloat > previousVersionFloat
+	}
+	return valid
 }
 
-func convertVersionToFloat(version string) (float64, error) {
-	r := regexp.MustCompile("##\\s+|\\.")
-	versionAsFloatString := r.ReplaceAllString(version, "")
-	versionFloat, err := strconv.ParseFloat(versionAsFloatString, 64)
-	return versionFloat, err
-}
-
-func retrieveChanges(previousVersion string, desiredVersion string, changelog string) {
+func (c *Properties) RetrieveChanges(changelog string) {
 	scanner := bufio.NewScanner(strings.NewReader(changelog))
 	startRecording := false
 	var changes []string
 	for scanner.Scan() {
-		if scanner.Text() == desiredVersion {
+		if scanner.Text() == c.desired {
 			startRecording = true
 			continue
 		}
-		if previousVersion != "" && scanner.Text() == previousVersion {
+		if c.previous != "" && scanner.Text() == c.previous {
 			startRecording = false
 			break
 		}
@@ -62,26 +63,24 @@ func retrieveChanges(previousVersion string, desiredVersion string, changelog st
 			changes = append(changes, scanner.Text())
 		}
 	}
-	fmt.Println(strings.Join(changes, "\n"))
+	c.Changes = strings.Join(changes, "\n")
 }
 
-func readFileAsString(filename string) (string, error) {
+
+func (c *Properties) ConvertToDesiredTag() string {
+	markdownRegex := regexp.MustCompile("##\\s*")
+	return markdownRegex.ReplaceAllString(c.desired, "")
+}
+
+func ReadChangelogAsString(filename string) (string, error) {
 	dat, err := ioutil.ReadFile(filename)
 	changelog := string(dat)
 	return changelog, err
 }
 
-func getChanges(filename string) {
-	changelog, _ := readFileAsString(filename)
-	matches := getVersions(changelog)
-	if len(matches) > 1 {
-		validScemantics := validateVersionSemantics(matches[0], matches[1])
-		if validScemantics {
-			retrieveChanges(matches[1], matches[0], changelog)
-		}
-	} else if len(matches) == 1 {
-		retrieveChanges("", matches[0], changelog)
-	} else {
-		// error
-	}
+func convertVersionToFloat(version string) float64 {
+	r := regexp.MustCompile("##\\s*|\\.")
+	versionAsFloatString := r.ReplaceAllString(version, "")
+	versionFloat, _ := strconv.ParseFloat(versionAsFloatString, 64)
+	return versionFloat
 }

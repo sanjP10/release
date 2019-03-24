@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.6.1
+## 2.0.0
+* Removed `-tag` flag
+* Added `-changelog` flag
+* Retrieve tag name from changelog
+* Added semantic validations
+
+## 1.7.0
 
 ### Fixed
 * Removed commented out code 

@@ -20,8 +20,8 @@ func TestCreate_Synopsis(t *testing.T) {
 func TestCreate_Usage(t *testing.T) {
 	create := &Create{}
 	assertTest := assert.New(t)
-	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
-  creates tag against bitbucket repo
+	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
+  creates changelog against bitbucket repo
 `
 	assertTest.Equal(create.Usage(), expected)
 }
@@ -33,7 +33,7 @@ func Test_checkCreateFlags(t *testing.T) {
 		"-username required",
 		"-password required",
 		"-repo required",
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest := assert.New(t)
 	assertTest.Equal(errors, expected)
@@ -43,7 +43,7 @@ func Test_checkCreateFlags(t *testing.T) {
 	expected = []string{
 		"-password required",
 		"-repo required",
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
@@ -51,18 +51,18 @@ func Test_checkCreateFlags(t *testing.T) {
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-repo required",
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
 	createCmd.repo = "repo"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-tag required",
+		"-changelog required",
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
-	createCmd.tag = "tag"
+	createCmd.changelog = "changelog"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-hash required"}

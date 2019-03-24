@@ -20,7 +20,7 @@ func TestValidate_Synopsis(t *testing.T) {
 func TestValidate_Usage(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-tag <tag>] [-host <host> (optional)]:
+	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changlog <changelog md file>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 	assertTest.Equal(validate.Usage(), expected)
@@ -62,7 +62,7 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-hash required"}
 	assertTest.Equal(errors, expected)
 
-	validateCmd.tag = "tag"
+	validateCmd.changelog = "changelog"
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
 		"-hash required"}
