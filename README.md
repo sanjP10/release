@@ -60,7 +60,7 @@ release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/releas
 This is an example `create` command
 
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
+release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
 ```
 
 This is an example of `validate` command against a self-hosted bitbucket
