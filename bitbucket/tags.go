@@ -55,7 +55,7 @@ func (r *RepoProperties) ValidateTag() bool {
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
 	} else {
-		url = fmt.Sprintf("https://%s/2.0/repositories/%s/refs/tags/%s", r.Host, r.Repo, r.Tag)
+		url = fmt.Sprintf("%s/2.0/repositories/%s/refs/tags/%s", r.Host, r.Repo, r.Tag)
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -102,7 +102,7 @@ func (r *RepoProperties) CreateTag() bool {
 		if r.Host == "" {
 			url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
 		} else {
-			url = fmt.Sprintf("https://%s/2.0/repositories/%s/refs/tags", r.Host, r.Repo)
+			url = fmt.Sprintf("%s/2.0/repositories/%s/refs/tags", r.Host, r.Repo)
 		}
 
 		target := Target{r.Hash}

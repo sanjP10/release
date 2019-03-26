@@ -40,6 +40,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.repo, "repo", "", "repo")
 	f.StringVar(&v.changelog, "changelog", "", "changelog")
 	f.StringVar(&v.hash, "hash", "", "hash")
+	f.StringVar(&v.host, "host", "", "host")
 }
 
 //Execute flow of subcommand

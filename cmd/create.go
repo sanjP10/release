@@ -40,6 +40,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.repo, "repo", "", "repo")
 	f.StringVar(&c.changelog, "changelog", "", "changelog")
 	f.StringVar(&c.hash, "hash", "", "hash")
+	f.StringVar(&c.host, "host", "", "host")
 }
 
 // Execute flow for create sub command

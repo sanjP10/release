@@ -147,7 +147,7 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 		Reply(http.StatusCreated).
 		JSON(tag)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"username", "password", "repo", "tag", "hash", "api.personal-bitbucket.com"}
+	repo := RepoProperties{"username", "password", "repo", "tag", "hash", "https://api.personal-bitbucket.com"}
 	assertTest.True(repo.CreateTag())
 }
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+### Fixed
+* Host override was not being set as a flag
+
+### Updated
+* Host override allows for schema override as well
+
 ## 2.0.0
 * Removed `-tag` flag
 * Added `-changelog` flag
