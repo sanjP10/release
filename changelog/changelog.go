@@ -2,9 +2,9 @@ package changelog
 
 import (
 	"bufio"
+	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -41,9 +41,11 @@ func (c *Properties) ValidateVersionSemantics() bool {
 	if c.previous == "" {
 		valid = true
 	} else {
-		previousVersionFloat := convertVersionToFloat(c.previous)
-		desiredVersionFloat := convertVersionToFloat(c.desired)
-		valid = desiredVersionFloat > previousVersionFloat
+		previousVersion := getVersion(c.previous)
+		desiredVersion := getVersion(c.desired)
+		previous, _ := version.NewVersion(previousVersion)
+		desired, _ := version.NewVersion(desiredVersion)
+		valid = desired.GreaterThan(previous)
 	}
 	return valid
 }
@@ -82,10 +84,9 @@ func ReadChangelogAsString(filename string) (string, error) {
 	return changelog, err
 }
 
-func convertVersionToFloat(version string) float64 {
-	// convert string ## x.x.x to a float
-	r := regexp.MustCompile("##\\s*|\\.")
+func getVersion(version string) string {
+	// convert string ## x.x.x to a version number
+	r := regexp.MustCompile("##|\\s*")
 	versionAsFloatString := r.ReplaceAllString(version, "")
-	versionFloat, _ := strconv.ParseFloat(versionAsFloatString, 64)
-	return versionFloat
+	return versionAsFloatString
 }

@@ -26,6 +26,14 @@
   version = "v2.0.1"
 
 [[projects]]
+  digest = "1:950caca7dfcf796419232ba996c9c3539d09f26af27ba848c4508e604c13efbb"
+  name = "github.com/hashicorp/go-version"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d40cf49b3a77bba84a7afdbd7f1dc295d114efb1"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -54,6 +62,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/google/subcommands",
+    "github.com/hashicorp/go-version",
     "github.com/stretchr/testify/assert",
     "gopkg.in/h2non/gock.v1",
   ]

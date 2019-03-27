@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2
+
+### Updated
+* Added hashicorp go-version to handle semantic version checks
+
 ## 2.0.1
 
 ### Fixed

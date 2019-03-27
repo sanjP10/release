@@ -109,3 +109,8 @@ To integrate this into bitbucket pipelines you can use the following as steps
       - go install
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT
 ```
+
+## Alternative Code Repository Integrations
+
+* [Github](https://bitbucket.org/cloudreach/release-github/)
+* [Gitlab](https://bitbucket.org/cloudreach/release-gitlab/)

@@ -14,31 +14,35 @@ func TestValidateVersionSemanticsNoPrevious(t *testing.T) {
 }
 
 func TestValidateVersionSemantics(t *testing.T) {
-		// checking when previous is below the desired
-	changelog := &Properties{previous: "## 0.0.1", desired: "## 1.0.0"}
+	// checking when previous is below the desired
+	changelog := &Properties{previous: "## 0.0.1.0", desired: "## 1.0.0.0"}
 	assertTest := assert.New(t)
 	assertTest.True(changelog.ValidateVersionSemantics())
 }
 
-func TestValidateVersionSemanticsInvalid (t *testing.T) {
+func TestValidateVersionSemanticsInvalid(t *testing.T) {
 	// checking when previous is above the desired
-	changelog := &Properties{previous: "## 1.0.1", desired: "## 1.0.0"}
+	changelog := &Properties{previous: "## 2.0.1", desired: "## 1.10.0"}
 	assertTest := assert.New(t)
 	assertTest.False(changelog.ValidateVersionSemantics())
 }
 
-func TestConvertVersionToFloat(t *testing.T) {
-	// Checking version string formatted as '## major.minor.patch' converted to float
+func TestGetVersion(t *testing.T) {
+	// Checking version string formatted as '## major.minor.patch' has markdown removed
 	assertTest := assert.New(t)
-	actual := convertVersionToFloat("## 1.0.0")
-	assertTest.Equal(float64(100), actual)
+	actual := getVersion("## 1.0.0")
+	assertTest.Equal("1.0.0", actual)
+	actual = getVersion("## 1.0.0     ")
+	assertTest.Equal("1.0.0", actual)
+	actual = getVersion("##    1.0.0     ")
+	assertTest.Equal("1.0.0", actual)
 }
 
 func TestConvertVersionToFloatNoSpace(t *testing.T) {
-	// Checking version string formatted as '## major.minor.patch' converted to float
+	// Checking version string formatted as '## major.minor.patch' has markdown removed
 	assertTest := assert.New(t)
-	actual := convertVersionToFloat("##1.0.0")
-	assertTest.Equal(float64(100), actual)
+	actual := getVersion("##1.0.0")
+	assertTest.Equal("1.0.0", actual)
 }
 
 func TestReadChangelogAsStringNoFile(t *testing.T) {
@@ -77,7 +81,6 @@ func TestGetVersions(t *testing.T) {
 	assertTest.Equal("##    1.1.0", changelog.desired)
 }
 
-
 func TestRetrieveChanges(t *testing.T) {
 	assertTest := assert.New(t)
 	file, _ := ReadChangelogAsString("../fixtures/Changelog.md")
@@ -85,7 +88,7 @@ func TestRetrieveChanges(t *testing.T) {
 	changelog.GetVersions(file)
 	changelog.RetrieveChanges(file)
 	assertTest.Equal(`### Updated
-* An update happened`,changelog.Changes)
+* An update happened`, changelog.Changes)
 }
 
 func TestFirstRetrieveChanges(t *testing.T) {
@@ -95,12 +98,12 @@ func TestFirstRetrieveChanges(t *testing.T) {
 	changelog.GetVersions(file)
 	changelog.RetrieveChanges(file)
 	assertTest.Equal(`### Added
-* Initial release`,changelog.Changes)
+* Initial release`, changelog.Changes)
 }
 
 func TestConvertToDesiredTag(t *testing.T) {
 	assertTest := assert.New(t)
-	changelog := &Properties{desired:"##    1.1.0"}
+	changelog := &Properties{desired: "##    1.1.0"}
 	assertTest.Equal("1.1.0", changelog.ConvertToDesiredTag())
 
 	changelog.desired = "##1.1.0"
