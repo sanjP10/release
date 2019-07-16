@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+### Fixed
+* Trim space on desired tag
+
 ## 2.0.2
 
 ### Updated

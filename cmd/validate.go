@@ -73,7 +73,7 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 				}
 			} else {
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: desiredTag, Repo: v.repo, Hash: v.hash, Host: v.host}
+				tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: strings.TrimSpace(desiredTag), Repo: v.repo, Hash: v.hash, Host: v.host}
 				success := tag.ValidateTag()
 				if !success {
 					_, err := os.Stderr.WriteString("Tag cannot be created or already exists")

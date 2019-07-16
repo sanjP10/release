@@ -74,7 +74,7 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 			} else {
 				changelogObj.RetrieveChanges(changelogFile)
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: desiredTag, Hash: c.hash, Host: c.host}
+				tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: strings.TrimSpace(desiredTag), Hash: c.hash, Host: c.host}
 				success := tag.CreateTag()
 				if !success {
 					_, err := os.Stderr.WriteString("Error creating Tag" + desiredTag)
