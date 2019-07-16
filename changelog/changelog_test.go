@@ -78,7 +78,7 @@ func TestGetVersions(t *testing.T) {
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	assertTest.Equal("##1.0.0", changelog.previous)
-	assertTest.Equal("##    1.1.0", changelog.desired)
+	assertTest.Equal("##    1.1.0 ", changelog.desired)
 }
 
 func TestRetrieveChanges(t *testing.T) {
