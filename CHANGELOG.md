@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.4
+
+### Changed
+
+* Print version number
+
 ## 2.0.3
 ### Fixed
 * Trim space on desired tag

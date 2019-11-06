@@ -81,6 +81,11 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 						panic("Cannot write to stderr")
 					}
 					exit = subcommands.ExitFailure
+				} else {
+					_, err := os.Stdout.WriteString(strings.TrimSpace(desiredTag))
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
 				}
 			}
 		}
