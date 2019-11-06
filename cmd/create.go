@@ -83,7 +83,7 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 					}
 					exit = subcommands.ExitFailure
 				} else {
-					_, err := os.Stdout.WriteString(changelogObj.Changes)
+					_, err := os.Stdout.WriteString(strings.TrimSpace(desiredTag))
 					if err != nil {
 						panic("Cannot write to stderr")
 					}
