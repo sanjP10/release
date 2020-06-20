@@ -187,7 +187,7 @@ func TestCreateError_Github(t *testing.T) {
 		JSON(response)
 	assertTest := assert.New(t)
 	repo := GithubProperties{RepoProperties{"username", "password", "repo", "test", "hash", "", "hello"}}
-	assertTest.True(repo.CreateTag())
+	assertTest.False(repo.CreateTag())
 }
 
 func TestCreateTagOtherError_Github(t *testing.T) {

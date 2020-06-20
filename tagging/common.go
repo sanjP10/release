@@ -32,6 +32,7 @@ type BitbucketProperties struct {
 	RepoProperties
 }
 
+// ValidTagState properties for repo
 type ValidTagState struct {
 	TagDoesntExist            bool
 	TagExistsWithProvidedHash bool
