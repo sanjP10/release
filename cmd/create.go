@@ -123,8 +123,8 @@ func checkCreateFlags(c *Create) []string {
 
 func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	provider := strings.ToLower(c.provider)
-	if provider == "github" {
+	switch strings.ToLower(c.provider) {
+	case "github":
 		tag := github.RepoProperties{
 			Username: c.username,
 			Password: c.password,
@@ -134,7 +134,7 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 			Hash:     c.hash,
 			Host:     c.host}
 		success = tag.CreateTag()
-	} else if provider == "gitlab" {
+	case "gitlab":
 		tag := gitlab.RepoProperties{
 			Token: c.password,
 			Repo:  c.repo,
@@ -143,7 +143,7 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 			Hash:  c.hash,
 			Host:  c.host}
 		success = tag.CreateTag()
-	} else if provider == "bitbucket" {
+	case "bitbucket":
 		tag := bitbucket.RepoProperties{
 			Username: c.username,
 			Password: c.password,

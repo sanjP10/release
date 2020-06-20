@@ -28,22 +28,22 @@ definitions:
           - dep ensure
           - go install
           # expecting release to exist and hash to be the same so is fine to pass
-          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
+          - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
           # expecting release to exist but hash to be different, expecting fail
-          - test $(release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash $BITBUCKET_COMMIT; echo $?) -eq 1
+          - test $(release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash $BITBUCKET_COMMIT -provider bitbucket; echo $?) -eq 1
           # expecting usage error as file doesn't exist
-          - test $(release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog blah.md -hash $BITBUCKET_COMMIT; echo $?) -eq 2
+          - test $(release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog blah.md -hash $BITBUCKET_COMMIT -provider bitbucket; echo $?) -eq 2
           # expecting fail as unauthorized
-          - test $(release validate -username blah -password blah -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash blah; echo $?) -eq 1
+          - test $(release validate -username blah -password blah -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash blah -provider bitbucket; echo $?) -eq 1
           # expecting fail due to misuse
           - test $(release validate -username blah -password blah -repo cloudreach/release -changelog fixtures/FirstChangelog.md; echo $?) -eq 2
           - test $(release validate; echo $?) -eq 2
           # expecting changelog that exists and being recreated to pass
-          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d >> /dev/null; echo $?) -eq 0
+          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket >> /dev/null; echo $?) -eq 0
           # expecting fail as unauthorized
-          - test $(release create -username blah -password blah -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash blah; echo $?) -eq 1
+          - test $(release create -username blah -password blah -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash blah -provider bitbucket; echo $?) -eq 1
           # expecting usage error as file doesn't exist
-          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog blah.md -hash $BITBUCKET_COMMIT; echo $?) -eq 2
+          - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog blah.md -hash $BITBUCKET_COMMIT -provider bitbucket; echo $?) -eq 2
           # expecting fail due to misuse
           - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release; echo $?) -eq 2
           - test $(release create; echo $?) -eq 2
@@ -58,7 +58,7 @@ definitions:
           - dep ensure
           - go install
           # Test version does not exist
-          - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+          - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 pipelines:
   default:
     - parallel:
@@ -84,5 +84,5 @@ pipelines:
             - dep ensure
             - go install
             # Create version
-            - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+            - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 

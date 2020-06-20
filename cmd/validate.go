@@ -122,7 +122,8 @@ func checkValidateFlags(v *Validate) []string {
 
 func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	if strings.ToLower(v.provider) == "github" {
+	switch strings.ToLower(v.provider) {
+	case providers[0]:
 		tag := github.RepoProperties{
 			Username: v.username,
 			Password: v.password,
@@ -132,7 +133,7 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 			Hash:     v.hash,
 			Host:     v.host}
 		success = tag.ValidateTag()
-	} else if strings.ToLower(v.provider) == "gitlab" {
+	case providers[1]:
 		tag := gitlab.RepoProperties{
 			Token: v.password,
 			Repo:  v.repo,
@@ -141,7 +142,7 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 			Hash:  v.hash,
 			Host:  v.host}
 		success = tag.ValidateTag()
-	} else if strings.ToLower(v.provider) == "bitbucket" {
+	case providers[2]:
 		tag := bitbucket.RepoProperties{
 			Username: v.username,
 			Password: v.password,
