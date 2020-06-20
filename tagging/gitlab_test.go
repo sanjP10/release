@@ -1,4 +1,4 @@
-package gitlab
+package tagging
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -7,18 +7,18 @@ import (
 	"testing"
 )
 
-func TestValidateTagNotExisting(t *testing.T) {
+func TestValidateTagNotExisting_Gitlab(t *testing.T) {
 	// Testing tag not existing
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://gitlab.com/").
 		Get("api/v4/projects/org/repo/repository/tags/tag").
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", ""}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", ""}}
 	assertTest.True(repo.ValidateTag())
 }
 
-func TestValidateTagUnauthorized(t *testing.T) {
+func TestValidateTagUnauthorized_Gitlab(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -26,13 +26,13 @@ func TestValidateTagUnauthorized(t *testing.T) {
 		Reply(http.StatusUnauthorized)
 	assertTest := assert.New(t)
 	// Testing a 403
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", ""}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", ""}}
 	assertTest.False(repo.ValidateTag())
 }
 
-func TestValidateTagExistingSameHash(t *testing.T) {
+func TestValidateTagExistingSameHash_Gitlab(t *testing.T) {
 	target := Commit{ID: "hash"}
-	tag := Tag{Commit: target}
+	tag := GitlabTag{Commit: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -42,26 +42,26 @@ func TestValidateTagExistingSameHash(t *testing.T) {
 
 	assertTest := assert.New(t)
 	// Testing 200 response and hash is the same
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", ""}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", ""}}
 	assertTest.True(repo.ValidateTag())
 }
 
-func TestValidateTagExistingMismatchHash(t *testing.T) {
+func TestValidateTagExistingMismatchHash_Gitlab(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing 200 response but hash is not the same
 	target := Commit{ID: "hash"}
-	tag := Tag{Commit: target}
+	tag := GitlabTag{Commit: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
 		Get("api/v4/projects/org/repo/repository/tags/tag").
 		Reply(http.StatusOK).
 		JSON(tag)
-	repo := RepoProperties{"token", "org/repo", "tag", "not_hash", "", ""}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "not_hash", "", ""}}
 	assertTest.False(repo.ValidateTag())
 }
 
-func TestValidateTagOtherError(t *testing.T) {
+func TestValidateTagOtherError_Gitlab(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -69,11 +69,11 @@ func TestValidateTagOtherError(t *testing.T) {
 		Reply(http.StatusServiceUnavailable)
 	assertTest := assert.New(t)
 	// Testing a 403
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", ""}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", ""}}
 	assertTest.False(repo.ValidateTag())
 }
 
-func TestCreateTagNotFound(t *testing.T) {
+func TestCreateTagNotFound_Gitlab(t *testing.T) {
 	// Testing tag not existing
 	defer gock.Off() // Flush pending mocks after test execution
 
@@ -88,11 +88,11 @@ func TestCreateTagNotFound(t *testing.T) {
 		Reply(http.StatusNotFound)
 
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", ""}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", ""}}
 	assertTest.False(repo.CreateTag())
 }
 
-func TestCreateTagUnauthorized(t *testing.T) {
+func TestCreateTagUnauthorized_Gitlab(t *testing.T) {
 	// Testing a 401
 	defer gock.Off() // Flush pending mocks after test execution
 
@@ -106,11 +106,11 @@ func TestCreateTagUnauthorized(t *testing.T) {
 		MatchParam("ref", "hash").
 		Reply(http.StatusUnauthorized)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
-func TestCreateTagSuccessful(t *testing.T) {
+func TestCreateTagSuccessful_Gitlab(t *testing.T) {
 	// Testing 201 response
 	body := Release{Description: "hello"}
 	defer gock.Off() // Flush pending mocks after test execution
@@ -131,11 +131,11 @@ func TestCreateTagSuccessful(t *testing.T) {
 		JSON(body)
 
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.True(repo.CreateTag())
 }
 
-func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
+func TestCreateTagSuccessfulWithHostOverride_Gitlab(t *testing.T) {
 	// Testing 201 response
 	body := Release{"hello"}
 	defer gock.Off() // Flush pending mocks after test execution
@@ -155,16 +155,16 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 		Reply(http.StatusCreated).
 		JSON(body)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "http://personal-gitlab.com", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "http://personal-gitlab.com", "hello"}}
 	assertTest.True(repo.CreateTag())
 }
 
-func TestCreateTagAndReleaseAlreadyExists(t *testing.T) {
+func TestCreateTagAndReleaseAlreadyExists_Gitlab(t *testing.T) {
 	target := Commit{ID: "hash"}
-	tag := Tag{Commit: target}
-	response := BadResponse{"Tag test already exists"}
+	tag := GitlabTag{Commit: target}
+	response := GitlabBadResponse{"GitlabTag test already exists"}
 	body := Release{"hello"}
-	releaseResponse := BadResponse{"Release already exists"}
+	releaseResponse := GitlabBadResponse{"Release already exists"}
 
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://gitlab.com/").
@@ -183,14 +183,14 @@ func TestCreateTagAndReleaseAlreadyExists(t *testing.T) {
 		Reply(http.StatusCreated).
 		JSON(releaseResponse)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "test", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "test", "hash", "", "hello"}}
 	assertTest.True(repo.CreateTag())
 }
 
 func TestCreateTagAndReleaseFails(t *testing.T) {
 	target := Commit{ID: "hash"}
-	tag := Tag{Commit: target}
-	response := BadResponse{"Tag test already exists"}
+	tag := GitlabTag{Commit: target}
+	response := GitlabBadResponse{"GitlabTag test already exists"}
 	body := Release{"hello"}
 
 	defer gock.Off() // Flush pending mocks after test execution
@@ -209,12 +209,12 @@ func TestCreateTagAndReleaseFails(t *testing.T) {
 		JSON(body).
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "test", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "test", "hash", "", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
-func TestCreateTagOtherError(t *testing.T) {
-	response := BadResponse{"blah"}
+func TestCreateTagOtherError_Gitlab(t *testing.T) {
+	response := GitlabBadResponse{"blah"}
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://gitlab.com/").
 		Get("api/v4/projects/org/repo/repository/tags/tag").
@@ -227,11 +227,11 @@ func TestCreateTagOtherError(t *testing.T) {
 		JSON(response)
 	assertTest := assert.New(t)
 	// Testing 400 response has been created, should never happen if validate is called first
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
-func TestCreateTagOtherErrorResponse(t *testing.T) {
+func TestCreateTagOtherErrorResponse_Gitlab(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://gitlab.com/").
 		Get("api/v4/projects/org/repo/repository/tags/tag").
@@ -243,7 +243,7 @@ func TestCreateTagOtherErrorResponse(t *testing.T) {
 		Reply(http.StatusInternalServerError)
 	assertTest := assert.New(t)
 	// Testing 400 response has been created, should never happen if validate is called first
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
@@ -258,7 +258,7 @@ func TestCreateReleaseNotFound(t *testing.T) {
 		JSON(body)
 
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.False(repo.createRelease())
 }
 
@@ -274,7 +274,7 @@ func TestCreateReleaseUnauthorized(t *testing.T) {
 		JSON(body)
 
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.False(repo.createRelease())
 }
 
@@ -290,7 +290,7 @@ func TestCreateRelease(t *testing.T) {
 		JSON(body)
 
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.True(repo.createRelease())
 }
 
@@ -298,7 +298,7 @@ func TestCreateReleaseExists(t *testing.T) {
 	// Testing a 409
 	// Testing release not existing
 	body := Release{"hello"}
-	releaseResponse := BadResponse{"Release already exists"}
+	releaseResponse := GitlabBadResponse{"Release already exists"}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -308,6 +308,6 @@ func TestCreateReleaseExists(t *testing.T) {
 		JSON(releaseResponse)
 
 	assertTest := assert.New(t)
-	repo := RepoProperties{"token", "org/repo", "tag", "hash", "", "hello"}
+	repo := GitlabProperties{RepoProperties{"", "token", "org/repo", "tag", "hash", "", "hello"}}
 	assertTest.True(repo.createRelease())
 }

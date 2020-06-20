@@ -1,4 +1,4 @@
-package bitbucket
+package tagging
 
 import (
 	"bytes"
@@ -8,22 +8,6 @@ import (
 	"net/http"
 	"os"
 )
-
-// Bitbucket interface for bitbucket
-type Bitbucket interface {
-	create() bool
-	validate() bool
-}
-
-// RepoProperties properties for repo
-type RepoProperties struct {
-	Username string
-	Password string
-	Repo     string
-	Tag      string
-	Hash     string
-	Host     string
-}
 
 // Target Structure of bitbucket tag target
 type Target struct {
@@ -48,7 +32,7 @@ type Error struct {
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *RepoProperties) ValidateTag() bool {
+func (r *BitbucketProperties) ValidateTag() bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := false
 	url := ""
@@ -61,13 +45,26 @@ func (r *RepoProperties) ValidateTag() bool {
 	if err != nil {
 		fmt.Println("Error validate tag request")
 	}
+	if request == nil {
+		_, err := os.Stderr.WriteString("Error creating request\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+		return false
+	}
 	request.SetBasicAuth(r.Username, r.Password)
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error validate tag request")
 	}
-
+	if resp == nil {
+		_, err := os.Stderr.WriteString("Error getting response\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+		return false
+	}
 	if resp.StatusCode == http.StatusNotFound {
 		validTag = true
 	}
@@ -95,7 +92,7 @@ func (r *RepoProperties) ValidateTag() bool {
 }
 
 // CreateTag creates a bitbucket tag
-func (r *RepoProperties) CreateTag() bool {
+func (r *BitbucketProperties) CreateTag() bool {
 	createTag := false
 	if r.ValidateTag() {
 		url := ""

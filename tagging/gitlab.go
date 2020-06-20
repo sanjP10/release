@@ -1,4 +1,4 @@
-package gitlab
+package tagging
 
 import (
 	"bytes"
@@ -10,29 +10,13 @@ import (
 	"os"
 )
 
-// Gitlab interface for bitbucket
-type Gitlab interface {
-	create() bool
-	validate() bool
-}
-
-// RepoProperties properties for repo
-type RepoProperties struct {
-	Token string
-	Repo  string
-	Tag   string
-	Hash  string
-	Host  string
-	Body  string
-}
-
 // Commit Structure of bitbucket tag target
 type Commit struct {
 	ID string `json:"id"`
 }
 
-// Tag Structure of bitbucket tag response
-type Tag struct {
+// GitlabTag Structure of bitbucket tag response
+type GitlabTag struct {
 	Commit Commit `json:"commit"`
 }
 
@@ -41,13 +25,13 @@ type Release struct {
 	Description string `json:"description"`
 }
 
-// BadResponse format for 400 http response body
-type BadResponse struct {
+// GitlabBadResponse format for 400 http response body
+type GitlabBadResponse struct {
 	Message string `json:"message"`
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *RepoProperties) ValidateTag() bool {
+func (r *GitlabProperties) ValidateTag() bool {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := false
 	url := ""
@@ -60,11 +44,25 @@ func (r *RepoProperties) ValidateTag() bool {
 	if err != nil {
 		fmt.Println("Error validate tag request")
 	}
-	request.Header.Set("PRIVATE-TOKEN", r.Token)
+	if request == nil {
+		_, err := os.Stderr.WriteString("Error creating request\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+		return false
+	}
+	request.Header.Set("PRIVATE-TOKEN", r.Password)
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error validate tag request")
+	}
+	if resp == nil {
+		_, err := os.Stderr.WriteString("Error getting response\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+		return false
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
@@ -77,7 +75,7 @@ func (r *RepoProperties) ValidateTag() bool {
 		}
 	}
 	if resp.StatusCode == http.StatusOK {
-		res := Tag{}
+		res := GitlabTag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading body of tag response")
@@ -94,7 +92,7 @@ func (r *RepoProperties) ValidateTag() bool {
 }
 
 // CreateTag creates a Gitlab tag
-func (r *RepoProperties) CreateTag() bool {
+func (r *GitlabProperties) CreateTag() bool {
 	createTag := false
 	if r.ValidateTag() {
 		url := ""
@@ -105,6 +103,13 @@ func (r *RepoProperties) CreateTag() bool {
 		}
 
 		request, err := http.NewRequest("POST", url, nil)
+		if request == nil {
+			_, err := os.Stderr.WriteString("Error creating request\n")
+			if err != nil {
+				panic("Cannot write to stderr")
+			}
+			return false
+		}
 		q := request.URL.Query()
 		q.Add("tag_name", r.Tag)
 		q.Add("ref", r.Hash)
@@ -113,7 +118,7 @@ func (r *RepoProperties) CreateTag() bool {
 			fmt.Println("Error creating tag request", err)
 		}
 		request.Header.Add("Content-Type", "application/json")
-		request.Header.Add("PRIVATE-TOKEN", r.Token)
+		request.Header.Add("PRIVATE-TOKEN", r.Password)
 		client := &http.Client{}
 		resp, err := client.Do(request)
 		if err != nil {
@@ -138,13 +143,13 @@ func (r *RepoProperties) CreateTag() bool {
 		}
 
 		if resp.StatusCode == http.StatusBadRequest {
-			res := BadResponse{}
+			res := GitlabBadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
-			if res.Message == fmt.Sprintf("Tag %s already exists", r.Tag) {
+			if res.Message == fmt.Sprintf("GitlabTag %s already exists", r.Tag) {
 				createTag = r.createRelease()
 			}
 		}
@@ -152,7 +157,7 @@ func (r *RepoProperties) CreateTag() bool {
 	return createTag
 }
 
-func (r *RepoProperties) createRelease() bool {
+func (r *GitlabProperties) createRelease() bool {
 	createdRelease := false
 	release := ""
 	if r.Host == "" {
@@ -166,8 +171,15 @@ func (r *RepoProperties) createRelease() bool {
 		fmt.Println("error marshalling object:", err)
 	}
 	request, err := http.NewRequest("POST", release, bytes.NewBuffer(jsonBody))
+	if request == nil {
+		_, err := os.Stderr.WriteString("Error creating request\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+		return false
+	}
 	request.Header.Add("Content-Type", "application/json")
-	request.Header.Add("PRIVATE-TOKEN", r.Token)
+	request.Header.Add("PRIVATE-TOKEN", r.Password)
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
@@ -188,7 +200,7 @@ func (r *RepoProperties) createRelease() bool {
 	}
 
 	if resp.StatusCode == http.StatusConflict {
-		res := BadResponse{}
+		res := GitlabBadResponse{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading body of error response")

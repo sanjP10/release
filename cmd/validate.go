@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"bitbucket.org/cloudreach/release/bitbucket"
+	"bitbucket.org/cloudreach/release-gitlab/gitlab"
 	"bitbucket.org/cloudreach/release/changelog"
 	"bitbucket.org/cloudreach/release/github"
-	"bitbucket.org/cloudreach/release/gitlab"
+	"bitbucket.org/cloudreach/release/tagging"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -78,7 +78,7 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 				desiredTag := changelogObj.ConvertToDesiredTag()
 				success := validateProviderTag(v, desiredTag, changelogObj)
 				if !success {
-					_, err := os.Stderr.WriteString("Tag cannot be created or already exists\n")
+					_, err := os.Stderr.WriteString("GitlabTag cannot be created or already exists\n")
 					if err != nil {
 						panic("Cannot write to stderr")
 					}
@@ -142,7 +142,7 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 			Host:  v.host}
 		success = tag.ValidateTag()
 	case providers[2]:
-		tag := bitbucket.RepoProperties{
+		tag := tagging.RepoProperties{
 			Username: v.username,
 			Password: v.password,
 			Repo:     v.repo,
