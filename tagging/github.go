@@ -54,6 +54,13 @@ func (r *GithubProperties) ValidateTag() bool {
 	if err != nil {
 		fmt.Println("GithubError validate tag request")
 	}
+	if request == nil {
+		_, err := os.Stderr.WriteString("Error creating request\n")
+		if err != nil {
+			panic("Cannot write to stderr")
+		}
+		return false
+	}
 	request.SetBasicAuth(r.Username, r.Password)
 	client := &http.Client{}
 

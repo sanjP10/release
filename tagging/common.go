@@ -1,7 +1,7 @@
 package tagging
 
-// Bitbucket interface for bitbucket
-type Git interface {
+// Tagging interface
+type Tagging interface {
 	create() bool
 	validate() bool
 }
@@ -17,14 +17,17 @@ type RepoProperties struct {
 	Body     string
 }
 
+// GithubProperties properties for repo
 type GithubProperties struct {
 	RepoProperties
 }
 
+// GitlabProperties properties for repo
 type GitlabProperties struct {
 	RepoProperties
 }
 
+// BitbucketProperties properties for repo
 type BitbucketProperties struct {
 	RepoProperties
 }
