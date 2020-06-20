@@ -14,15 +14,13 @@ func TestValidate_Name(t *testing.T) {
 func TestValidate_Synopsis(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	assertTest.Equal(validate.Synopsis(), "validates release version to be created.")
+	assertTest.Equal(validate.Synopsis(), "Validates tag and release for repo to be created.")
 }
 
 func TestValidate_Usage(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
-  validates tag against bitbucket repo
-`
+	var expected = "Validates tag and release for repo to be created.\n"
 	assertTest.Equal(validate.Usage(), expected)
 }
 
@@ -34,7 +32,8 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-password required",
 		"-repo required",
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest := assert.New(t)
 	assertTest.Equal(errors, expected)
 
@@ -44,7 +43,8 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-password required",
 		"-repo required",
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.password = "password"
@@ -52,23 +52,52 @@ func Test_checkValidateFlags(t *testing.T) {
 	expected = []string{
 		"-repo required",
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.repo = "repo"
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.changelog = "changelog"
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.hash = "hash"
-	validCreate := checkValidateFlags(validateCmd)
-	assertTest.Empty(validCreate)
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-provider required, valid values are github, gitlab, bitbucket"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.provider = "svn"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-provider required, valid values are github, gitlab, bitbucket"}
+	assertTest.Equal(errors, expected)
+
+	for _, provider := range providers {
+		validateCmd.provider = provider
+		validCreate := checkValidateFlags(validateCmd)
+		assertTest.Empty(validCreate)
+	}
+}
+
+func Test_ValidateCheckFlag_Gitlab(t *testing.T) {
+	validate := &Validate{}
+	validate.password = "token"
+	validate.provider = "gitlab"
+	validate.repo = "repo"
+	validate.hash = "hash"
+	validate.changelog = "file"
+	assertTest := assert.New(t)
+	errors := checkValidateFlags(validate)
+	assertTest.Empty(errors)
 }
