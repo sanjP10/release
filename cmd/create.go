@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"bitbucket.org/cloudreach/release-gitlab/gitlab"
 	"bitbucket.org/cloudreach/release/changelog"
-	"bitbucket.org/cloudreach/release/github"
 	"bitbucket.org/cloudreach/release/tagging"
 	"context"
 	"flag"
@@ -79,7 +77,7 @@ func (c *Create) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) s
 				desiredTag := changelogObj.ConvertToDesiredTag()
 				success := createProviderTag(c, desiredTag, changelogObj)
 				if !success {
-					_, err := os.Stderr.WriteString("Error creating GitlabTag" + desiredTag + "\n")
+					_, err := os.Stderr.WriteString("BitbucketError creating GitlabTag" + desiredTag + "\n")
 					if err != nil {
 						panic("Cannot write to stderr")
 					}
@@ -122,35 +120,24 @@ func checkCreateFlags(c *Create) []string {
 
 func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
+	properties := tagging.RepoProperties{
+		Username: c.username,
+		Password: c.password,
+		Repo:     c.repo,
+		Tag:      strings.TrimSpace(desiredTag),
+		Body:     changelogObj.Changes,
+		Hash:     c.hash,
+		Host:     c.host}
 	switch strings.ToLower(c.provider) {
 	case "github":
-		tag := github.RepoProperties{
-			Username: c.username,
-			Password: c.password,
-			Repo:     c.repo,
-			Tag:      strings.TrimSpace(desiredTag),
-			Body:     changelogObj.Changes,
-			Hash:     c.hash,
-			Host:     c.host}
-		success = tag.CreateTag()
+		provider := tagging.GithubProperties{RepoProperties: properties}
+		success = provider.CreateTag()
 	case "gitlab":
-		tag := gitlab.RepoProperties{
-			Token: c.password,
-			Repo:  c.repo,
-			Tag:   strings.TrimSpace(desiredTag),
-			Body:  changelogObj.Changes,
-			Hash:  c.hash,
-			Host:  c.host}
-		success = tag.CreateTag()
+		provider := tagging.GitlabProperties{RepoProperties: properties}
+		success = provider.CreateTag()
 	case "bitbucket":
-		tag := tagging.RepoProperties{
-			Username: c.username,
-			Password: c.password,
-			Repo:     c.repo,
-			Tag:      strings.TrimSpace(desiredTag),
-			Hash:     c.hash,
-			Host:     c.host}
-		success = tag.CreateTag()
+		provider := tagging.BitbucketProperties{RepoProperties: properties}
+		success = provider.CreateTag()
 	}
 	return success
 }

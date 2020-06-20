@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"bitbucket.org/cloudreach/release-gitlab/gitlab"
 	"bitbucket.org/cloudreach/release/changelog"
-	"bitbucket.org/cloudreach/release/github"
 	"bitbucket.org/cloudreach/release/tagging"
 	"context"
 	"flag"
@@ -121,35 +119,24 @@ func checkValidateFlags(v *Validate) []string {
 
 func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
+	properties := tagging.RepoProperties{
+		Username: v.username,
+		Password: v.password,
+		Repo:     v.repo,
+		Tag:      strings.TrimSpace(desiredTag),
+		Body:     changelogObj.Changes,
+		Hash:     v.hash,
+		Host:     v.host}
 	switch strings.ToLower(v.provider) {
 	case providers[0]:
-		tag := github.RepoProperties{
-			Username: v.username,
-			Password: v.password,
-			Repo:     v.repo,
-			Tag:      strings.TrimSpace(desiredTag),
-			Body:     changelogObj.Changes,
-			Hash:     v.hash,
-			Host:     v.host}
-		success = tag.ValidateTag()
+		provider := tagging.GithubProperties{RepoProperties: properties}
+		success = provider.ValidateTag()
 	case providers[1]:
-		tag := gitlab.RepoProperties{
-			Token: v.password,
-			Repo:  v.repo,
-			Tag:   strings.TrimSpace(desiredTag),
-			Body:  changelogObj.Changes,
-			Hash:  v.hash,
-			Host:  v.host}
-		success = tag.ValidateTag()
+		provider := tagging.GitlabProperties{RepoProperties: properties}
+		success = provider.ValidateTag()
 	case providers[2]:
-		tag := tagging.RepoProperties{
-			Username: v.username,
-			Password: v.password,
-			Repo:     v.repo,
-			Tag:      strings.TrimSpace(desiredTag),
-			Hash:     v.hash,
-			Host:     v.host}
-		success = tag.ValidateTag()
+		provider := tagging.BitbucketProperties{RepoProperties: properties}
+		success = provider.ValidateTag()
 	}
 	return success
 }

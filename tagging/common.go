@@ -17,6 +17,10 @@ type RepoProperties struct {
 	Body     string
 }
 
+type GithubProperties struct {
+	RepoProperties
+}
+
 type GitlabProperties struct {
 	RepoProperties
 }

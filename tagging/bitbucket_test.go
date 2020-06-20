@@ -33,7 +33,7 @@ func TestValidateTagUnauthorized(t *testing.T) {
 
 func TestValidateTagExistingSameHash(t *testing.T) {
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -51,7 +51,7 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing 200 response but hash is not the same
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -77,7 +77,7 @@ func TestValidateTagOtherError(t *testing.T) {
 func TestCreateTagNotFound(t *testing.T) {
 	// Testing tag not existing
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -97,7 +97,7 @@ func TestCreateTagNotFound(t *testing.T) {
 func TestCreateTagUnauthorized(t *testing.T) {
 	// Testing a 401
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -116,7 +116,7 @@ func TestCreateTagUnauthorized(t *testing.T) {
 func TestCreateTagSuccessful(t *testing.T) {
 	// Testing 201 response
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -135,7 +135,7 @@ func TestCreateTagSuccessful(t *testing.T) {
 func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	// Testing 201 response
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.personal-bitbucket.com").
@@ -152,11 +152,11 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 }
 
 func TestCreateTagAlreadyExists(t *testing.T) {
-	errorMessage := Error{Message: "tag \"test\" already exists"}
-	response := BadResponse{Type: "error", Error: errorMessage}
+	errorMessage := BitbucketError{Message: "tag \"test\" already exists"}
+	response := BitbucketBadResponse{Type: "error", Error: errorMessage}
 	defer gock.Off() // Flush pending mocks after test execution
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	tag := BitbucketTag{Name: "tag", Target: target}
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/test").
 		Reply(http.StatusOK).
@@ -171,8 +171,8 @@ func TestCreateTagAlreadyExists(t *testing.T) {
 }
 
 func TestCreateTagOtherError(t *testing.T) {
-	errorMessage := Error{Message: "something went wrong"}
-	response := BadResponse{Type: "error", Error: errorMessage}
+	errorMessage := BitbucketError{Message: "something went wrong"}
+	response := BitbucketBadResponse{Type: "error", Error: errorMessage}
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/tag").

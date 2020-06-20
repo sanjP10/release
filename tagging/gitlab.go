@@ -20,8 +20,8 @@ type GitlabTag struct {
 	Commit Commit `json:"commit"`
 }
 
-// Release Object
-type Release struct {
+// GitlabRelease Object
+type GitlabRelease struct {
 	Description string `json:"description"`
 }
 
@@ -165,7 +165,7 @@ func (r *GitlabProperties) createRelease() bool {
 	} else {
 		release = fmt.Sprintf("%s/api/v4/projects/%s/repository/tags/%s/release", r.Host, urllib.QueryEscape(r.Repo), r.Tag)
 	}
-	body := Release{r.Body}
+	body := GitlabRelease{r.Body}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		fmt.Println("error marshalling object:", err)

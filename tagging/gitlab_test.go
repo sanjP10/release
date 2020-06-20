@@ -112,7 +112,7 @@ func TestCreateTagUnauthorized_Gitlab(t *testing.T) {
 
 func TestCreateTagSuccessful_Gitlab(t *testing.T) {
 	// Testing 201 response
-	body := Release{Description: "hello"}
+	body := GitlabRelease{Description: "hello"}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -137,7 +137,7 @@ func TestCreateTagSuccessful_Gitlab(t *testing.T) {
 
 func TestCreateTagSuccessfulWithHostOverride_Gitlab(t *testing.T) {
 	// Testing 201 response
-	body := Release{"hello"}
+	body := GitlabRelease{"hello"}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("http://personal-gitlab.com/").
@@ -163,8 +163,8 @@ func TestCreateTagAndReleaseAlreadyExists_Gitlab(t *testing.T) {
 	target := Commit{ID: "hash"}
 	tag := GitlabTag{Commit: target}
 	response := GitlabBadResponse{"GitlabTag test already exists"}
-	body := Release{"hello"}
-	releaseResponse := GitlabBadResponse{"Release already exists"}
+	body := GitlabRelease{"hello"}
+	releaseResponse := GitlabBadResponse{"GitlabRelease already exists"}
 
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://gitlab.com/").
@@ -191,7 +191,7 @@ func TestCreateTagAndReleaseFails(t *testing.T) {
 	target := Commit{ID: "hash"}
 	tag := GitlabTag{Commit: target}
 	response := GitlabBadResponse{"GitlabTag test already exists"}
-	body := Release{"hello"}
+	body := GitlabRelease{"hello"}
 
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://gitlab.com/").
@@ -249,7 +249,7 @@ func TestCreateTagOtherErrorResponse_Gitlab(t *testing.T) {
 
 func TestCreateReleaseNotFound(t *testing.T) {
 	// Testing release not existing
-	body := Release{Description: "hello"}
+	body := GitlabRelease{Description: "hello"}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -265,7 +265,7 @@ func TestCreateReleaseNotFound(t *testing.T) {
 func TestCreateReleaseUnauthorized(t *testing.T) {
 	// Testing a 401
 	// Testing release not existing
-	body := Release{Description: "hello"}
+	body := GitlabRelease{Description: "hello"}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -280,7 +280,7 @@ func TestCreateReleaseUnauthorized(t *testing.T) {
 
 func TestCreateRelease(t *testing.T) {
 	// Testing release not existing
-	body := Release{"hello"}
+	body := GitlabRelease{"hello"}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://gitlab.com/").
@@ -297,7 +297,7 @@ func TestCreateRelease(t *testing.T) {
 func TestCreateReleaseExists(t *testing.T) {
 	// Testing a 409
 	// Testing release not existing
-	body := Release{"hello"}
+	body := GitlabRelease{"hello"}
 	releaseResponse := GitlabBadResponse{"Release already exists"}
 	defer gock.Off() // Flush pending mocks after test execution
 

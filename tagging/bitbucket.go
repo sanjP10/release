@@ -14,20 +14,20 @@ type Target struct {
 	Hash string `json:"hash"`
 }
 
-// Tag Structure of bitbucket tag response
-type Tag struct {
+// BitbucketTag Structure of bitbucket tag response
+type BitbucketTag struct {
 	Name   string `json:"name"`
 	Target Target `json:"target"`
 }
 
-// BadResponse structure of 400 response
-type BadResponse struct {
-	Type  string `json:"type"`
-	Error Error  `json:"error"`
+// BitbucketBadResponse structure of 400 response
+type BitbucketBadResponse struct {
+	Type  string         `json:"type"`
+	Error BitbucketError `json:"error"`
 }
 
-// Error structure of error message response
-type Error struct {
+// BitbucketError structure of error message response
+type BitbucketError struct {
 	Message string `json:"message"`
 }
 
@@ -75,7 +75,7 @@ func (r *BitbucketProperties) ValidateTag() bool {
 		}
 	}
 	if resp.StatusCode == http.StatusOK {
-		res := Tag{}
+		res := BitbucketTag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading body of tag response")
@@ -103,7 +103,7 @@ func (r *BitbucketProperties) CreateTag() bool {
 		}
 
 		target := Target{r.Hash}
-		body := &Tag{Name: r.Tag, Target: target}
+		body := &BitbucketTag{Name: r.Tag, Target: target}
 
 		jsonBody, err := json.Marshal(body)
 		if err != nil {
@@ -138,7 +138,7 @@ func (r *BitbucketProperties) CreateTag() bool {
 		}
 
 		if resp.StatusCode == http.StatusBadRequest {
-			res := BadResponse{}
+			res := BitbucketBadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Println("Error reading body of error response")
