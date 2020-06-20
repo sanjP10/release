@@ -3,6 +3,8 @@ package cmd
 import (
 	"bitbucket.org/cloudreach/release/bitbucket"
 	"bitbucket.org/cloudreach/release/changelog"
+	"bitbucket.org/cloudreach/release/github"
+	"bitbucket.org/cloudreach/release/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -18,6 +20,7 @@ type Create struct {
 	repo      string
 	hash      string
 	host      string
+	provider  string
 }
 
 // Name of sub command
@@ -28,7 +31,7 @@ func (*Create) Synopsis() string { return "create release for bitbucket repo." }
 
 // Usage of sub command
 func (*Create) Usage() string {
-	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
+	return `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-provider <github/gitlab/bitbucket>] [-host <host> (optional)]:
   creates tag against bitbucket repo
 `
 }
@@ -41,6 +44,7 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.changelog, "changelog", "", "changelog")
 	f.StringVar(&c.hash, "hash", "", "hash")
 	f.StringVar(&c.host, "host", "", "host")
+	f.StringVar(&c.provider, "provider", "", "provider")
 }
 
 // Execute flow for create sub command
@@ -74,8 +78,7 @@ func (c *Create) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 			} else {
 				changelogObj.RetrieveChanges(changelogFile)
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				tag := bitbucket.RepoProperties{Username: c.username, Password: c.password, Repo: c.repo, Tag: strings.TrimSpace(desiredTag), Hash: c.hash, Host: c.host}
-				success := tag.CreateTag()
+				success := createProviderTag(c, desiredTag, changelogObj)
 				if !success {
 					_, err := os.Stderr.WriteString("Error creating Tag" + desiredTag)
 					if err != nil {
@@ -111,5 +114,44 @@ func checkCreateFlags(c *Create) []string {
 	if len(c.hash) == 0 {
 		errors = append(errors, "-hash required")
 	}
+
+	if !ValidProvider(c.provider) {
+		errors = append(errors, "-provider required, valid values are "+strings.Join(providers[:], ", "))
+	}
 	return errors
+}
+
+func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) bool {
+	success := false
+	provider := strings.ToLower(c.provider)
+	if provider == "github" {
+		tag := github.RepoProperties{
+			Username: c.username,
+			Password: c.password,
+			Repo:     c.repo,
+			Tag:      strings.TrimSpace(desiredTag),
+			Body:     changelogObj.Changes,
+			Hash:     c.hash,
+			Host:     c.host}
+		success = tag.CreateTag()
+	} else if provider == "gitlab" {
+		tag := gitlab.RepoProperties{
+			Token: c.password,
+			Repo:  c.repo,
+			Tag:   strings.TrimSpace(desiredTag),
+			Body:  changelogObj.Changes,
+			Hash:  c.hash,
+			Host:  c.host}
+		success = tag.CreateTag()
+	} else if provider == "bitbucket" {
+		tag := bitbucket.RepoProperties{
+			Username: c.username,
+			Password: c.password,
+			Repo:     c.repo,
+			Tag:      strings.TrimSpace(desiredTag),
+			Hash:     c.hash,
+			Host:     c.host}
+		success = tag.CreateTag()
+	}
+	return success
 }

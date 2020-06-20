@@ -3,6 +3,8 @@ package cmd
 import (
 	"bitbucket.org/cloudreach/release/bitbucket"
 	"bitbucket.org/cloudreach/release/changelog"
+	"bitbucket.org/cloudreach/release/github"
+	"bitbucket.org/cloudreach/release/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -18,6 +20,7 @@ type Validate struct {
 	changelog string
 	hash      string
 	host      string
+	provider  string
 }
 
 // Name of subcommand
@@ -28,7 +31,7 @@ func (*Validate) Synopsis() string { return "validates release version to be cre
 
 // Usage of subcommand
 func (*Validate) Usage() string {
-	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
+	return `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-provider <github/gitlab/bitbucket>] [-host <host> (optional)]:
   validates tag against bitbucket repo
 `
 }
@@ -41,6 +44,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.changelog, "changelog", "", "changelog")
 	f.StringVar(&v.hash, "hash", "", "hash")
 	f.StringVar(&v.host, "host", "", "host")
+	f.StringVar(&v.provider, "provider", "", "provider")
 }
 
 //Execute flow of subcommand
@@ -73,8 +77,7 @@ func (v *Validate) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 				}
 			} else {
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				tag := bitbucket.RepoProperties{Username: v.username, Password: v.password, Tag: strings.TrimSpace(desiredTag), Repo: v.repo, Hash: v.hash, Host: v.host}
-				success := tag.ValidateTag()
+				success := validateProviderTag(v, desiredTag, changelogObj)
 				if !success {
 					_, err := os.Stderr.WriteString("Tag cannot be created or already exists")
 					if err != nil {
@@ -110,5 +113,43 @@ func checkValidateFlags(v *Validate) []string {
 	if len(v.hash) == 0 {
 		errors = append(errors, "-hash required")
 	}
+
+	if !ValidProvider(v.provider) {
+		errors = append(errors, "-provider required, valid values are "+strings.Join(providers[:], ", "))
+	}
 	return errors
+}
+
+func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
+	success := false
+	if strings.ToLower(v.provider) == "github" {
+		tag := github.RepoProperties{
+			Username: v.username,
+			Password: v.password,
+			Repo:     v.repo,
+			Tag:      strings.TrimSpace(desiredTag),
+			Body:     changelogObj.Changes,
+			Hash:     v.hash,
+			Host:     v.host}
+		success = tag.ValidateTag()
+	} else if strings.ToLower(v.provider) == "gitlab" {
+		tag := gitlab.RepoProperties{
+			Token: v.password,
+			Repo:  v.repo,
+			Tag:   strings.TrimSpace(desiredTag),
+			Body:  changelogObj.Changes,
+			Hash:  v.hash,
+			Host:  v.host}
+		success = tag.ValidateTag()
+	} else if strings.ToLower(v.provider) == "bitbucket" {
+		tag := bitbucket.RepoProperties{
+			Username: v.username,
+			Password: v.password,
+			Repo:     v.repo,
+			Tag:      strings.TrimSpace(desiredTag),
+			Hash:     v.hash,
+			Host:     v.host}
+		success = tag.ValidateTag()
+	}
+	return success
 }

@@ -20,7 +20,7 @@ func TestCreate_Synopsis(t *testing.T) {
 func TestCreate_Usage(t *testing.T) {
 	create := &Create{}
 	assertTest := assert.New(t)
-	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-host <host> (optional)]:
+	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-provider <github/gitlab/bitbucket>] [-host <host> (optional)]:
   creates tag against bitbucket repo
 `
 	assertTest.Equal(create.Usage(), expected)
@@ -34,7 +34,8 @@ func Test_checkCreateFlags(t *testing.T) {
 		"-password required",
 		"-repo required",
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest := assert.New(t)
 	assertTest.Equal(errors, expected)
 
@@ -44,7 +45,8 @@ func Test_checkCreateFlags(t *testing.T) {
 		"-password required",
 		"-repo required",
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	createCmd.password = "password"
@@ -52,23 +54,40 @@ func Test_checkCreateFlags(t *testing.T) {
 	expected = []string{
 		"-repo required",
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	createCmd.repo = "repo"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-changelog required",
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	createCmd.changelog = "changelog"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-hash required"}
+		"-hash required",
+		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	createCmd.hash = "hash"
-	validCreate := checkCreateFlags(createCmd)
-	assertTest.Empty(validCreate)
+	errors = checkCreateFlags(createCmd)
+	expected = []string{
+		"-provider required, valid values are github, gitlab, bitbucket"}
+	assertTest.Equal(errors, expected)
+
+	createCmd.provider = "svn"
+	errors = checkCreateFlags(createCmd)
+	expected = []string{
+		"-provider required, valid values are github, gitlab, bitbucket"}
+	assertTest.Equal(errors, expected)
+
+	for _, provider := range providers {
+		createCmd.provider = provider
+		validCreate := checkCreateFlags(createCmd)
+		assertTest.Empty(validCreate)
+	}
 }
