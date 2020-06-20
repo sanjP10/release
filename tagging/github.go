@@ -41,9 +41,9 @@ type GithubBadResponse struct {
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *GithubProperties) ValidateTag() bool {
+func (r *GithubProperties) ValidateTag() ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := false
+	validTag := ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.github.com/repos/%s/git/refs/tags/%s", r.Repo, r.Tag)
@@ -59,7 +59,7 @@ func (r *GithubProperties) ValidateTag() bool {
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-		return false
+		return validTag
 	}
 	request.SetBasicAuth(r.Username, r.Password)
 	client := &http.Client{}
@@ -73,11 +73,11 @@ func (r *GithubProperties) ValidateTag() bool {
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-		return false
+		return validTag
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		validTag = true
+		validTag.TagDoesntExist = true
 	}
 	if resp.StatusCode == http.StatusUnauthorized {
 		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
@@ -96,7 +96,7 @@ func (r *GithubProperties) ValidateTag() bool {
 			fmt.Println("GithubError unmarshalling body")
 		}
 		if r.Hash == res.Object.Sha {
-			validTag = true
+			validTag.TagExistsWithProvidedHash = true
 		}
 	}
 	return validTag
@@ -105,7 +105,10 @@ func (r *GithubProperties) ValidateTag() bool {
 // CreateTag creates a github tag
 func (r *GithubProperties) CreateTag() bool {
 	createTag := false
-	if r.ValidateTag() {
+	validTagState := r.ValidateTag()
+	if validTagState.TagExistsWithProvidedHash {
+		createTag = true
+	} else if validTagState.TagDoesntExist {
 		url := ""
 		if r.Host == "" {
 			url = fmt.Sprintf("https://api.github.com/repos/%s/releases", r.Repo)
@@ -154,8 +157,10 @@ func (r *GithubProperties) CreateTag() bool {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
-			if res.Errors[0].Code == fmt.Sprintf("already_exists") {
-				createTag = true
+
+			_, errorWriting := os.Stderr.WriteString(res.Errors[0].Code)
+			if errorWriting != nil {
+				panic("Cannot write to stderr")
 			}
 		}
 	}

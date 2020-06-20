@@ -31,3 +31,8 @@ type GitlabProperties struct {
 type BitbucketProperties struct {
 	RepoProperties
 }
+
+type ValidTagState struct {
+	TagDoesntExist            bool
+	TagExistsWithProvidedHash bool
+}

@@ -119,6 +119,7 @@ func checkValidateFlags(v *Validate) []string {
 
 func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
+	validTagState := tagging.ValidTagState{}
 	properties := tagging.RepoProperties{
 		Username: v.username,
 		Password: v.password,
@@ -130,13 +131,14 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 	switch strings.ToLower(v.provider) {
 	case providers[0]:
 		provider := tagging.GithubProperties{RepoProperties: properties}
-		success = provider.ValidateTag()
+		validTagState = provider.ValidateTag()
 	case providers[1]:
 		provider := tagging.GitlabProperties{RepoProperties: properties}
-		success = provider.ValidateTag()
+		validTagState = provider.ValidateTag()
 	case providers[2]:
 		provider := tagging.BitbucketProperties{RepoProperties: properties}
-		success = provider.ValidateTag()
+		validTagState = provider.ValidateTag()
 	}
+	success = validTagState.TagDoesntExist || validTagState.TagExistsWithProvidedHash
 	return success
 }

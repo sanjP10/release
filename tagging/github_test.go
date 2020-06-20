@@ -16,7 +16,9 @@ func TestValidateTagNotExisting_Github(t *testing.T) {
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
 	repo := GithubProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.True(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.True(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagUnauthorized_Githhub(t *testing.T) {
@@ -28,7 +30,9 @@ func TestValidateTagUnauthorized_Githhub(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing a 403
 	repo := GithubProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.False(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagExistingSameHash_Github(t *testing.T) {
@@ -44,7 +48,9 @@ func TestValidateTagExistingSameHash_Github(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing 200 response and hash is the same
 	repo := GithubProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.True(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.True(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagExistingMismatchHash_Github(t *testing.T) {
@@ -59,7 +65,9 @@ func TestValidateTagExistingMismatchHash_Github(t *testing.T) {
 		Reply(http.StatusOK).
 		JSON(tag)
 	repo := GithubProperties{RepoProperties{"username", "password", "repo", "tag", "not_hash", "", ""}}
-	assertTest.False(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagOtherError_Github(t *testing.T) {
@@ -71,7 +79,9 @@ func TestValidateTagOtherError_Github(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing a 403
 	repo := GithubProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.False(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestCreateTagNotFound_Github(t *testing.T) {
@@ -151,12 +161,25 @@ func TestCreateTagSuccessfulWithHostOverride_Github(t *testing.T) {
 func TestCreateTagAlreadyExists_Github(t *testing.T) {
 	target := Object{Sha: "hash"}
 	tag := Tag{Object: target}
+	defer gock.Off() // Flush pending mocks after test execution
+	gock.New("https://api.github.com").
+		Get("/repos/repo/git/refs/tags").
+		Reply(http.StatusOK).
+		JSON(tag)
+	assertTest := assert.New(t)
+	repo := GithubProperties{RepoProperties{"username", "password", "repo", "test", "hash", "", "hello"}}
+	assertTest.True(repo.CreateTag())
+}
+
+func TestCreateError_Github(t *testing.T) {
+	target := Object{Sha: "hash"}
+	tag := Tag{Object: target}
 	errorMessage := GithubError{Code: "already_exists"}
 	response := GithubBadResponse{Errors: []GithubError{errorMessage}}
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://api.github.com").
 		Get("/repos/repo/git/refs/tags").
-		Reply(http.StatusOK).
+		Reply(http.StatusNotFound).
 		JSON(tag)
 	gock.New("https://api.github.com").
 		Post("/repos/repo/releases").

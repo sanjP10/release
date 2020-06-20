@@ -31,9 +31,9 @@ type GitlabBadResponse struct {
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *GitlabProperties) ValidateTag() bool {
+func (r *GitlabProperties) ValidateTag() ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := false
+	validTag := ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/tags/%s", urllib.QueryEscape(r.Repo), r.Tag)
@@ -49,7 +49,7 @@ func (r *GitlabProperties) ValidateTag() bool {
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-		return false
+		return validTag
 	}
 	request.Header.Set("PRIVATE-TOKEN", r.Password)
 	client := &http.Client{}
@@ -62,11 +62,11 @@ func (r *GitlabProperties) ValidateTag() bool {
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-		return false
+		return validTag
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		validTag = true
+		validTag.TagDoesntExist = true
 	}
 	if resp.StatusCode == http.StatusUnauthorized {
 		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
@@ -85,7 +85,7 @@ func (r *GitlabProperties) ValidateTag() bool {
 			fmt.Println("Error unmarshalling body")
 		}
 		if r.Hash == res.Commit.ID {
-			validTag = true
+			validTag.TagExistsWithProvidedHash = true
 		}
 	}
 	return validTag
@@ -94,7 +94,10 @@ func (r *GitlabProperties) ValidateTag() bool {
 // CreateTag creates a Gitlab tag
 func (r *GitlabProperties) CreateTag() bool {
 	createTag := false
-	if r.ValidateTag() {
+	validTagState := r.ValidateTag()
+	if validTagState.TagExistsWithProvidedHash {
+		createTag = true
+	} else if validTagState.TagDoesntExist {
 		url := ""
 		if r.Host == "" {
 			url = fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/tags", urllib.QueryEscape(r.Repo))
@@ -149,8 +152,9 @@ func (r *GitlabProperties) CreateTag() bool {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
-			if res.Message == fmt.Sprintf("GitlabTag %s already exists", r.Tag) {
-				createTag = r.createRelease()
+			_, errorWriting := os.Stderr.WriteString(res.Message)
+			if errorWriting != nil {
+				panic("Cannot write to stderr")
 			}
 		}
 	}
@@ -206,8 +210,9 @@ func (r *GitlabProperties) createRelease() bool {
 			fmt.Println("Error reading body of error response")
 		}
 		err = json.Unmarshal(body, &res)
-		if res.Message == "Release already exists" {
-			createdRelease = true
+		_, errorWriting := os.Stderr.WriteString(res.Message)
+		if errorWriting != nil {
+			panic("Cannot write to stderr")
 		}
 	}
 

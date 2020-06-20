@@ -16,7 +16,9 @@ func TestValidateTagNotExisting(t *testing.T) {
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
 	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.True(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.True(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagUnauthorized(t *testing.T) {
@@ -28,7 +30,9 @@ func TestValidateTagUnauthorized(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing a 403
 	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.False(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagExistingSameHash(t *testing.T) {
@@ -44,7 +48,9 @@ func TestValidateTagExistingSameHash(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing 200 response and hash is the same
 	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.True(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.True(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagExistingMismatchHash(t *testing.T) {
@@ -59,7 +65,9 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 		Reply(http.StatusOK).
 		JSON(tag)
 	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "tag", "not_hash", "", ""}}
-	assertTest.False(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestValidateTagOtherError(t *testing.T) {
@@ -71,7 +79,9 @@ func TestValidateTagOtherError(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing a 403
 	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "tag", "hash", "", ""}}
-	assertTest.False(repo.ValidateTag())
+	results := repo.ValidateTag()
+	assertTest.False(results.TagDoesntExist)
+	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
 func TestCreateTagNotFound(t *testing.T) {
@@ -152,8 +162,6 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 }
 
 func TestCreateTagAlreadyExists(t *testing.T) {
-	errorMessage := BitbucketError{Message: "tag \"test\" already exists"}
-	response := BitbucketBadResponse{Type: "error", Error: errorMessage}
 	defer gock.Off() // Flush pending mocks after test execution
 	target := Target{Hash: "hash"}
 	tag := BitbucketTag{Name: "tag", Target: target}
@@ -161,13 +169,28 @@ func TestCreateTagAlreadyExists(t *testing.T) {
 		Get("/2.0/repositories/repo/refs/tags/test").
 		Reply(http.StatusOK).
 		JSON(tag)
+	assertTest := assert.New(t)
+	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "test", "hash", "", ""}}
+	assertTest.True(repo.CreateTag())
+}
+
+func TestCreateTagError(t *testing.T) {
+	errorMessage := BitbucketError{Message: "tag \"test\" already exists"}
+	response := BitbucketBadResponse{Type: "error", Error: errorMessage}
+	defer gock.Off() // Flush pending mocks after test execution
+	target := Target{Hash: "hash"}
+	tag := BitbucketTag{Name: "tag", Target: target}
+	gock.New("https://api.bitbucket.org").
+		Get("/2.0/repositories/repo/refs/tags/test").
+		Reply(http.StatusNotFound).
+		JSON(tag)
 	gock.New("https://api.bitbucket.org").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusBadRequest).
 		JSON(response)
 	assertTest := assert.New(t)
 	repo := BitbucketProperties{RepoProperties{"username", "password", "repo", "test", "hash", "", ""}}
-	assertTest.True(repo.CreateTag())
+	assertTest.False(repo.CreateTag())
 }
 
 func TestCreateTagOtherError(t *testing.T) {

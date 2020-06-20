@@ -32,9 +32,9 @@ type BitbucketError struct {
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *BitbucketProperties) ValidateTag() bool {
+func (r *BitbucketProperties) ValidateTag() ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := false
+	validTag := ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
@@ -50,7 +50,7 @@ func (r *BitbucketProperties) ValidateTag() bool {
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-		return false
+		return validTag
 	}
 	request.SetBasicAuth(r.Username, r.Password)
 	client := &http.Client{}
@@ -63,10 +63,10 @@ func (r *BitbucketProperties) ValidateTag() bool {
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-		return false
+		return validTag
 	}
 	if resp.StatusCode == http.StatusNotFound {
-		validTag = true
+		validTag.TagDoesntExist = true
 	}
 	if resp.StatusCode == http.StatusUnauthorized {
 		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
@@ -85,7 +85,7 @@ func (r *BitbucketProperties) ValidateTag() bool {
 			fmt.Println("Error unmarshalling body")
 		}
 		if r.Hash == res.Target.Hash {
-			validTag = true
+			validTag.TagExistsWithProvidedHash = true
 		}
 	}
 	return validTag
@@ -94,7 +94,10 @@ func (r *BitbucketProperties) ValidateTag() bool {
 // CreateTag creates a bitbucket tag
 func (r *BitbucketProperties) CreateTag() bool {
 	createTag := false
-	if r.ValidateTag() {
+	validTagState := r.ValidateTag()
+	if validTagState.TagExistsWithProvidedHash {
+		createTag = true
+	} else if validTagState.TagDoesntExist {
 		url := ""
 		if r.Host == "" {
 			url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
@@ -144,13 +147,9 @@ func (r *BitbucketProperties) CreateTag() bool {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
-			if res.Error.Message == fmt.Sprintf("tag \"%s\" already exists", r.Tag) {
-				createTag = true
-			} else {
-				_, errorWriting := os.Stderr.WriteString(res.Error.Message)
-				if errorWriting != nil {
-					panic("Cannot write to stderr")
-				}
+			_, errorWriting := os.Stderr.WriteString(res.Error.Message)
+			if errorWriting != nil {
+				panic("Cannot write to stderr")
 			}
 		}
 	}
