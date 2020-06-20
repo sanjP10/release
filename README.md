@@ -1,8 +1,14 @@
 # Release
 
-Release is a binary that validates and creates tags against git repos by reading your changelog file
+Release is a tool that validates and creates tags against git repos by reading your changelog file.
 
-Requires a markdown formatted changelog, with the most recent changes at the top.
+It is supported for the following git repository providers:
+
+* Github
+* Gitlab
+* Bitbucket
+
+It requires a markdown formatted changelog, with the most recent changes at the top.
 
 The that consists of a version must start with a `h2` markup and have a number afterwards.
 
@@ -39,6 +45,9 @@ major.minor.patch.micro
 ***Note the format must be consistent within the changelog***
 
 The two subcommands for release are `validate` and `create`
+* `validate` will interrogate the latest version on the changelog file and if it exists for the repository.
+If it does exist and the commit hash provided is the same it will return a successful exit code.
+* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. **Github** and **Gitlab** also takes the markdown between the version numbers and creates a release with the changelog notes you created.
 
 The flags for these commands are 
 

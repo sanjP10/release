@@ -186,7 +186,7 @@ func TestCreateTagAndReleaseAlreadyExists_Gitlab(t *testing.T) {
 func TestCreateTagAndErrors_Gitlab(t *testing.T) {
 	target := Commit{ID: "hash"}
 	tag := GitlabTag{Commit: target}
-	response := GitlabBadResponse{"GitlabTag test already exists"}
+	response := GitlabBadResponse{"Tag test already exists"}
 	body := GitlabRelease{"hello"}
 	releaseResponse := GitlabBadResponse{"GitlabRelease already exists"}
 
@@ -214,7 +214,7 @@ func TestCreateTagAndErrors_Gitlab(t *testing.T) {
 func TestCreateTagAndReleaseFails(t *testing.T) {
 	target := Commit{ID: "hash"}
 	tag := GitlabTag{Commit: target}
-	response := GitlabBadResponse{"GitlabTag test already exists"}
+	response := GitlabBadResponse{"Tag test already exists"}
 	body := GitlabRelease{"hello"}
 
 	defer gock.Off() // Flush pending mocks after test execution

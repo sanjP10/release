@@ -76,7 +76,7 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 				desiredTag := changelogObj.ConvertToDesiredTag()
 				success := validateProviderTag(v, desiredTag, changelogObj)
 				if !success {
-					_, err := os.Stderr.WriteString("GitlabTag cannot be created or already exists\n")
+					_, err := os.Stderr.WriteString("Tag cannot be created or already exists\n")
 					if err != nil {
 						panic("Cannot write to stderr")
 					}
