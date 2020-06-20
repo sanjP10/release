@@ -14,15 +14,13 @@ func TestCreate_Name(t *testing.T) {
 func TestCreate_Synopsis(t *testing.T) {
 	create := &Create{}
 	assertTest := assert.New(t)
-	assertTest.Equal(create.Synopsis(), "create release for bitbucket repo.")
+	assertTest.Equal(create.Synopsis(), "Creates tag and release for repo.")
 }
 
 func TestCreate_Usage(t *testing.T) {
 	create := &Create{}
 	assertTest := assert.New(t)
-	expected := `create [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-provider <github/gitlab/bitbucket>] [-host <host> (optional)]:
-  creates tag against bitbucket repo
-`
+	expected := "Creates tag and release for repo.\n"
 	assertTest.Equal(create.Usage(), expected)
 }
 

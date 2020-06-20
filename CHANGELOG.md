@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0
+
+### Added
+* Github and Gitlab support
+
 ## 2.0.4
 
 ### Changed

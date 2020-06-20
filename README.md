@@ -1,6 +1,6 @@
 # Release
 
-Release is a binary that validates and creates tags against bitbucket by reading your changelog file
+Release is a binary that validates and creates tags against git repos by reading your changelog file
 
 Requires a markdown formatted changelog, with the most recent changes at the top.
 
@@ -48,26 +48,28 @@ The flags for these commands are
 -repo <owner/org>/<repo name>
 -changelog <changelog md file>
 -hash <commit sha>
--host <bitbucket dns> (optional) (default is bitbucket.org)
+-host <host dns> (optional) (default is bitbucket.org, gitlab.com, github.com)
+-provider <git provider of choice from gitlab, github and bitbucket>
 ```
 
 This is an example `validate` command
 
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
+release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
 ```
 
 This is an example `create` command
 
 ```
-release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d
+release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
 ```
 
 This is an example of `validate` command against a self-hosted bitbucket
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com
+release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
 ```
 
+# Bitbucket Pipeline example
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
 ```
@@ -85,7 +87,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
       - dep ensure
       - go install
       # Test version does not exist
-      - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT
+      - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
 
 ```
 
@@ -107,10 +109,5 @@ To integrate this into bitbucket pipelines you can use the following as steps
       - go get -u github.com/golang/dep/cmd/dep
       - dep ensure
       - go install
-      - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT
+      - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
-
-## Alternative Code Repository Integrations
-
-* [Github](https://bitbucket.org/cloudreach/release-github/)
-* [Gitlab](https://bitbucket.org/cloudreach/release-gitlab/)

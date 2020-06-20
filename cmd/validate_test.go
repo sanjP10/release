@@ -14,15 +14,13 @@ func TestValidate_Name(t *testing.T) {
 func TestValidate_Synopsis(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	assertTest.Equal(validate.Synopsis(), "validates release version to be created.")
+	assertTest.Equal(validate.Synopsis(), "Validates tag and release for repo to be created.")
 }
 
 func TestValidate_Usage(t *testing.T) {
 	validate := &Validate{}
 	assertTest := assert.New(t)
-	var expected = `validate [-username <username>] [-password <password/token>] [-repo <repo>] [-changelog <changelog md file>] [-provider <github/gitlab/bitbucket>] [-host <host> (optional)]:
-  validates tag against bitbucket repo
-`
+	var expected = "Validates tag and release for repo to be created.\n"
 	assertTest.Equal(validate.Usage(), expected)
 }
 
