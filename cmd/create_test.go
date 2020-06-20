@@ -89,3 +89,15 @@ func Test_checkCreateFlags(t *testing.T) {
 		assertTest.Empty(validCreate)
 	}
 }
+
+func Test_CreateCheckFlag_Gitlab(t *testing.T) {
+	create := &Create{}
+	create.password = "token"
+	create.provider = "gitlab"
+	create.repo = "repo"
+	create.hash = "hash"
+	create.changelog = "file"
+	assertTest := assert.New(t)
+	errors := checkCreateFlags(create)
+	assertTest.Empty(errors)
+}

@@ -89,3 +89,15 @@ func Test_checkValidateFlags(t *testing.T) {
 		assertTest.Empty(validCreate)
 	}
 }
+
+func Test_ValidateCheckFlag_Gitlab(t *testing.T) {
+	validate := &Validate{}
+	validate.password = "token"
+	validate.provider = "gitlab"
+	validate.repo = "repo"
+	validate.hash = "hash"
+	validate.changelog = "file"
+	assertTest := assert.New(t)
+	errors := checkValidateFlags(validate)
+	assertTest.Empty(errors)
+}

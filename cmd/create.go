@@ -96,7 +96,7 @@ func (c *Create) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) s
 
 func checkCreateFlags(c *Create) []string {
 	var errors []string
-	if len(c.username) == 0 {
+	if len(c.username) == 0 && c.provider != "gitlab" {
 		errors = append(errors, "-username required")
 	}
 	if len(c.password) == 0 {

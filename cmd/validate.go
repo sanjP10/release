@@ -95,7 +95,7 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 
 func checkValidateFlags(v *Validate) []string {
 	var errors []string
-	if len(v.username) == 0 {
+	if len(v.username) == 0 && v.provider != "gitlab" {
 		errors = append(errors, "-username required")
 	}
 	if len(v.password) == 0 {
@@ -129,13 +129,13 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 		Hash:     v.hash,
 		Host:     v.host}
 	switch strings.ToLower(v.provider) {
-	case providers[0]:
+	case "github":
 		provider := tagging.GithubProperties{RepoProperties: properties}
 		validTagState = provider.ValidateTag()
-	case providers[1]:
+	case "gitlab":
 		provider := tagging.GitlabProperties{RepoProperties: properties}
 		validTagState = provider.ValidateTag()
-	case providers[2]:
+	case "bitbucket":
 		provider := tagging.BitbucketProperties{RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	}
