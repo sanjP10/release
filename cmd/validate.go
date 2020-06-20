@@ -73,10 +73,11 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 					panic("Cannot write to stderr")
 				}
 			} else {
+
 				desiredTag := changelogObj.ConvertToDesiredTag()
 				success := validateProviderTag(v, desiredTag, changelogObj)
 				if !success {
-					_, err := os.Stderr.WriteString("Tag " + strings.TrimSpace(desiredTag) + "already exists\n")
+					_, err := os.Stderr.WriteString("Tag " + strings.TrimSpace(desiredTag) + " already exists\n")
 					if err != nil {
 						panic("Cannot write to stderr")
 					}
