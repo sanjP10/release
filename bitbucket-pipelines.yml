@@ -9,8 +9,7 @@ definitions:
           - mkdir -pv "${PACKAGE_PATH}"
           - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
           - cd "${PACKAGE_PATH}"
-          - go get -u github.com/golang/dep/cmd/dep
-          - dep ensure
+          - go mod download
           - go test ./... -cover
     - step: &lint
         name: linting
@@ -24,8 +23,7 @@ definitions:
           - mkdir -pv "${PACKAGE_PATH}"
           - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
           - cd "${PACKAGE_PATH}"
-          - go get -u github.com/golang/dep/cmd/dep
-          - dep ensure
+          - go mod download
           - go install
           # expecting release to exist and hash to be the same so is fine to pass
           - release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket

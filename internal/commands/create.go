@@ -131,13 +131,13 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 		Host:     c.host}
 	switch strings.ToLower(c.provider) {
 	case "github":
-		provider := github.GithubProperties{Username: c.username, Body: changelogObj.Changes, RepoProperties: properties}
+		provider := github.Properties{Username: c.username, Body: changelogObj.Changes, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "gitlab":
-		provider := gitlab.GitlabProperties{Body: changelogObj.Changes, RepoProperties: properties}
+		provider := gitlab.Properties{Body: changelogObj.Changes, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "bitbucket":
-		provider := bitbucket.BitbucketProperties{Username: c.username, RepoProperties: properties}
+		provider := bitbucket.Properties{Username: c.username, RepoProperties: properties}
 		success = provider.CreateTag()
 	}
 	return success

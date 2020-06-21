@@ -16,29 +16,29 @@ type Commit struct {
 	ID string `json:"id"`
 }
 
-// GitlabTag Structure of bitbucket tag response
-type GitlabTag struct {
+// Tag Structure of bitbucket tag response
+type Tag struct {
 	Commit Commit `json:"commit"`
 }
 
-// GitlabRelease Object
-type GitlabRelease struct {
+// Release Object
+type Release struct {
 	Description string `json:"description"`
 }
 
-// GitlabBadResponse format for 400 http response body
-type GitlabBadResponse struct {
+// BadResponse format for 400 http response body
+type BadResponse struct {
 	Message string `json:"message"`
 }
 
-// GitlabProperties properties for repo
-type GitlabProperties struct {
+// Properties properties for repo
+type Properties struct {
 	interfaces.RepoProperties
 	Body string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *GitlabProperties) ValidateTag() interfaces.ValidTagState {
+func (r *Properties) ValidateTag() interfaces.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := interfaces.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
@@ -82,7 +82,7 @@ func (r *GitlabProperties) ValidateTag() interfaces.ValidTagState {
 		}
 	}
 	if resp.StatusCode == http.StatusOK {
-		res := GitlabTag{}
+		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading body of tag response")
@@ -99,7 +99,7 @@ func (r *GitlabProperties) ValidateTag() interfaces.ValidTagState {
 }
 
 // CreateTag creates a Gitlab tag
-func (r *GitlabProperties) CreateTag() bool {
+func (r *Properties) CreateTag() bool {
 	createTag := false
 	validTagState := r.ValidateTag()
 	if validTagState.TagExistsWithProvidedHash {
@@ -153,7 +153,7 @@ func (r *GitlabProperties) CreateTag() bool {
 		}
 
 		if resp.StatusCode == http.StatusBadRequest {
-			res := GitlabBadResponse{}
+			res := BadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Println("Error reading body of error response")
@@ -168,7 +168,7 @@ func (r *GitlabProperties) CreateTag() bool {
 	return createTag
 }
 
-func (r *GitlabProperties) createRelease() bool {
+func (r *Properties) createRelease() bool {
 	createdRelease := false
 	release := ""
 	if r.Host == "" {
@@ -176,7 +176,7 @@ func (r *GitlabProperties) createRelease() bool {
 	} else {
 		release = fmt.Sprintf("%s/api/v4/projects/%s/repository/tags/%s/release", r.Host, urllib.QueryEscape(r.Repo), r.Tag)
 	}
-	body := GitlabRelease{r.Body}
+	body := Release{r.Body}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		fmt.Println("error marshalling object:", err)
@@ -211,7 +211,7 @@ func (r *GitlabProperties) createRelease() bool {
 	}
 
 	if resp.StatusCode == http.StatusConflict {
-		res := GitlabBadResponse{}
+		res := BadResponse{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading body of error response")

@@ -20,8 +20,8 @@ type Tag struct {
 	Object Object `json:"object"`
 }
 
-// GithubRelease struct format required for github release api
-type GithubRelease struct {
+// Release struct format required for github release api
+type Release struct {
 	TagName         string `json:"tag_name"`
 	TargetCommitish string `json:"target_commitish"`
 	Name            string `json:"name"`
@@ -30,26 +30,26 @@ type GithubRelease struct {
 	Prerelease      bool   `json:"prerelease"`
 }
 
-// GithubError structure of error message response
-type GithubError struct {
+// Error structure of error message response
+type Error struct {
 	Code string `json:"code"`
 }
 
-// GithubBadResponse format for 400 http response body
-type GithubBadResponse struct {
-	Message string        `json:"message"`
-	Errors  []GithubError `json:"errors"`
+// BadResponse format for 400 http response body
+type BadResponse struct {
+	Message string  `json:"message"`
+	Errors  []Error `json:"errors"`
 }
 
-// GithubProperties properties for repo
-type GithubProperties struct {
+// Properties properties for repo
+type Properties struct {
 	interfaces.RepoProperties
 	Username string
 	Body     string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *GithubProperties) ValidateTag() interfaces.ValidTagState {
+func (r *Properties) ValidateTag() interfaces.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := interfaces.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
@@ -60,7 +60,7 @@ func (r *GithubProperties) ValidateTag() interfaces.ValidTagState {
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Println("GithubError validate tag request")
+		fmt.Println("Error validate tag request")
 	}
 	if request == nil {
 		_, err := os.Stderr.WriteString("Error creating request\n")
@@ -101,7 +101,7 @@ func (r *GithubProperties) ValidateTag() interfaces.ValidTagState {
 		}
 		err = json.Unmarshal(body, &res)
 		if err != nil {
-			fmt.Println("GithubError unmarshalling body")
+			fmt.Println("Error unmarshalling body")
 		}
 		if r.Hash == res.Object.Sha {
 			validTag.TagExistsWithProvidedHash = true
@@ -111,7 +111,7 @@ func (r *GithubProperties) ValidateTag() interfaces.ValidTagState {
 }
 
 // CreateTag creates a github tag
-func (r *GithubProperties) CreateTag() bool {
+func (r *Properties) CreateTag() bool {
 	createTag := false
 	validTagState := r.ValidateTag()
 	if validTagState.TagExistsWithProvidedHash {
@@ -124,7 +124,7 @@ func (r *GithubProperties) CreateTag() bool {
 			url = fmt.Sprintf("%s/repos/%s/releases", r.Host, r.Repo)
 		}
 
-		body := GithubRelease{Name: r.Tag, TagName: r.Tag, Body: r.Body, Draft: false, Prerelease: false, TargetCommitish: r.Hash}
+		body := Release{Name: r.Tag, TagName: r.Tag, Body: r.Body, Draft: false, Prerelease: false, TargetCommitish: r.Hash}
 
 		jsonBody, err := json.Marshal(body)
 		if err != nil {
@@ -159,7 +159,7 @@ func (r *GithubProperties) CreateTag() bool {
 		}
 
 		if resp.StatusCode == http.StatusUnprocessableEntity {
-			res := GithubBadResponse{}
+			res := BadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Println("Error reading body of error response")

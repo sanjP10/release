@@ -16,7 +16,7 @@ func TestValidateTagNotExisting(t *testing.T) {
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.True(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -30,7 +30,7 @@ func TestValidateTagUnauthorized(t *testing.T) {
 		Reply(http.StatusUnauthorized)
 	assertTest := assert.New(t)
 	// Testing a 403
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -38,7 +38,7 @@ func TestValidateTagUnauthorized(t *testing.T) {
 
 func TestValidateTagExistingSameHash(t *testing.T) {
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -48,7 +48,7 @@ func TestValidateTagExistingSameHash(t *testing.T) {
 
 	assertTest := assert.New(t)
 	// Testing 200 response and hash is the same
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.True(results.TagExistsWithProvidedHash)
@@ -58,14 +58,14 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing 200 response but hash is not the same
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusOK).
 		JSON(tag)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "not_hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "not_hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -79,7 +79,7 @@ func TestValidateTagOtherError(t *testing.T) {
 		Reply(http.StatusServiceUnavailable)
 	assertTest := assert.New(t)
 	// Testing a 403
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -88,7 +88,7 @@ func TestValidateTagOtherError(t *testing.T) {
 func TestCreateTagNotFound(t *testing.T) {
 	// Testing tag not existing
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -101,14 +101,14 @@ func TestCreateTagNotFound(t *testing.T) {
 		JSON(tag)
 
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.False(repo.CreateTag())
 }
 
 func TestCreateTagUnauthorized(t *testing.T) {
 	// Testing a 401
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -120,14 +120,14 @@ func TestCreateTagUnauthorized(t *testing.T) {
 		Reply(http.StatusUnauthorized).
 		JSON(tag)
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.False(repo.CreateTag())
 }
 
 func TestCreateTagSuccessful(t *testing.T) {
 	// Testing 201 response
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -139,14 +139,14 @@ func TestCreateTagSuccessful(t *testing.T) {
 		Reply(http.StatusCreated).
 		JSON(tag)
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.True(repo.CreateTag())
 }
 
 func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	// Testing 201 response
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.personal-bitbucket.com").
@@ -158,29 +158,29 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 		Reply(http.StatusCreated).
 		JSON(tag)
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", "https://api.personal-bitbucket.com"}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", "https://api.personal-bitbucket.com"}}
 	assertTest.True(repo.CreateTag())
 }
 
 func TestCreateTagAlreadyExists(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/test").
 		Reply(http.StatusOK).
 		JSON(tag)
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "test", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "test", "hash", ""}}
 	assertTest.True(repo.CreateTag())
 }
 
 func TestCreateTagError(t *testing.T) {
-	errorMessage := BitbucketError{Message: "tag \"test\" already exists"}
-	response := BitbucketBadResponse{Type: "error", Error: errorMessage}
+	errorMessage := Error{Message: "tag \"test\" already exists"}
+	response := BadResponse{Type: "error", Error: errorMessage}
 	defer gock.Off() // Flush pending mocks after test execution
 	target := Target{Hash: "hash"}
-	tag := BitbucketTag{Name: "tag", Target: target}
+	tag := Tag{Name: "tag", Target: target}
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/test").
 		Reply(http.StatusNotFound).
@@ -190,13 +190,13 @@ func TestCreateTagError(t *testing.T) {
 		Reply(http.StatusBadRequest).
 		JSON(response)
 	assertTest := assert.New(t)
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "test", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "test", "hash", ""}}
 	assertTest.False(repo.CreateTag())
 }
 
 func TestCreateTagOtherError(t *testing.T) {
-	errorMessage := BitbucketError{Message: "something went wrong"}
-	response := BitbucketBadResponse{Type: "error", Error: errorMessage}
+	errorMessage := Error{Message: "something went wrong"}
+	response := BadResponse{Type: "error", Error: errorMessage}
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/tag").
@@ -207,7 +207,7 @@ func TestCreateTagOtherError(t *testing.T) {
 		JSON(response)
 	assertTest := assert.New(t)
 	// Testing 400 response has been created, should never happen if validate is called first
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.False(repo.CreateTag())
 }
 
@@ -221,6 +221,6 @@ func TestCreateTagOtherErrorResponse(t *testing.T) {
 		Reply(http.StatusServiceUnavailable)
 	assertTest := assert.New(t)
 	// Testing 400 response has been created, should never happen if validate is called first
-	repo := BitbucketProperties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
+	repo := Properties{Username: "username", RepoProperties: interfaces.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.False(repo.CreateTag())
 }
