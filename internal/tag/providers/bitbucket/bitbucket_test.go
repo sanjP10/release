@@ -38,13 +38,13 @@ func TestValidateTagUnauthorized(t *testing.T) {
 
 func TestValidateTagExistingSameHash(t *testing.T) {
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusOK).
-		JSON(tag)
+		JSON(response)
 
 	assertTest := assert.New(t)
 	// Testing 200 response and hash is the same
@@ -58,13 +58,13 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 	assertTest := assert.New(t)
 	// Testing 200 response but hash is not the same
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusOK).
-		JSON(tag)
+		JSON(response)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "tag", "not_hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
@@ -88,7 +88,7 @@ func TestValidateTagOtherError(t *testing.T) {
 func TestCreateTagNotFound(t *testing.T) {
 	// Testing tag not existing
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -98,7 +98,7 @@ func TestCreateTagNotFound(t *testing.T) {
 	gock.New("https://api.bitbucket.org").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusNotFound).
-		JSON(tag)
+		JSON(response)
 
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "tag", "hash", ""}}
@@ -108,7 +108,7 @@ func TestCreateTagNotFound(t *testing.T) {
 func TestCreateTagUnauthorized(t *testing.T) {
 	// Testing a 401
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -118,7 +118,7 @@ func TestCreateTagUnauthorized(t *testing.T) {
 	gock.New("https://api.bitbucket.org").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusUnauthorized).
-		JSON(tag)
+		JSON(response)
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.False(repo.CreateTag())
@@ -127,7 +127,7 @@ func TestCreateTagUnauthorized(t *testing.T) {
 func TestCreateTagSuccessful(t *testing.T) {
 	// Testing 201 response
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.bitbucket.org").
@@ -137,7 +137,7 @@ func TestCreateTagSuccessful(t *testing.T) {
 	gock.New("https://api.bitbucket.org").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusCreated).
-		JSON(tag)
+		JSON(response)
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "tag", "hash", ""}}
 	assertTest.True(repo.CreateTag())
@@ -146,7 +146,7 @@ func TestCreateTagSuccessful(t *testing.T) {
 func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	// Testing 201 response
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.personal-bitbucket.com").
@@ -156,7 +156,7 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	gock.New("https://api.personal-bitbucket.com").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusCreated).
-		JSON(tag)
+		JSON(response)
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "tag", "hash", "https://api.personal-bitbucket.com"}}
 	assertTest.True(repo.CreateTag())
@@ -165,11 +165,11 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 func TestCreateTagAlreadyExists(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/test").
 		Reply(http.StatusOK).
-		JSON(tag)
+		JSON(response)
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "test", "hash", ""}}
 	assertTest.True(repo.CreateTag())
@@ -177,18 +177,18 @@ func TestCreateTagAlreadyExists(t *testing.T) {
 
 func TestCreateTagError(t *testing.T) {
 	errorMessage := Error{Message: "tag \"test\" already exists"}
-	response := BadResponse{Type: "error", Error: errorMessage}
+	errorResponse := BadResponse{Type: "error", Error: errorMessage}
 	defer gock.Off() // Flush pending mocks after test execution
 	target := Target{Hash: "hash"}
-	tag := Tag{Name: "tag", Target: target}
+	response := Tag{Name: "tag", Target: target}
 	gock.New("https://api.bitbucket.org").
 		Get("/2.0/repositories/repo/refs/tags/test").
 		Reply(http.StatusNotFound).
-		JSON(tag)
+		JSON(response)
 	gock.New("https://api.bitbucket.org").
 		Post("/2.0/repositories/repo/refs/tags").
 		Reply(http.StatusBadRequest).
-		JSON(response)
+		JSON(errorResponse)
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", RepoProperties: tag.RepoProperties{"password", "repo", "test", "hash", ""}}
 	assertTest.False(repo.CreateTag())
