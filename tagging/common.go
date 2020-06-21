@@ -8,28 +8,30 @@ type Tagging interface {
 
 // RepoProperties properties for repo
 type RepoProperties struct {
-	Username string
 	Password string
 	Repo     string
 	Tag      string
 	Hash     string
 	Host     string
-	Body     string
 }
 
 // GithubProperties properties for repo
 type GithubProperties struct {
 	RepoProperties
+	Username string
+	Body     string
 }
 
 // GitlabProperties properties for repo
 type GitlabProperties struct {
 	RepoProperties
+	Body string
 }
 
 // BitbucketProperties properties for repo
 type BitbucketProperties struct {
 	RepoProperties
+	Username string
 }
 
 // ValidTagState properties for repo

@@ -121,22 +121,20 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 	success := false
 	validTagState := tagging.ValidTagState{}
 	properties := tagging.RepoProperties{
-		Username: v.username,
 		Password: v.password,
 		Repo:     v.repo,
 		Tag:      strings.TrimSpace(desiredTag),
-		Body:     changelogObj.Changes,
 		Hash:     v.hash,
 		Host:     v.host}
 	switch strings.ToLower(v.provider) {
 	case "github":
-		provider := tagging.GithubProperties{RepoProperties: properties}
+		provider := tagging.GithubProperties{Username: v.username, Body: changelogObj.Changes, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "gitlab":
-		provider := tagging.GitlabProperties{RepoProperties: properties}
+		provider := tagging.GitlabProperties{Body: changelogObj.Changes, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "bitbucket":
-		provider := tagging.BitbucketProperties{RepoProperties: properties}
+		provider := tagging.BitbucketProperties{Username: v.username, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	}
 	success = validTagState.TagDoesntExist || validTagState.TagExistsWithProvidedHash
