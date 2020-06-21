@@ -3,6 +3,8 @@ package cmd
 import (
 	"bitbucket.org/cloudreach/release/bitbucket"
 	"bitbucket.org/cloudreach/release/changelog"
+	"bitbucket.org/cloudreach/release/github"
+	"bitbucket.org/cloudreach/release/gitlab"
 	"bitbucket.org/cloudreach/release/tagging"
 	"context"
 	"flag"
@@ -129,10 +131,10 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 		Host:     v.host}
 	switch strings.ToLower(v.provider) {
 	case "github":
-		provider := tagging.GithubProperties{Username: v.username, Body: changelogObj.Changes, RepoProperties: properties}
+		provider := github.GithubProperties{Username: v.username, Body: changelogObj.Changes, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "gitlab":
-		provider := tagging.GitlabProperties{Body: changelogObj.Changes, RepoProperties: properties}
+		provider := gitlab.GitlabProperties{Body: changelogObj.Changes, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "bitbucket":
 		provider := bitbucket.BitbucketProperties{Username: v.username, RepoProperties: properties}
