@@ -1,11 +1,11 @@
-package cmd
+package commands
 
 import (
-	"bitbucket.org/cloudreach/release/bitbucket"
-	"bitbucket.org/cloudreach/release/changelog"
-	"bitbucket.org/cloudreach/release/github"
-	"bitbucket.org/cloudreach/release/gitlab"
-	"bitbucket.org/cloudreach/release/interfaces"
+	"bitbucket.org/cloudreach/release/internal/changelog"
+	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"

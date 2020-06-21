@@ -1,7 +1,7 @@
 package gitlab
 
 import (
-	"bitbucket.org/cloudreach/release/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
 	"bytes"
 	"encoding/json"
 	"fmt"

@@ -1,7 +1,7 @@
 package bitbucket
 
 import (
-	"bitbucket.org/cloudreach/release/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 	"net/http"

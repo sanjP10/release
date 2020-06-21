@@ -1,32 +1,32 @@
-package cmd
+package commands
 
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestValidate_Name(t *testing.T) {
-	validate := &Validate{}
+func TestCreate_Name(t *testing.T) {
+	create := &Create{}
 	assertTest := assert.New(t)
-	assertTest.Equal(validate.Name(), "validate")
+	assertTest.Equal(create.Name(), "create")
 }
 
-func TestValidate_Synopsis(t *testing.T) {
-	validate := &Validate{}
+func TestCreate_Synopsis(t *testing.T) {
+	create := &Create{}
 	assertTest := assert.New(t)
-	assertTest.Equal(validate.Synopsis(), "Validates tag and release for repo to be created.")
+	assertTest.Equal(create.Synopsis(), "Creates tag and release for repo.")
 }
 
-func TestValidate_Usage(t *testing.T) {
-	validate := &Validate{}
+func TestCreate_Usage(t *testing.T) {
+	create := &Create{}
 	assertTest := assert.New(t)
-	var expected = "Validates tag and release for repo to be created.\n"
-	assertTest.Equal(validate.Usage(), expected)
+	expected := "Creates tag and release for repo.\n"
+	assertTest.Equal(create.Usage(), expected)
 }
 
-func Test_checkValidateFlags(t *testing.T) {
-	validateCmd := &Validate{}
-	errors := checkValidateFlags(validateCmd)
+func Test_checkCreateFlags(t *testing.T) {
+	createCmd := &Create{}
+	errors := checkCreateFlags(createCmd)
 	expected := []string{
 		"-username required",
 		"-password required",
@@ -37,8 +37,8 @@ func Test_checkValidateFlags(t *testing.T) {
 	assertTest := assert.New(t)
 	assertTest.Equal(errors, expected)
 
-	validateCmd.username = "testuser"
-	errors = checkValidateFlags(validateCmd)
+	createCmd.username = "testuser"
+	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-password required",
 		"-repo required",
@@ -47,8 +47,8 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
-	validateCmd.password = "password"
-	errors = checkValidateFlags(validateCmd)
+	createCmd.password = "password"
+	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-repo required",
 		"-changelog required",
@@ -56,48 +56,48 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
-	validateCmd.repo = "repo"
-	errors = checkValidateFlags(validateCmd)
+	createCmd.repo = "repo"
+	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-changelog required",
 		"-hash required",
 		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
-	validateCmd.changelog = "changelog"
-	errors = checkValidateFlags(validateCmd)
+	createCmd.changelog = "changelog"
+	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-hash required",
 		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
-	validateCmd.hash = "hash"
-	errors = checkValidateFlags(validateCmd)
+	createCmd.hash = "hash"
+	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
-	validateCmd.provider = "svn"
-	errors = checkValidateFlags(validateCmd)
+	createCmd.provider = "svn"
+	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-provider required, valid values are github, gitlab, bitbucket"}
 	assertTest.Equal(errors, expected)
 
 	for _, provider := range providers {
-		validateCmd.provider = provider
-		validCreate := checkValidateFlags(validateCmd)
+		createCmd.provider = provider
+		validCreate := checkCreateFlags(createCmd)
 		assertTest.Empty(validCreate)
 	}
 }
 
-func Test_ValidateCheckFlag_Gitlab(t *testing.T) {
-	validate := &Validate{}
-	validate.password = "token"
-	validate.provider = "gitlab"
-	validate.repo = "repo"
-	validate.hash = "hash"
-	validate.changelog = "file"
+func Test_CreateCheckFlag_Gitlab(t *testing.T) {
+	create := &Create{}
+	create.password = "token"
+	create.provider = "gitlab"
+	create.repo = "repo"
+	create.hash = "hash"
+	create.changelog = "file"
 	assertTest := assert.New(t)
-	errors := checkValidateFlags(validate)
+	errors := checkCreateFlags(create)
 	assertTest.Empty(errors)
 }
