@@ -1,7 +1,7 @@
 package bitbucket
 
 import (
-	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -34,14 +34,14 @@ type Error struct {
 
 // Properties properties for repo
 type Properties struct {
-	interfaces.RepoProperties
+	tag.RepoProperties
 	Username string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *Properties) ValidateTag() interfaces.ValidTagState {
+func (r *Properties) ValidateTag() tag.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := interfaces.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
+	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
