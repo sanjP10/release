@@ -5,7 +5,7 @@ import (
 	"bitbucket.org/cloudreach/release/changelog"
 	"bitbucket.org/cloudreach/release/github"
 	"bitbucket.org/cloudreach/release/gitlab"
-	"bitbucket.org/cloudreach/release/tagging"
+	"bitbucket.org/cloudreach/release/interfaces"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -123,7 +123,7 @@ func checkCreateFlags(c *Create) []string {
 
 func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	properties := tagging.RepoProperties{
+	properties := interfaces.RepoProperties{
 		Password: c.password,
 		Repo:     c.repo,
 		Tag:      strings.TrimSpace(desiredTag),

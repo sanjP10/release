@@ -1,7 +1,7 @@
 package gitlab
 
 import (
-	"bitbucket.org/cloudreach/release/tagging"
+	"bitbucket.org/cloudreach/release/interfaces"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -33,14 +33,14 @@ type GitlabBadResponse struct {
 
 // GitlabProperties properties for repo
 type GitlabProperties struct {
-	tagging.RepoProperties
+	interfaces.RepoProperties
 	Body string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *GitlabProperties) ValidateTag() tagging.ValidTagState {
+func (r *GitlabProperties) ValidateTag() interfaces.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := tagging.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
+	validTag := interfaces.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/tags/%s", urllib.QueryEscape(r.Repo), r.Tag)

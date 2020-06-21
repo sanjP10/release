@@ -5,7 +5,7 @@ import (
 	"bitbucket.org/cloudreach/release/changelog"
 	"bitbucket.org/cloudreach/release/github"
 	"bitbucket.org/cloudreach/release/gitlab"
-	"bitbucket.org/cloudreach/release/tagging"
+	"bitbucket.org/cloudreach/release/interfaces"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -122,8 +122,8 @@ func checkValidateFlags(v *Validate) []string {
 
 func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	validTagState := tagging.ValidTagState{}
-	properties := tagging.RepoProperties{
+	validTagState := interfaces.ValidTagState{}
+	properties := interfaces.RepoProperties{
 		Password: v.password,
 		Repo:     v.repo,
 		Tag:      strings.TrimSpace(desiredTag),
