@@ -1,4 +1,4 @@
-package interfaces
+package tag
 
 // Tagging interface
 type Tagging interface {

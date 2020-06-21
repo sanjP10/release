@@ -2,7 +2,7 @@ package commands
 
 import (
 	"bitbucket.org/cloudreach/release/internal/changelog"
-	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag"
 	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
 	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
 	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
@@ -122,8 +122,8 @@ func checkValidateFlags(v *Validate) []string {
 
 func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	validTagState := interfaces.ValidTagState{}
-	properties := interfaces.RepoProperties{
+	validTagState := tag.ValidTagState{}
+	properties := tag.RepoProperties{
 		Password: v.password,
 		Repo:     v.repo,
 		Tag:      strings.TrimSpace(desiredTag),
