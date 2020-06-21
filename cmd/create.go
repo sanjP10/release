@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bitbucket.org/cloudreach/release/bitbucket"
 	"bitbucket.org/cloudreach/release/changelog"
 	"bitbucket.org/cloudreach/release/tagging"
 	"context"
@@ -134,7 +135,7 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 		provider := tagging.GitlabProperties{Body: changelogObj.Changes, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "bitbucket":
-		provider := tagging.BitbucketProperties{Username: c.username, RepoProperties: properties}
+		provider := bitbucket.BitbucketProperties{Username: c.username, RepoProperties: properties}
 		success = provider.CreateTag()
 	}
 	return success

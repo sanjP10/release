@@ -15,25 +15,6 @@ type RepoProperties struct {
 	Host     string
 }
 
-// GithubProperties properties for repo
-type GithubProperties struct {
-	RepoProperties
-	Username string
-	Body     string
-}
-
-// GitlabProperties properties for repo
-type GitlabProperties struct {
-	RepoProperties
-	Body string
-}
-
-// BitbucketProperties properties for repo
-type BitbucketProperties struct {
-	RepoProperties
-	Username string
-}
-
 // ValidTagState properties for repo
 type ValidTagState struct {
 	TagDoesntExist            bool

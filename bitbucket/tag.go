@@ -1,6 +1,7 @@
-package tagging
+package bitbucket
 
 import (
+	"bitbucket.org/cloudreach/release/tagging"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -31,10 +32,16 @@ type BitbucketError struct {
 	Message string `json:"message"`
 }
 
+// BitbucketProperties properties for repo
+type BitbucketProperties struct {
+	tagging.RepoProperties
+	Username string
+}
+
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *BitbucketProperties) ValidateTag() ValidTagState {
+func (r *BitbucketProperties) ValidateTag() tagging.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
+	validTag := tagging.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
