@@ -1,8 +1,11 @@
-package cmd
+package commands
 
 import (
-	"bitbucket.org/cloudreach/release/changelog"
-	"bitbucket.org/cloudreach/release/tagging"
+	"bitbucket.org/cloudreach/release/internal/changelog"
+	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -120,23 +123,21 @@ func checkCreateFlags(c *Create) []string {
 
 func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	properties := tagging.RepoProperties{
-		Username: c.username,
+	properties := interfaces.RepoProperties{
 		Password: c.password,
 		Repo:     c.repo,
 		Tag:      strings.TrimSpace(desiredTag),
-		Body:     changelogObj.Changes,
 		Hash:     c.hash,
 		Host:     c.host}
 	switch strings.ToLower(c.provider) {
 	case "github":
-		provider := tagging.GithubProperties{RepoProperties: properties}
+		provider := github.Properties{Username: c.username, Body: changelogObj.Changes, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "gitlab":
-		provider := tagging.GitlabProperties{RepoProperties: properties}
+		provider := gitlab.Properties{Body: changelogObj.Changes, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "bitbucket":
-		provider := tagging.BitbucketProperties{RepoProperties: properties}
+		provider := bitbucket.Properties{Username: c.username, RepoProperties: properties}
 		success = provider.CreateTag()
 	}
 	return success

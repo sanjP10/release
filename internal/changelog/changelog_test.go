@@ -56,16 +56,16 @@ func TestReadChangelogAsStringNoFile(t *testing.T) {
 func TestReadChangelogAsString(t *testing.T) {
 	// checking file is returned as string
 	assertTest := assert.New(t)
-	dat, _ := ioutil.ReadFile("../fixtures/Changelog.md")
+	dat, _ := ioutil.ReadFile("../../fixtures/Changelog.md")
 	expected := string(dat)
-	file, err := ReadChangelogAsString("../fixtures/Changelog.md")
+	file, err := ReadChangelogAsString("../../fixtures/Changelog.md")
 	assertTest.Equal(file, expected)
 	assertTest.Empty(err)
 }
 
 func TestGetVersionsFirst(t *testing.T) {
 	assertTest := assert.New(t)
-	file, _ := ReadChangelogAsString("../fixtures/FirstChangelog.md")
+	file, _ := ReadChangelogAsString("../../fixtures/FirstChangelog.md")
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	assertTest.Equal("", changelog.previous)
@@ -74,7 +74,7 @@ func TestGetVersionsFirst(t *testing.T) {
 
 func TestGetVersions(t *testing.T) {
 	assertTest := assert.New(t)
-	file, _ := ReadChangelogAsString("../fixtures/Changelog.md")
+	file, _ := ReadChangelogAsString("../../fixtures/Changelog.md")
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	assertTest.Equal("##1.0.0", changelog.previous)
@@ -83,7 +83,7 @@ func TestGetVersions(t *testing.T) {
 
 func TestRetrieveChanges(t *testing.T) {
 	assertTest := assert.New(t)
-	file, _ := ReadChangelogAsString("../fixtures/Changelog.md")
+	file, _ := ReadChangelogAsString("../../fixtures/Changelog.md")
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	changelog.RetrieveChanges(file)
@@ -93,7 +93,7 @@ func TestRetrieveChanges(t *testing.T) {
 
 func TestFirstRetrieveChanges(t *testing.T) {
 	assertTest := assert.New(t)
-	file, _ := ReadChangelogAsString("../fixtures/FirstChangelog.md")
+	file, _ := ReadChangelogAsString("../../fixtures/FirstChangelog.md")
 	changelog := &Properties{}
 	changelog.GetVersions(file)
 	changelog.RetrieveChanges(file)

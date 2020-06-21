@@ -1,6 +1,7 @@
-package tagging
+package github
 
 import (
+	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,37 +10,53 @@ import (
 	"os"
 )
 
-// Target Structure of bitbucket tag target
-type Target struct {
-	Hash string `json:"hash"`
+// Object Structure of gitlab tag target
+type Object struct {
+	Sha string `json:"sha"`
 }
 
-// BitbucketTag Structure of bitbucket tag response
-type BitbucketTag struct {
-	Name   string `json:"name"`
-	Target Target `json:"target"`
+// Tag Structure of github tag response
+type Tag struct {
+	Object Object `json:"object"`
 }
 
-// BitbucketBadResponse structure of 400 response
-type BitbucketBadResponse struct {
-	Type  string         `json:"type"`
-	Error BitbucketError `json:"error"`
+// Release struct format required for github release api
+type Release struct {
+	TagName         string `json:"tag_name"`
+	TargetCommitish string `json:"target_commitish"`
+	Name            string `json:"name"`
+	Body            string `json:"body"`
+	Draft           bool   `json:"draft"`
+	Prerelease      bool   `json:"prerelease"`
 }
 
-// BitbucketError structure of error message response
-type BitbucketError struct {
-	Message string `json:"message"`
+// Error structure of error message response
+type Error struct {
+	Code string `json:"code"`
+}
+
+// BadResponse format for 400 http response body
+type BadResponse struct {
+	Message string  `json:"message"`
+	Errors  []Error `json:"errors"`
+}
+
+// Properties properties for repo
+type Properties struct {
+	interfaces.RepoProperties
+	Username string
+	Body     string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash
-func (r *BitbucketProperties) ValidateTag() ValidTagState {
+func (r *Properties) ValidateTag() interfaces.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
-	validTag := ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
+	validTag := interfaces.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
-		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
+		url = fmt.Sprintf("https://api.github.com/repos/%s/git/refs/tags/%s", r.Repo, r.Tag)
 	} else {
-		url = fmt.Sprintf("%s/2.0/repositories/%s/refs/tags/%s", r.Host, r.Repo, r.Tag)
+		url = fmt.Sprintf("%s/repos/%s/git/refs/tags/%s", r.Host, r.Repo, r.Tag)
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -54,6 +71,7 @@ func (r *BitbucketProperties) ValidateTag() ValidTagState {
 	}
 	request.SetBasicAuth(r.Username, r.Password)
 	client := &http.Client{}
+
 	resp, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error validate tag request")
@@ -65,6 +83,7 @@ func (r *BitbucketProperties) ValidateTag() ValidTagState {
 		}
 		return validTag
 	}
+
 	if resp.StatusCode == http.StatusNotFound {
 		validTag.TagDoesntExist = true
 	}
@@ -75,7 +94,7 @@ func (r *BitbucketProperties) ValidateTag() ValidTagState {
 		}
 	}
 	if resp.StatusCode == http.StatusOK {
-		res := BitbucketTag{}
+		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading body of tag response")
@@ -84,15 +103,15 @@ func (r *BitbucketProperties) ValidateTag() ValidTagState {
 		if err != nil {
 			fmt.Println("Error unmarshalling body")
 		}
-		if r.Hash == res.Target.Hash {
+		if r.Hash == res.Object.Sha {
 			validTag.TagExistsWithProvidedHash = true
 		}
 	}
 	return validTag
 }
 
-// CreateTag creates a bitbucket tag
-func (r *BitbucketProperties) CreateTag() bool {
+// CreateTag creates a github tag
+func (r *Properties) CreateTag() bool {
 	createTag := false
 	validTagState := r.ValidateTag()
 	if validTagState.TagExistsWithProvidedHash {
@@ -100,13 +119,12 @@ func (r *BitbucketProperties) CreateTag() bool {
 	} else if validTagState.TagDoesntExist {
 		url := ""
 		if r.Host == "" {
-			url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
+			url = fmt.Sprintf("https://api.github.com/repos/%s/releases", r.Repo)
 		} else {
-			url = fmt.Sprintf("%s/2.0/repositories/%s/refs/tags", r.Host, r.Repo)
+			url = fmt.Sprintf("%s/repos/%s/releases", r.Host, r.Repo)
 		}
 
-		target := Target{r.Hash}
-		body := &BitbucketTag{Name: r.Tag, Target: target}
+		body := Release{Name: r.Tag, TagName: r.Tag, Body: r.Body, Draft: false, Prerelease: false, TargetCommitish: r.Hash}
 
 		jsonBody, err := json.Marshal(body)
 		if err != nil {
@@ -140,14 +158,15 @@ func (r *BitbucketProperties) CreateTag() bool {
 			createTag = true
 		}
 
-		if resp.StatusCode == http.StatusBadRequest {
-			res := BitbucketBadResponse{}
+		if resp.StatusCode == http.StatusUnprocessableEntity {
+			res := BadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
-			_, errorWriting := os.Stderr.WriteString(res.Error.Message)
+
+			_, errorWriting := os.Stderr.WriteString(res.Errors[0].Code)
 			if errorWriting != nil {
 				panic("Cannot write to stderr")
 			}

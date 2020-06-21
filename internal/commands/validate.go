@@ -1,8 +1,11 @@
-package cmd
+package commands
 
 import (
-	"bitbucket.org/cloudreach/release/changelog"
-	"bitbucket.org/cloudreach/release/tagging"
+	"bitbucket.org/cloudreach/release/internal/changelog"
+	"bitbucket.org/cloudreach/release/internal/tag/interfaces"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
@@ -119,24 +122,22 @@ func checkValidateFlags(v *Validate) []string {
 
 func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
 	success := false
-	validTagState := tagging.ValidTagState{}
-	properties := tagging.RepoProperties{
-		Username: v.username,
+	validTagState := interfaces.ValidTagState{}
+	properties := interfaces.RepoProperties{
 		Password: v.password,
 		Repo:     v.repo,
 		Tag:      strings.TrimSpace(desiredTag),
-		Body:     changelogObj.Changes,
 		Hash:     v.hash,
 		Host:     v.host}
 	switch strings.ToLower(v.provider) {
 	case "github":
-		provider := tagging.GithubProperties{RepoProperties: properties}
+		provider := github.Properties{Username: v.username, Body: changelogObj.Changes, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "gitlab":
-		provider := tagging.GitlabProperties{RepoProperties: properties}
+		provider := gitlab.Properties{Body: changelogObj.Changes, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "bitbucket":
-		provider := tagging.BitbucketProperties{RepoProperties: properties}
+		provider := bitbucket.Properties{Username: v.username, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	}
 	success = validTagState.TagDoesntExist || validTagState.TagExistsWithProvidedHash
