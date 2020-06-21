@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1
+### Updated
+* Separated each provider to a package
+* Moved all private packages to the internal directory
+* Moved from `dep` to `go mod` for dependency management
+
 ## 3.0.0
 
 ### Added
