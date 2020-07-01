@@ -42,12 +42,12 @@ func (*Validate) Usage() string {
 func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.username, "username", "", "username (gitlab does not require this field)")
 	f.StringVar(&v.password, "password", "", "password or api token (gitlab requires an api token)")
-	f.StringVar(&v.password, "email", "", "Required when a provider is not supplied, the email for tag")
+	f.StringVar(&v.email, "email", "", "Required when a provider is not supplied, the email for tag")
 	f.StringVar(&v.repo, "repo", "", "repo name, required when a provider is supplided")
 	f.StringVar(&v.changelog, "changelog", "", "location of changelog markdown file")
 	f.StringVar(&v.hash, "hash", "", "full commit hash")
 	f.StringVar(&v.host, "host", "", "host override for provider specific APIs")
-	f.StringVar(&v.host, "origin", "", "origin of git repository")
+	f.StringVar(&v.origin, "origin", "", "origin of git repository")
 	f.StringVar(&v.provider, "provider", "", "git provider, options are github, gitlab or bitbucket")
 }
 
