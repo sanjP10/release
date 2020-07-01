@@ -36,6 +36,8 @@ type Error struct {
 type Properties struct {
 	tag.RepoProperties
 	Username string
+	Repo     string
+	Host     string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash

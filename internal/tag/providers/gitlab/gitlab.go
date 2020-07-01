@@ -34,6 +34,8 @@ type BadResponse struct {
 // Properties properties for repo
 type Properties struct {
 	tag.RepoProperties
+	Repo string
+	Host string
 	Body string
 }
 
