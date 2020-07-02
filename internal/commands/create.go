@@ -44,13 +44,13 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.username, "username", "", "username (gitlab provider does not require this field). If using ssh provide a username is not git")
 	f.StringVar(&c.password, "password", "", "password or api token (gitlab requires an api token). If using ssh provide the password for your ssh key")
 	f.StringVar(&c.email, "email", "", "Required when a provider is not supplied, the email for tag")
-	f.StringVar(&c.repo, "repo", "", "repo name, required when a provider is supplided")
+	f.StringVar(&c.repo, "repo", "", "repo name, required when a provider is supplied")
 	f.StringVar(&c.changelog, "changelog", "", "location of changelog markdown file")
 	f.StringVar(&c.hash, "hash", "", "full commit hash")
 	f.StringVar(&c.host, "host", "", "host override for provider specific APIs")
 	f.StringVar(&c.origin, "origin", "", "https or ssh origin of git repository")
 	f.StringVar(&c.provider, "provider", "", "git provider, options are github, gitlab or bitbucket")
-	f.StringVar(&c.ssh, "ssh", "", "ssh key file location, please provide username and password if required. username defaults to git")
+	f.StringVar(&c.ssh, "ssh", "", "ssh private key file location, please provide username and password if required. username defaults to git")
 }
 
 // Execute flow for create sub command
@@ -160,7 +160,7 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 		provider := bitbucket.Properties{Username: c.username, Repo: c.repo, Host: c.host, RepoProperties: properties}
 		success = provider.CreateTag()
 	default:
-		provider := git.Properties{Username: c.username, Email: c.email, Body: changelogObj.Changes, Origin: c.origin, RepoProperties: properties}
+		provider := git.Properties{Username: c.username, Email: c.email, Body: changelogObj.Changes, Origin: c.origin, SSH: c.ssh, RepoProperties: properties}
 		err := provider.InitializeRepository()
 		if err != nil {
 			return false, err

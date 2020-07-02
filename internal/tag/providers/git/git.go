@@ -7,10 +7,10 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/go-git/go-git/v5/storage/memory"
-	"io/ioutil"
 	"os"
 	"time"
 )
@@ -22,6 +22,7 @@ type Properties struct {
 	Email    string
 	Body     string
 	Origin   string
+	SSH      string
 }
 
 var repository *git.Repository
@@ -42,13 +43,14 @@ func (r *Properties) InitializeRepository() error {
 		fmt.Println("Error Setting origin for repository", err)
 		return err
 	}
+	auth, err := getAuth(r.SSH, r.Username, r.Password)
+	if err != nil {
+		return err
+	}
 	err = repository.Fetch(&git.FetchOptions{
 		RemoteName: "origin",
 		RefSpecs:   []config.RefSpec{"+refs/tags/*:refs/tags/*", "+refs/heads/*:refs/remotes/origin/*"},
-		Auth: &http.BasicAuth{
-			Username: r.Username,
-			Password: r.Password,
-		},
+		Auth:       auth,
 	})
 
 	if err != nil {
@@ -96,14 +98,15 @@ func (r *Properties) CreateTag() bool {
 			fmt.Println("Error Creating tag", err)
 			return createTag
 		}
+		auth, err := getAuth(r.SSH, r.Username, r.Password)
+		if err != nil {
+			return createTag
+		}
 		po := &git.PushOptions{
 			RemoteName: "origin",
 			Progress:   os.Stdout,
 			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/" + r.Tag + ":refs/tags/" + r.Tag)},
-			Auth: &http.BasicAuth{
-				Username: r.Username,
-				Password: r.Password,
-			},
+			Auth:       auth,
 		}
 		err = repository.Push(po)
 		if err != nil {
@@ -115,15 +118,23 @@ func (r *Properties) CreateTag() bool {
 	return createTag
 }
 
-func publicKey(filePath string, username string, password string) (*ssh.PublicKeys, error) {
-	var publicKey *ssh.PublicKeys
-	sshKey, _ := ioutil.ReadFile(filePath)
-	if username == "" {
-		username = "git"
+func getAuth(filePath string, username string, password string) (transport.AuthMethod, error) {
+	var auth transport.AuthMethod
+	var err error
+	if len(filePath) > 0 {
+		if username == "" {
+			username = "git"
+		}
+		auth, err = ssh.NewPublicKeysFromFile(username, filePath, password)
+		if err != nil {
+			fmt.Println("Error Setting SSH Key", err)
+			return nil, err
+		}
+	} else {
+		auth = &http.BasicAuth{
+			Username: username,
+			Password: password,
+		}
 	}
-	publicKey, err := ssh.NewPublicKeys(username, sshKey, password)
-	if err != nil {
-		return nil, err
-	}
-	return publicKey, err
+	return auth, err
 }
