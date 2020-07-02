@@ -110,7 +110,7 @@ func checkCreateFlags(c *Create) []string {
 	if len(c.password) == 0 {
 		errors = append(errors, "-password required")
 	}
-	if len(c.repo) == 0 {
+	if len(c.provider) > 0 && len(c.repo) == 0 {
 		errors = append(errors, "-repo required")
 	}
 	if len(c.changelog) == 0 {

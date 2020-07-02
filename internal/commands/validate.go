@@ -109,7 +109,7 @@ func checkValidateFlags(v *Validate) []string {
 	if len(v.password) == 0 {
 		errors = append(errors, "-password required")
 	}
-	if len(v.repo) == 0 {
+	if len(v.provider) > 0 && len(v.repo) == 0 {
 		errors = append(errors, "-repo required")
 	}
 	if len(v.changelog) == 0 {

@@ -40,7 +40,7 @@ func (r *Properties) InitializeRepository() error {
 	}
 	err = repository.Fetch(&git.FetchOptions{
 		RemoteName: "origin",
-		RefSpecs:   []config.RefSpec{config.RefSpec("+refs/tags/" + r.Tag + ":refs/tags/" + r.Tag)},
+		RefSpecs:   []config.RefSpec{config.RefSpec("+refs/tags/*:refs/tags/*")},
 		Auth: &http.BasicAuth{
 			Username: r.Username,
 			Password: r.Password,
@@ -55,13 +55,17 @@ func (r *Properties) InitializeRepository() error {
 
 func (r *Properties) ValidateTag() tag.ValidTagState {
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
-	tagrefs, err := repository.Tag(r.Tag)
+	tagref, err := repository.Tag(r.Tag)
 	if err != nil {
-		if err.Error() == "error: tag not found" {
+		if err.Error() == "tag not found" {
 			validTag.TagDoesntExist = true
 		}
 	} else {
-		if tagrefs.Hash().String() == r.Hash {
+		tagObject, err := repository.TagObject(tagref.Hash())
+		if err != nil {
+			fmt.Println("Error retrieving tag details", err)
+		}
+		if tagObject.Target.String() == r.Hash {
 			validTag.TagExistsWithProvidedHash = true
 		}
 	}
