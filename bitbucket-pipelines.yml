@@ -14,7 +14,6 @@ definitions:
     - step: &lint
         name: linting
         script:
-          - git status
           - go get -u golang.org/x/lint/golint
           - golint -set_exit_status ./...
     - step: &integration
@@ -95,6 +94,21 @@ pipelines:
        - step: *integration
        - step: *integration-git
        - step: *validate-version
+    - step:
+        name: create release
+        script:
+          - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}"
+          - mkdir -pv "${PACKAGE_PATH}"
+          - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
+          - cd "${PACKAGE_PATH}"
+          - go mod download
+          - go install
+          # Create version
+          - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket | tee version.txt
+          - git tag -d $(cat version.txt)
+          - git push --delete origin $(cat version.txt)
+          - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
+
   branches:
     master:
       - parallel:
@@ -113,4 +127,7 @@ pipelines:
             - go mod download
             - go install
             # Create version
+            - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket | tee version.txt
+            - git tag -d $(cat version.txt)
+            - git push --delete origin $(cat version.txt)
             - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
