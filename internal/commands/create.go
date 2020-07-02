@@ -85,7 +85,7 @@ func (c *Create) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) s
 				desiredTag := changelogObj.ConvertToDesiredTag()
 				success, err := createProviderTag(c, desiredTag, changelogObj)
 				if err != nil {
-					_, err := os.Stderr.WriteString("Error creating tag with repo " + c.origin + err.Error() + "\n")
+					_, err := os.Stderr.WriteString("Error creating tag with repo " + c.origin + " " + err.Error() + "\n")
 					if err != nil {
 						panic("Cannot write to stderr")
 					}

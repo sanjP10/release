@@ -84,7 +84,7 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 				desiredTag := changelogObj.ConvertToDesiredTag()
 				success, err := validateProviderTag(v, desiredTag, changelogObj)
 				if err != nil {
-					_, err := os.Stderr.WriteString("Error validating tag with repo " + v.origin + err.Error() + "\n")
+					_, err := os.Stderr.WriteString("Error validating tag with repo " + v.origin + " " + err.Error() + "\n")
 					if err != nil {
 						panic("Cannot write to stderr")
 					}
