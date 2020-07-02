@@ -82,8 +82,14 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 				}
 			} else {
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				success := validateProviderTag(v, desiredTag, changelogObj)
-				if !success {
+				success, err := validateProviderTag(v, desiredTag, changelogObj)
+				if err != nil {
+					_, err := os.Stderr.WriteString("Error validating tag with repo " + v.origin + err.Error() + "\n")
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
+					exit = subcommands.ExitFailure
+				} else if !success {
 					_, err := os.Stderr.WriteString("Tag " + strings.TrimSpace(desiredTag) + " already exists\n")
 					if err != nil {
 						panic("Cannot write to stderr")
@@ -132,7 +138,7 @@ func checkValidateFlags(v *Validate) []string {
 	return errors
 }
 
-func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
+func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) (bool, error) {
 	success := false
 	validTagState := tag.ValidTagState{}
 	properties := tag.RepoProperties{
@@ -153,14 +159,10 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 		provider := git.Properties{Username: v.username, Email: v.email, Body: changelogObj.Changes, Origin: v.origin, RepoProperties: properties}
 		err := provider.InitializeRepository()
 		if err != nil {
-			_, err := os.Stderr.WriteString("Error initializing repository " + v.origin + "\n")
-			if err != nil {
-				panic("Cannot write to stderr")
-			}
-			return false
+			return false, err
 		}
 		validTagState = provider.ValidateTag()
 	}
 	success = validTagState.TagDoesntExist || validTagState.TagExistsWithProvidedHash
-	return success
+	return success, nil
 }

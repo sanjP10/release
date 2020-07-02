@@ -83,8 +83,14 @@ func (c *Create) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) s
 			} else {
 				changelogObj.RetrieveChanges(changelogFile)
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				success := createProviderTag(c, desiredTag, changelogObj)
-				if !success {
+				success, err := createProviderTag(c, desiredTag, changelogObj)
+				if err != nil {
+					_, err := os.Stderr.WriteString("Error creating tag with repo " + c.origin + err.Error() + "\n")
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
+					exit = subcommands.ExitFailure
+				} else if !success {
 					_, err := os.Stderr.WriteString("Error creating Tag " + strings.TrimSpace(desiredTag) + "\n")
 					if err != nil {
 						panic("Cannot write to stderr")
@@ -133,7 +139,7 @@ func checkCreateFlags(c *Create) []string {
 	return errors
 }
 
-func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) bool {
+func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Properties) (bool, error) {
 	success := false
 	properties := tag.RepoProperties{
 		Password: c.password,
@@ -153,13 +159,9 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 		provider := git.Properties{Username: c.username, Email: c.email, Body: changelogObj.Changes, Origin: c.origin, RepoProperties: properties}
 		err := provider.InitializeRepository()
 		if err != nil {
-			_, err := os.Stderr.WriteString("Error initializing repository " + c.origin + "\n")
-			if err != nil {
-				panic("Cannot write to stderr")
-			}
-			return false
+			return false, err
 		}
 		success = provider.CreateTag()
 	}
-	return success
+	return success, nil
 }
