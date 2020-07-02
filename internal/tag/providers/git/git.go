@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// Properties for git repo
 type Properties struct {
 	tag.RepoProperties
 	Username string
@@ -23,6 +24,7 @@ type Properties struct {
 
 var repository *git.Repository
 
+// InitializeRepository initializes the repository sets up origins and fetches
 func (r *Properties) InitializeRepository() error {
 	var err error
 	repository, err = git.Init(memory.NewStorage(), nil)
@@ -53,6 +55,7 @@ func (r *Properties) InitializeRepository() error {
 	return err
 }
 
+//ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	tagref, err := repository.Tag(r.Tag)
@@ -72,6 +75,7 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 	return validTag
 }
 
+// CreateTag creates a git tag
 func (r *Properties) CreateTag() bool {
 	createTag := false
 	validTagState := r.ValidateTag()

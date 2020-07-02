@@ -41,7 +41,7 @@ type BadResponse struct {
 	Errors  []Error `json:"errors"`
 }
 
-// Properties properties for repo
+// Properties for repo
 type Properties struct {
 	tag.RepoProperties
 	Username string
