@@ -14,6 +14,7 @@ definitions:
     - step: &lint
         name: linting
         script:
+          - git status
           - go get -u golang.org/x/lint/golint
           - golint -set_exit_status ./...
     - step: &integration
