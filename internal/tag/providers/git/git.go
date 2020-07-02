@@ -42,7 +42,7 @@ func (r *Properties) InitializeRepository() error {
 	}
 	err = repository.Fetch(&git.FetchOptions{
 		RemoteName: "origin",
-		RefSpecs:   []config.RefSpec{config.RefSpec("+refs/tags/*:refs/tags/*")},
+		RefSpecs:   []config.RefSpec{"+refs/tags/*:refs/tags/*", "+refs/heads/*:refs/remotes/origin/*"},
 		Auth: &http.BasicAuth{
 			Username: r.Username,
 			Password: r.Password,
@@ -82,6 +82,10 @@ func (r *Properties) CreateTag() bool {
 	if validTagState.TagExistsWithProvidedHash {
 		createTag = true
 	} else if validTagState.TagDoesntExist {
+		fmt.Println(r.Hash)
+		fmt.Println(r.Username)
+		fmt.Println(r.Email)
+
 		_, err := repository.CreateTag(r.Tag, plumbing.NewHash(r.Hash), &git.CreateTagOptions{
 			Tagger: &object.Signature{
 				Name:  r.Username,
