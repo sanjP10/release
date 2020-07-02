@@ -8,7 +8,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/go-git/go-git/v5/storage/memory"
+	"io/ioutil"
 	"os"
 	"time"
 )
@@ -111,4 +113,17 @@ func (r *Properties) CreateTag() bool {
 		createTag = true
 	}
 	return createTag
+}
+
+func publicKey(filePath string, username string, password string) (*ssh.PublicKeys, error) {
+	var publicKey *ssh.PublicKeys
+	sshKey, _ := ioutil.ReadFile(filePath)
+	if username == "" {
+		username = "git"
+	}
+	publicKey, err := ssh.NewPublicKeys(username, sshKey, password)
+	if err != nil {
+		return nil, err
+	}
+	return publicKey, err
 }

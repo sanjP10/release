@@ -92,6 +92,47 @@ func Test_checkValidateFlagsGit(t *testing.T) {
 	assertTest.Empty(validCreate)
 }
 
+func Test_checkValidateFlagsGitSSH(t *testing.T) {
+	validateCmd := &Validate{}
+	errors := checkValidateFlags(validateCmd)
+	expected := []string{
+		"-username required",
+		"-password required",
+		"-changelog required",
+		"-hash required",
+		"-email required",
+		"-origin required",
+	}
+	assertTest := assert.New(t)
+	assertTest.Equal(errors, expected)
+
+	validateCmd.ssh = "ssh-file"
+	validateCmd.origin = "http://an-origin.com/repo.git"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-changelog required",
+		"-hash required",
+		"-email required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.changelog = "changelog"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-hash required",
+		"-email required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.hash = "hash"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-email required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.email = "an-email@abc.com"
+	validCreate := checkValidateFlags(validateCmd)
+	assertTest.Empty(validCreate)
+}
+
 func TestValidate_SetFlags(t *testing.T) {
 	validateCmd := &Validate{}
 	assertTest := assert.New(t)

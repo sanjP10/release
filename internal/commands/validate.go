@@ -25,6 +25,7 @@ type Validate struct {
 	host      string
 	origin    string
 	provider  string
+	ssh       string
 }
 
 // Name of subcommand
@@ -40,15 +41,16 @@ func (*Validate) Usage() string {
 
 // SetFlags required for create sub command
 func (v *Validate) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&v.username, "username", "", "username (gitlab does not require this field)")
-	f.StringVar(&v.password, "password", "", "password or api token (gitlab requires an api token)")
+	f.StringVar(&v.username, "username", "", "username (gitlab provider does not require this field). If using ssh provide a username is not git")
+	f.StringVar(&v.password, "password", "", "password or api token (gitlab requires an api token). If using ssh provide the password for your ssh key")
 	f.StringVar(&v.email, "email", "", "Required when a provider is not supplied, the email for tag")
 	f.StringVar(&v.repo, "repo", "", "repo name, required when a provider is supplided")
 	f.StringVar(&v.changelog, "changelog", "", "location of changelog markdown file")
 	f.StringVar(&v.hash, "hash", "", "full commit hash")
 	f.StringVar(&v.host, "host", "", "host override for provider specific APIs")
-	f.StringVar(&v.origin, "origin", "", "origin of git repository")
+	f.StringVar(&v.origin, "origin", "", "https or ssh origin of git repository")
 	f.StringVar(&v.provider, "provider", "", "git provider, options are github, gitlab or bitbucket")
+	f.StringVar(&v.ssh, "ssh", "", "\"ssh key file location, please provide username and password if required. username defaults to git\"")
 }
 
 //Execute flow of subcommand
@@ -109,10 +111,12 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 
 func checkValidateFlags(v *Validate) []string {
 	var errors []string
-	if len(v.username) == 0 && v.provider != "gitlab" {
+	if len(v.username) == 0 && (v.provider != "gitlab" && len(v.origin) >= 0 && len(v.ssh) == 0) {
 		errors = append(errors, "-username required")
 	}
-	if len(v.password) == 0 {
+	if len(v.password) == 0 && (ValidProvider(v.provider) ||
+		!ValidProvider(v.provider) && len(v.ssh) == 0 ||
+		v.provider == "" && (len(v.origin) > 0 && len(v.ssh) == 0)) {
 		errors = append(errors, "-password required")
 	}
 	if len(v.provider) > 0 && len(v.repo) == 0 {
