@@ -61,7 +61,7 @@ definitions:
           # expecting usage error as file doesn't exist
           - test $(release validate -username $USER -password $ACCESS_TOKEN -email sanjay.patel@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog blah.md -hash $BITBUCKET_COMMIT; echo $?) -eq 2
           # expecting fail as unauthorized
-          - test $(release validate -username blah -password blah -email sanjay.patel@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog fixtures/FirstChangelog.md -hash blah; echo $?) -eq 1
+          - test $(release validate -username blah -password blah -email sanjay.patel@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog fixtures/FirstChangelog.md -hash blah >> /dev/null; echo $?) -eq 1
           # expecting fail due to misuse
           - test $(release validate -username blah -password blah -email sanjay.patel@cloudreach.com -changelog fixtures/FirstChangelog.md; echo $?) -eq 2
           - test $(release validate; echo $?) -eq 2
