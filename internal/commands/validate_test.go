@@ -24,8 +24,78 @@ func TestValidate_Usage(t *testing.T) {
 	assertTest.Equal(validate.Usage(), expected)
 }
 
-func Test_checkValidateFlags(t *testing.T) {
+func Test_checkValidateFlagsGit(t *testing.T) {
 	validateCmd := &Validate{}
+	errors := checkValidateFlags(validateCmd)
+	expected := []string{
+		"-username required",
+		"-password required",
+		"-changelog required",
+		"-hash required",
+		"-email required",
+		"-origin required",
+	}
+	assertTest := assert.New(t)
+	assertTest.Equal(errors, expected)
+
+	validateCmd.username = "testuser"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-password required",
+		"-changelog required",
+		"-hash required",
+		"-email required",
+		"-origin required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.password = "password"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-changelog required",
+		"-hash required",
+		"-email required",
+		"-origin required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.repo = "repo"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-changelog required",
+		"-hash required",
+		"-email required",
+		"-origin required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.changelog = "changelog"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-hash required",
+		"-email required",
+		"-origin required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.hash = "hash"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-email required",
+		"-origin required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.email = "an-email@abc.com"
+	errors = checkValidateFlags(validateCmd)
+	expected = []string{
+		"-origin required"}
+	assertTest.Equal(errors, expected)
+
+	validateCmd.origin = "http://an-origin.com/repo.git"
+	validCreate := checkValidateFlags(validateCmd)
+	assertTest.Empty(validCreate)
+}
+
+func TestValidate_SetFlags(t *testing.T) {
+	validateCmd := &Validate{}
+	assertTest := assert.New(t)
+	validateCmd.provider = "svn"
 	errors := checkValidateFlags(validateCmd)
 	expected := []string{
 		"-username required",
@@ -34,8 +104,22 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-changelog required",
 		"-hash required",
 		"-provider required, valid values are github, gitlab, bitbucket"}
-	assertTest := assert.New(t)
 	assertTest.Equal(errors, expected)
+
+	for _, provider := range providers {
+		validateCmd.provider = provider
+		errors := checkValidateFlags(validateCmd)
+		expected := []string{
+			"-username required",
+			"-password required",
+			"-repo required",
+			"-changelog required",
+			"-hash required"}
+		if provider == "gitlab" {
+			expected = append(expected[:0], expected[1:]...)
+		}
+		assertTest.Equal(errors, expected)
+	}
 
 	validateCmd.username = "testuser"
 	errors = checkValidateFlags(validateCmd)
@@ -44,7 +128,7 @@ func Test_checkValidateFlags(t *testing.T) {
 		"-repo required",
 		"-changelog required",
 		"-hash required",
-		"-provider required, valid values are github, gitlab, bitbucket"}
+	}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.password = "password"
@@ -52,42 +136,24 @@ func Test_checkValidateFlags(t *testing.T) {
 	expected = []string{
 		"-repo required",
 		"-changelog required",
-		"-hash required",
-		"-provider required, valid values are github, gitlab, bitbucket"}
+		"-hash required"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.repo = "repo"
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
 		"-changelog required",
-		"-hash required",
-		"-provider required, valid values are github, gitlab, bitbucket"}
+		"-hash required"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.changelog = "changelog"
 	errors = checkValidateFlags(validateCmd)
 	expected = []string{
-		"-hash required",
-		"-provider required, valid values are github, gitlab, bitbucket"}
+		"-hash required"}
 	assertTest.Equal(errors, expected)
 
 	validateCmd.hash = "hash"
-	errors = checkValidateFlags(validateCmd)
-	expected = []string{
-		"-provider required, valid values are github, gitlab, bitbucket"}
-	assertTest.Equal(errors, expected)
-
-	validateCmd.provider = "svn"
-	errors = checkValidateFlags(validateCmd)
-	expected = []string{
-		"-provider required, valid values are github, gitlab, bitbucket"}
-	assertTest.Equal(errors, expected)
-
-	for _, provider := range providers {
-		validateCmd.provider = provider
-		validCreate := checkValidateFlags(validateCmd)
-		assertTest.Empty(validCreate)
-	}
+	assertTest.Empty(checkValidateFlags(validateCmd))
 }
 
 func Test_ValidateCheckFlag_Gitlab(t *testing.T) {

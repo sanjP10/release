@@ -85,6 +85,7 @@ definitions:
           - go install
           # Test version does not exist
           - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
+          - release validate -username $USER -password $ACCESS_TOKEN -email sanjay.patel@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 pipelines:
   default:
     - parallel:
@@ -112,4 +113,3 @@ pipelines:
             - go install
             # Create version
             - release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
-
