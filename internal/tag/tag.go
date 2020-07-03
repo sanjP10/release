@@ -9,10 +9,8 @@ type Tagging interface {
 // RepoProperties properties for repo
 type RepoProperties struct {
 	Password string
-	Repo     string
 	Tag      string
 	Hash     string
-	Host     string
 }
 
 // ValidTagState properties for repo

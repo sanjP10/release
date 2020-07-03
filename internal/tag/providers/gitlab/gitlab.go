@@ -31,9 +31,11 @@ type BadResponse struct {
 	Message string `json:"message"`
 }
 
-// Properties properties for repo
+// Properties for repo
 type Properties struct {
 	tag.RepoProperties
+	Repo string
+	Host string
 	Body string
 }
 

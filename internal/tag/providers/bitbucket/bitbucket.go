@@ -32,10 +32,12 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// Properties properties for repo
+// Properties for repo
 type Properties struct {
 	tag.RepoProperties
 	Username string
+	Repo     string
+	Host     string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash

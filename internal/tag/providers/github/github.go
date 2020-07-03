@@ -41,11 +41,13 @@ type BadResponse struct {
 	Errors  []Error `json:"errors"`
 }
 
-// Properties properties for repo
+// Properties for repo
 type Properties struct {
 	tag.RepoProperties
 	Username string
 	Body     string
+	Repo     string
+	Host     string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash

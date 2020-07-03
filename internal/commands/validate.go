@@ -4,6 +4,7 @@ import (
 	"bitbucket.org/cloudreach/release/internal/changelog"
 	"bitbucket.org/cloudreach/release/internal/tag"
 	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
+	"bitbucket.org/cloudreach/release/internal/tag/providers/git"
 	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
 	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
 	"context"
@@ -17,11 +18,14 @@ import (
 type Validate struct {
 	username  string
 	password  string
-	repo      string
+	email     string
 	changelog string
+	repo      string
 	hash      string
 	host      string
+	origin    string
 	provider  string
+	ssh       string
 }
 
 // Name of subcommand
@@ -37,13 +41,16 @@ func (*Validate) Usage() string {
 
 // SetFlags required for create sub command
 func (v *Validate) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&v.username, "username", "", "username (gitlab does not require this field)")
-	f.StringVar(&v.password, "password", "", "password or api token (gitlab requires an api token)")
-	f.StringVar(&v.repo, "repo", "", "repo name")
+	f.StringVar(&v.username, "username", "", "username (gitlab provider does not require this field). If using ssh provide a username is not git")
+	f.StringVar(&v.password, "password", "", "password or api token (gitlab requires an api token). If using ssh provide the password for your ssh key")
+	f.StringVar(&v.email, "email", "", "Required when a provider is not supplied, the email for tag")
+	f.StringVar(&v.repo, "repo", "", "repo name, required when a provider is supplied")
 	f.StringVar(&v.changelog, "changelog", "", "location of changelog markdown file")
 	f.StringVar(&v.hash, "hash", "", "full commit hash")
-	f.StringVar(&v.host, "host", "", "host override")
+	f.StringVar(&v.host, "host", "", "host override for provider specific APIs")
+	f.StringVar(&v.origin, "origin", "", "https or ssh origin of git repository")
 	f.StringVar(&v.provider, "provider", "", "git provider, options are github, gitlab or bitbucket")
+	f.StringVar(&v.ssh, "ssh", "", "ssh private key file location, please provide username and password if required. username defaults to git")
 }
 
 //Execute flow of subcommand
@@ -77,8 +84,14 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 				}
 			} else {
 				desiredTag := changelogObj.ConvertToDesiredTag()
-				success := validateProviderTag(v, desiredTag, changelogObj)
-				if !success {
+				success, err := validateProviderTag(v, desiredTag, changelogObj)
+				if err != nil {
+					_, err := os.Stderr.WriteString("Error validating tag with repo " + v.origin + " " + err.Error() + "\n")
+					if err != nil {
+						panic("Cannot write to stderr")
+					}
+					exit = subcommands.ExitFailure
+				} else if !success {
 					_, err := os.Stderr.WriteString("Tag " + strings.TrimSpace(desiredTag) + " already exists\n")
 					if err != nil {
 						panic("Cannot write to stderr")
@@ -98,13 +111,15 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 
 func checkValidateFlags(v *Validate) []string {
 	var errors []string
-	if len(v.username) == 0 && v.provider != "gitlab" {
+	if len(v.username) == 0 && (v.provider != "gitlab" && len(v.origin) >= 0 && len(v.ssh) == 0) {
 		errors = append(errors, "-username required")
 	}
-	if len(v.password) == 0 {
+	if len(v.password) == 0 && (ValidProvider(v.provider) ||
+		!ValidProvider(v.provider) && len(v.ssh) == 0 ||
+		v.provider == "" && (len(v.origin) > 0 && len(v.ssh) == 0)) {
 		errors = append(errors, "-password required")
 	}
-	if len(v.repo) == 0 {
+	if len(v.provider) > 0 && len(v.repo) == 0 {
 		errors = append(errors, "-repo required")
 	}
 	if len(v.changelog) == 0 {
@@ -113,33 +128,45 @@ func checkValidateFlags(v *Validate) []string {
 	if len(v.hash) == 0 {
 		errors = append(errors, "-hash required")
 	}
-
-	if !ValidProvider(v.provider) {
+	if len(v.provider) > 0 && !ValidProvider(v.provider) {
 		errors = append(errors, "-provider required, valid values are "+strings.Join(providers[:], ", "))
+	}
+	if len(v.provider) == 0 {
+		if len(v.email) == 0 {
+			errors = append(errors, "-email required")
+		}
+		if len(v.origin) == 0 {
+			errors = append(errors, "-origin required")
+		}
 	}
 	return errors
 }
 
-func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) bool {
+func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.Properties) (bool, error) {
 	success := false
 	validTagState := tag.ValidTagState{}
 	properties := tag.RepoProperties{
 		Password: v.password,
-		Repo:     v.repo,
 		Tag:      strings.TrimSpace(desiredTag),
-		Hash:     v.hash,
-		Host:     v.host}
+		Hash:     v.hash}
 	switch strings.ToLower(v.provider) {
 	case "github":
-		provider := github.Properties{Username: v.username, Body: changelogObj.Changes, RepoProperties: properties}
+		provider := github.Properties{Username: v.username, Body: changelogObj.Changes, Repo: v.repo, Host: v.host, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "gitlab":
-		provider := gitlab.Properties{Body: changelogObj.Changes, RepoProperties: properties}
+		provider := gitlab.Properties{Body: changelogObj.Changes, Repo: v.repo, Host: v.host, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "bitbucket":
-		provider := bitbucket.Properties{Username: v.username, RepoProperties: properties}
+		provider := bitbucket.Properties{Username: v.username, Repo: v.repo, Host: v.host, RepoProperties: properties}
+		validTagState = provider.ValidateTag()
+	default:
+		provider := git.Properties{Username: v.username, Email: v.email, Body: changelogObj.Changes, Origin: v.origin, SSH: v.ssh, RepoProperties: properties}
+		err := provider.InitializeRepository()
+		if err != nil {
+			return false, err
+		}
 		validTagState = provider.ValidateTag()
 	}
 	success = validTagState.TagDoesntExist || validTagState.TagExistsWithProvidedHash
-	return success
+	return success, nil
 }

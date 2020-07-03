@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+### Added
+* Support for non-api git providers. Allowing for tagging via git.
+
 ## 3.0.1
 ### Updated
 * Separated each provider to a package
