@@ -179,3 +179,7 @@ Once you have registered the ssh key within cloud source repositories, the comma
 ```
 release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
 ```
+
+# Azure
+
+Unfortunately neither HTTPs or SSH due to this [issue](https://github.com/go-git/go-git/issues/64)
