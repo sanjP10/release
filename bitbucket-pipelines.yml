@@ -16,8 +16,8 @@ definitions:
         script:
           - go get -u golang.org/x/lint/golint
           - golint -set_exit_status ./...
-    - step: &integration
-        name: integration
+    - step: &integration-with-api
+        name: integration-with-api
         script:
           - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}"
           - mkdir -pv "${PACKAGE_PATH}"
@@ -45,8 +45,8 @@ definitions:
           # expecting fail due to misuse
           - test $(release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release; echo $?) -eq 2
           - test $(release create; echo $?) -eq 2
-    - step: &integration-git
-        name: integration-git
+    - step: &integration-with-git
+        name: integration-with-git
         script:
           - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}"
           - mkdir -pv "${PACKAGE_PATH}"
@@ -91,16 +91,16 @@ pipelines:
     - parallel:
        - step: *unit
        - step: *lint
-       - step: *integration
-       - step: *integration-git
+       - step: *integration-with-api
+       - step: *integration-with-git
        - step: *validate-version
   branches:
     master:
       - parallel:
           - step: *unit
           - step: *lint
-          - step: *integration
-          - step: *integration-git
+          - step: *integration-with-api
+          - step: *integration-with-git
           - step: *validate-version
       - step:
           name: create release
