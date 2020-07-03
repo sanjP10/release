@@ -91,17 +91,19 @@ pipelines:
     - parallel:
        - step: *unit
        - step: *lint
+    - parallel:
        - step: *integration-with-api
        - step: *integration-with-git
-       - step: *validate-version
+    - step: *validate-version
   branches:
     master:
       - parallel:
           - step: *unit
           - step: *lint
+      - parallel:
           - step: *integration-with-api
           - step: *integration-with-git
-          - step: *validate-version
+      - step: *validate-version
       - step:
           name: create release
           script:
