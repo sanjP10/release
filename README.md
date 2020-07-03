@@ -44,12 +44,14 @@ major.minor.patch
 major.minor.patch.micro
 ```
 
-***Note the format must be consistent within the changelog***
+***Note: the format must be consistent within the changelog***
+
+# Usage
 
 The two subcommands for release are `validate` and `create`
 * `validate` will interrogate the latest version on the changelog file and if it exists for the repository.
 If it does exist and the commit hash provided is the same it will return a successful exit code.
-* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. **Github** and **Gitlab** also takes the markdown between the version numbers and creates a release with the changelog notes you created.
+* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. 
 
 These are the flags when a provider is present
 
@@ -71,10 +73,17 @@ These are the flags when using the default git functionality
 -hash <commit sha>
 -email <email address for tag>
 -origin <git https/ssh origin>
--ssh <path to private ssh key, optional field>
+-ssh <path to private ssh key, will require ssh to be part of known hosts and regitered with ssh-agent, optional field>
 ```
 
+## Changelog Notes
+The **Github** and **Gitlab** api's also takes the markdown between the version numbers and creates a release with the changelog notes you created.
+If you use the default **git** the release notes are added as annotations to the tag, so if you run `git show <desired tag>` you can see the notes associated.
+**Bitbucket** api does not process any release notes as it is not supported.
 
+
+
+## Examples
 This is an example `validate` command via bitbucket
 
 ```
