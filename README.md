@@ -153,8 +153,6 @@ To integrate this into bitbucket pipelines you can use the following as steps
 ```
 
 # CodeCommit
-**WARNING!**
-
 CodeCommit only supports SSH
 
 As code commit uses credential-helper to create a username and password it is not possible to get
@@ -169,4 +167,15 @@ You will need to get the SSH Key ID which can be found in the IAM User console.
 This would be the command for using the tool when using SSH.
 ```
 release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+```
+
+# GCP
+Cloud Source Repositories only supports SSH
+
+As source repositories uses gitcookie's to create a username and password it is not possible to get
+the username and password for use with HTTPs.
+
+Once you have registered the ssh key within cloud source repositories, the command  would be as follows
+```
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
 ```
