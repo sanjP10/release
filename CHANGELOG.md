@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.1
+### Update
+* Fix pipeline documentation
+
 ## 3.1.0
 ### Added
 * Support for non-api git providers. Allowing for tagging via git.
