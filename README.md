@@ -132,8 +132,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
       - cd "${PACKAGE_PATH}"
       - git clone https://$USER:$ACCESS_TOKEN@bitbucket.org/cloudreach/release
       - cd release
-      - go get -u github.com/golang/dep/cmd/dep
-      - dep ensure
+      - go mod download
       - go install
       # Test version does not exist
       - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
@@ -155,8 +154,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
       - cd "${PACKAGE_PATH}"
       - git clone https://$USER:$ACCESS_TOKEN@bitbucket.org/cloudreach/release
       - cd release
-      - go get -u github.com/golang/dep/cmd/dep
-      - dep ensure
+      - go mod download
       - go install
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
