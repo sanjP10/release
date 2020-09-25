@@ -36,7 +36,6 @@ type Properties struct {
 	tag.RepoProperties
 	Repo string
 	Host string
-	Body string
 }
 
 //ValidateTag checks a tag does not exist or has the same hash

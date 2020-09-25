@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.2
+### Update
+* Fix bitbucket self hosted for api provided with bitbucket server
+
 ## 3.1.1
 ### Update
 * Fix pipeline documentation

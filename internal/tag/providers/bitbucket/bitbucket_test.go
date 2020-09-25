@@ -16,7 +16,7 @@ func TestValidateTagNotExisting(t *testing.T) {
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	results := repo.ValidateTag()
 	assertTest.True(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -30,7 +30,7 @@ func TestValidateTagUnauthorized(t *testing.T) {
 		Reply(http.StatusUnauthorized)
 	assertTest := assert.New(t)
 	// Testing a 403
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -48,7 +48,7 @@ func TestValidateTagExistingSameHash(t *testing.T) {
 
 	assertTest := assert.New(t)
 	// Testing 200 response and hash is the same
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.True(results.TagExistsWithProvidedHash)
@@ -65,7 +65,7 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 		Get("/2.0/repositories/repo/refs/tags/tag").
 		Reply(http.StatusOK).
 		JSON(response)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "not_hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "not_hash", "hello"}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -79,7 +79,7 @@ func TestValidateTagOtherError(t *testing.T) {
 		Reply(http.StatusServiceUnavailable)
 	assertTest := assert.New(t)
 	// Testing a 403
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	results := repo.ValidateTag()
 	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
@@ -101,7 +101,7 @@ func TestCreateTagNotFound(t *testing.T) {
 		JSON(response)
 
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
@@ -120,7 +120,7 @@ func TestCreateTagUnauthorized(t *testing.T) {
 		Reply(http.StatusUnauthorized).
 		JSON(response)
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
@@ -139,7 +139,7 @@ func TestCreateTagSuccessful(t *testing.T) {
 		Reply(http.StatusCreated).
 		JSON(response)
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.True(repo.CreateTag())
 }
 
@@ -150,16 +150,31 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.personal-bitbucket.com").
-		Get("/2.0/repositories/repo/refs/tags/tag").
+		Get("/rest/api/1.0/projects/project/repos/repo/tags/tag").
 		Reply(http.StatusNotFound)
 
 	gock.New("https://api.personal-bitbucket.com").
-		Post("/2.0/repositories/repo/refs/tags").
-		Reply(http.StatusCreated).
+		Post("/rest/api/1.0/projects/project/repos/repo/tags").
+		Reply(http.StatusOK).
 		JSON(response)
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "https://api.personal-bitbucket.com", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "project/repo", Host: "https://api.personal-bitbucket.com", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.True(repo.CreateTag())
+}
+
+func TestTagExistingSelfHosted(t *testing.T) {
+	// Tag response
+	response := ServerTag{LatestCommit: "hash", DisplayID: "tag", Type: "TAG", LatestChangeset: "hash", Hash: "hashForTag"}
+	defer gock.Off() // Flush pending mocks after test execution
+
+	gock.New("https://api.personal-bitbucket.com").
+		Get("/rest/api/1.0/projects/project/repos/repo/tags/tag").
+		Reply(http.StatusOK).
+		JSON(response)
+
+	assertTest := assert.New(t)
+	repo := Properties{Username: "username", Repo: "project/repo", Host: "https://api.personal-bitbucket.com", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
+	assertTest.True(repo.ValidateTag().TagExistsWithProvidedHash)
 }
 
 func TestCreateTagAlreadyExists(t *testing.T) {
@@ -171,7 +186,7 @@ func TestCreateTagAlreadyExists(t *testing.T) {
 		Reply(http.StatusOK).
 		JSON(response)
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "test", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "test", "hash", "hello"}}
 	assertTest.True(repo.CreateTag())
 }
 
@@ -190,7 +205,7 @@ func TestCreateTagError(t *testing.T) {
 		Reply(http.StatusBadRequest).
 		JSON(errorResponse)
 	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "test", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "test", "hash", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
@@ -207,7 +222,7 @@ func TestCreateTagOtherError(t *testing.T) {
 		JSON(response)
 	assertTest := assert.New(t)
 	// Testing 400 response has been created, should never happen if validate is called first
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 
@@ -221,6 +236,6 @@ func TestCreateTagOtherErrorResponse(t *testing.T) {
 		Reply(http.StatusServiceUnavailable)
 	assertTest := assert.New(t)
 	// Testing 400 response has been created, should never happen if validate is called first
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash"}}
+	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
