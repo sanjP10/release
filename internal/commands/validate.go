@@ -148,19 +148,21 @@ func validateProviderTag(v *Validate, desiredTag string, changelogObj changelog.
 	properties := tag.RepoProperties{
 		Password: v.password,
 		Tag:      strings.TrimSpace(desiredTag),
-		Hash:     v.hash}
+		Hash:     v.hash,
+		Body:     changelogObj.Changes,
+	}
 	switch strings.ToLower(v.provider) {
 	case "github":
-		provider := github.Properties{Username: v.username, Body: changelogObj.Changes, Repo: v.repo, Host: v.host, RepoProperties: properties}
+		provider := github.Properties{Username: v.username, Repo: v.repo, Host: v.host, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "gitlab":
-		provider := gitlab.Properties{Body: changelogObj.Changes, Repo: v.repo, Host: v.host, RepoProperties: properties}
+		provider := gitlab.Properties{Repo: v.repo, Host: v.host, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	case "bitbucket":
 		provider := bitbucket.Properties{Username: v.username, Repo: v.repo, Host: v.host, RepoProperties: properties}
 		validTagState = provider.ValidateTag()
 	default:
-		provider := git.Properties{Username: v.username, Email: v.email, Body: changelogObj.Changes, Origin: v.origin, SSH: v.ssh, RepoProperties: properties}
+		provider := git.Properties{Username: v.username, Email: v.email, Origin: v.origin, SSH: v.ssh, RepoProperties: properties}
 		err := provider.InitializeRepository()
 		if err != nil {
 			return false, err

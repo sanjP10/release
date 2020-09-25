@@ -148,19 +148,21 @@ func createProviderTag(c *Create, desiredTag string, changelogObj changelog.Prop
 	properties := tag.RepoProperties{
 		Password: c.password,
 		Tag:      strings.TrimSpace(desiredTag),
-		Hash:     c.hash}
+		Hash:     c.hash,
+		Body:     changelogObj.Changes,
+	}
 	switch strings.ToLower(c.provider) {
 	case "github":
-		provider := github.Properties{Username: c.username, Body: changelogObj.Changes, Repo: c.repo, Host: c.host, RepoProperties: properties}
+		provider := github.Properties{Username: c.username, Repo: c.repo, Host: c.host, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "gitlab":
-		provider := gitlab.Properties{Body: changelogObj.Changes, Repo: c.repo, Host: c.host, RepoProperties: properties}
+		provider := gitlab.Properties{Repo: c.repo, Host: c.host, RepoProperties: properties}
 		success = provider.CreateTag()
 	case "bitbucket":
 		provider := bitbucket.Properties{Username: c.username, Repo: c.repo, Host: c.host, RepoProperties: properties}
 		success = provider.CreateTag()
 	default:
-		provider := git.Properties{Username: c.username, Email: c.email, Body: changelogObj.Changes, Origin: c.origin, SSH: c.ssh, RepoProperties: properties}
+		provider := git.Properties{Username: c.username, Email: c.email, Origin: c.origin, SSH: c.ssh, RepoProperties: properties}
 		err := provider.InitializeRepository()
 		if err != nil {
 			return false, err

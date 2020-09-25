@@ -20,7 +20,6 @@ type Properties struct {
 	tag.RepoProperties
 	Username string
 	Email    string
-	Body     string
 	Origin   string
 	SSH      string
 }

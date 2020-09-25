@@ -45,7 +45,6 @@ type BadResponse struct {
 type Properties struct {
 	tag.RepoProperties
 	Username string
-	Body     string
 	Repo     string
 	Host     string
 }

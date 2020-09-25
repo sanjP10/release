@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // Target Structure of bitbucket tag target
@@ -40,15 +41,35 @@ type Properties struct {
 	Host     string
 }
 
+// ServerTag response
+type ServerTag struct {
+	ID              string `json:"id"`
+	DisplayID       string `json:"displayId"`
+	Type            string `json:"type"`
+	LatestCommit    string `json:"latestCommit"`
+	LatestChangeset string `json:"latestChangeset"`
+	Hash            string `json:"hash"`
+}
+
+// ServerTagBody tag body for request
+type ServerTagBody struct {
+	Name       string `json:"name"`
+	StartPoint string `json:"startPoint"`
+	Message    string `json:"message"`
+}
+
 //ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
+	isCloud := true // Using bitbucket cloud offering otherwise self hosted
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags/%s", r.Repo, r.Tag)
 	} else {
-		url = fmt.Sprintf("%s/2.0/repositories/%s/refs/tags/%s", r.Host, r.Repo, r.Tag)
+		isCloud = false
+		repoDetails := strings.Split(r.Repo, "/")
+		url = fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/tags/%s", r.Host, repoDetails[0], repoDetails[1], r.Tag)
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -84,18 +105,7 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 		}
 	}
 	if resp.StatusCode == http.StatusOK {
-		res := Tag{}
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Println("Error reading body of tag response")
-		}
-		err = json.Unmarshal(body, &res)
-		if err != nil {
-			fmt.Println("Error unmarshalling body")
-		}
-		if r.Hash == res.Target.Hash {
-			validTag.TagExistsWithProvidedHash = true
-		}
+		validTag.TagExistsWithProvidedHash = checkResponse(resp, r.Hash, isCloud)
 	}
 	return validTag
 }
@@ -107,20 +117,18 @@ func (r *Properties) CreateTag() bool {
 	if validTagState.TagExistsWithProvidedHash {
 		createTag = true
 	} else if validTagState.TagDoesntExist {
+		isCloud := true // Using bitbucket cloud offering otherwise self hosted
 		url := ""
 		if r.Host == "" {
 			url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
 		} else {
-			url = fmt.Sprintf("%s/2.0/repositories/%s/refs/tags", r.Host, r.Repo)
+			isCloud = false
+			repoDetails := strings.Split(r.Repo, "/")
+			url = fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/tags", r.Host, repoDetails[0], repoDetails[1])
 		}
 
-		target := Target{r.Hash}
-		body := &Tag{Name: r.Tag, Target: target}
+		jsonBody := createBody(r, isCloud)
 
-		jsonBody, err := json.Marshal(body)
-		if err != nil {
-			fmt.Println("error marshalling object:", err)
-		}
 		request, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 		if err != nil {
 			fmt.Println("Error creating tag request", err)
@@ -145,7 +153,12 @@ func (r *Properties) CreateTag() bool {
 			}
 		}
 
-		if resp.StatusCode == http.StatusCreated {
+		expectedStatusCode := http.StatusOK
+		if isCloud {
+			expectedStatusCode = http.StatusCreated
+		}
+
+		if resp.StatusCode == expectedStatusCode {
 			createTag = true
 		}
 
@@ -163,4 +176,54 @@ func (r *Properties) CreateTag() bool {
 		}
 	}
 	return createTag
+}
+
+func createBody(r *Properties, isCloud bool) []byte {
+	var jsonBody []byte
+	var err error
+	err = nil
+	if isCloud {
+		target := Target{r.Hash}
+		body := &Tag{Name: r.Tag, Target: target}
+
+		jsonBody, err = json.Marshal(body)
+		if err != nil {
+			fmt.Println("error marshalling object:", err)
+		}
+	} else {
+		body := &ServerTagBody{Name: r.Tag, StartPoint: r.Hash, Message: r.Body}
+		jsonBody, err = json.Marshal(body)
+		if err != nil {
+			fmt.Println("error marshalling object:", err)
+		}
+	}
+	return jsonBody
+}
+
+func checkResponse(resp *http.Response, hash string, isCloud bool) bool {
+	existsWithProvidedHash := false
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading body of tag response")
+	}
+	if isCloud {
+		res := Tag{}
+		err = json.Unmarshal(body, &res)
+		if err != nil {
+			fmt.Println("Error unmarshalling body")
+		}
+		if hash == res.Target.Hash {
+			existsWithProvidedHash = true
+		}
+	} else {
+		res := ServerTag{}
+		err = json.Unmarshal(body, &res)
+		if err != nil {
+			fmt.Println("Error unmarshalling body")
+		}
+		if hash == res.LatestCommit {
+			existsWithProvidedHash = true
+		}
+	}
+	return existsWithProvidedHash
 }
