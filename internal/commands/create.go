@@ -1,15 +1,15 @@
 package commands
 
 import (
-	"bitbucket.org/cloudreach/release/internal/changelog"
-	"bitbucket.org/cloudreach/release/internal/tag"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/git"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
+	"github.com/sanjP10/release/internal/changelog"
+	"github.com/sanjP10/release/internal/tag"
+	"github.com/sanjP10/release/internal/tag/providers/bitbucket"
+	"github.com/sanjP10/release/internal/tag/providers/git"
+	"github.com/sanjP10/release/internal/tag/providers/github"
+	"github.com/sanjP10/release/internal/tag/providers/gitlab"
 	"os"
 	"strings"
 )

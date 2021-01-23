@@ -1,7 +1,7 @@
 package github
 
 import (
-	"bitbucket.org/cloudreach/release/internal/tag"
+	"github.com/sanjP10/release/internal/tag"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 	"net/http"

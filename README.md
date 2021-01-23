@@ -126,10 +126,10 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     image: golang
     script:
       - CHANGELOG_FILE=$(pwd)/Changelog.md
-      - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/cloudreach"
+      - PACKAGE_PATH="${GOPATH}/src/github.com/sanjP10"
       - mkdir -pv "${PACKAGE_PATH}"
       - cd "${PACKAGE_PATH}"
-      - git clone https://$USER:$ACCESS_TOKEN@bitbucket.org/cloudreach/release
+      - git clone https://$USER:$ACCESS_TOKEN@github.com/sanjP10/release
       - cd release
       - go mod download
       - go install
@@ -148,10 +148,10 @@ To integrate this into bitbucket pipelines you can use the following as steps
     image: golang
     script:
       - CHANGELOG_FILE=$(pwd)/Changelog.md
-      - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/cloudreach"
+      - PACKAGE_PATH="${GOPATH}/src/github.com/sanjP10"
       - mkdir -pv "${PACKAGE_PATH}"
       - cd "${PACKAGE_PATH}"
-      - git clone https://$USER:$ACCESS_TOKEN@bitbucket.org/cloudreach/release
+      - git clone https://$USER:$ACCESS_TOKEN@github.com/sanjP10/release
       - cd release
       - go mod download
       - go install

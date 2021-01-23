@@ -1,10 +1,10 @@
 package gitlab
 
 import (
-	"bitbucket.org/cloudreach/release/internal/tag"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/sanjP10/release/internal/tag"
 	"io/ioutil"
 	"net/http"
 	urllib "net/url"

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/cloudreach/release/internal/commands"
+	"github.com/sanjP10/release/internal/commands"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
