@@ -49,12 +49,31 @@ major.minor.patch.micro
 
 ***Note: the format must be consistent within the changelog***
 
+## Installation
+
+#### **With Go installed**
+
+If you have go installed, you can install `release` by running the following.
+
+```bash
+go get -u github.com/sanjP10/release
+```
+To find out where `release` was installed you can run `go list -f {{.Target}} github.com/sanjP10/release`
+
+#### **Without Go installed**
+
+You can go to the [releases page](https://github.com/sanjP10/release/releases) and download the binary for your desired operating system and architecture.
+
+For `release` to be used globally add that directory to the `$PATH` environment setting.
+
 # Usage
 
 The two subcommands for release are `validate` and `create`
 * `validate` will interrogate the latest version on the changelog file and if it exists for the repository.
-If it does exist, and the commit hash provided is the same it will return a successful exit code.
-* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. 
+If it does exist, and the commit hash provided is the same it will return a successful exit code. Ideally you put this
+  as part of your testing phase within your CI/CD.
+* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. You
+use this when you want to create a tag for your repo.
 
 These are the flags when a provider is present
 
@@ -119,6 +138,20 @@ This is an example of `validate` command against a self-hosted bitbucket
 ```
 release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
 ```
+
+# Outputs
+
+Release when returning with a successful exit code will write the desired or created tag as stdout.
+
+You can in turn take that output and use it with other tag based services such as Docker. To do this you can use tee.
+
+An example script would be
+```bash
+release create -username $USER -password $ACCESS_TOKEN -repo owner/repo -changelog CHANGELOG.md -hash $COMMIT_HASH -provider github | tee version.txt
+docker build . -t myContainer:$(cat version.txt) .
+docker push myContainer:${cat version.txt}
+```
+
 # Bitbucket Pipeline example
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
