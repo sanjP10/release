@@ -1,4 +1,4 @@
-module bitbucket.org/cloudreach/release
+module github.com/sanjP10/release
 
 go 1.14
 

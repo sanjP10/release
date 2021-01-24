@@ -1,22 +1,22 @@
 package gitlab
 
 import (
-	"bitbucket.org/cloudreach/release/internal/tag"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/sanjP10/release/internal/tag"
 	"io/ioutil"
 	"net/http"
 	urllib "net/url"
 	"os"
 )
 
-// Commit Structure of bitbucket tag target
+// Commit Structure of gitlab tag target
 type Commit struct {
 	ID string `json:"id"`
 }
 
-// Tag Structure of bitbucket tag response
+// Tag Structure of gitlab tag response
 type Tag struct {
 	Commit Commit `json:"commit"`
 }

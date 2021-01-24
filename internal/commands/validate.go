@@ -1,15 +1,15 @@
 package commands
 
 import (
-	"bitbucket.org/cloudreach/release/internal/changelog"
-	"bitbucket.org/cloudreach/release/internal/tag"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/bitbucket"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/git"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/github"
-	"bitbucket.org/cloudreach/release/internal/tag/providers/gitlab"
 	"context"
 	"flag"
 	"github.com/google/subcommands"
+	"github.com/sanjP10/release/internal/changelog"
+	"github.com/sanjP10/release/internal/tag"
+	"github.com/sanjP10/release/internal/tag/providers/bitbucket"
+	"github.com/sanjP10/release/internal/tag/providers/git"
+	"github.com/sanjP10/release/internal/tag/providers/github"
+	"github.com/sanjP10/release/internal/tag/providers/gitlab"
 	"os"
 	"strings"
 )
@@ -41,16 +41,16 @@ func (*Validate) Usage() string {
 
 // SetFlags required for create sub command
 func (v *Validate) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&v.username, "username", "", "username (gitlab provider does not require this field). If using ssh provide a username is not git")
-	f.StringVar(&v.password, "password", "", "password or api token (gitlab requires an api token). If using ssh provide the password for your ssh key")
-	f.StringVar(&v.email, "email", "", "Required when a provider is not supplied, the email for tag")
-	f.StringVar(&v.repo, "repo", "", "repo name, required when a provider is supplied")
-	f.StringVar(&v.changelog, "changelog", "", "location of changelog markdown file")
-	f.StringVar(&v.hash, "hash", "", "full commit hash")
-	f.StringVar(&v.host, "host", "", "host override for provider specific APIs")
-	f.StringVar(&v.origin, "origin", "", "https or ssh origin of git repository")
-	f.StringVar(&v.provider, "provider", "", "git provider, options are github, gitlab or bitbucket")
-	f.StringVar(&v.ssh, "ssh", "", "ssh private key file location, please provide username and password if required. username defaults to git")
+	f.StringVar(&v.username, "username", "", "Username (gitlab provider does not require this field). If using ssh provide a username is not git")
+	f.StringVar(&v.password, "password", "", "Password or API token (gitlab provider requires an api token). If using a ssh key please provide the password for your ssh key if password protected")
+	f.StringVar(&v.email, "email", "", "Required when the provider flag is not supplied, the email for tag")
+	f.StringVar(&v.repo, "repo", "", "The repo name, this should include the organisation or owner, required when a provider is supplied")
+	f.StringVar(&v.changelog, "changelog", "", "Location of changelog markdown file")
+	f.StringVar(&v.hash, "hash", "", "The Full commit hash")
+	f.StringVar(&v.host, "host", "", "The host for self hosted instances of the allowed providers")
+	f.StringVar(&v.origin, "origin", "", "Https or SSH origin of git repository, to be provided when the provider flag is not provided")
+	f.StringVar(&v.provider, "provider", "", "The Git provider, options are github, gitlab or bitbucket, when providing this flag you will be using their API's")
+	f.StringVar(&v.ssh, "ssh", "", "SSH private key file location, please provide Username and password of the SSH file if required. Username defaults to git. This is to be used when the provider flag is not provided")
 }
 
 //Execute flow of subcommand
