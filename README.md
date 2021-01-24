@@ -1,5 +1,8 @@
 # Release
 
+![Unit test and Integration tests](https://github.com/sanjP10/release/workflows/Unit%20and%20Integration%20Tests/badge.svg?branch=master)
+![Build and Upload](https://github.com/sanjP10/release/workflows/Build%20and%20Upload/badge.svg)
+
 Release is a tool that validates and creates tags against git repos by reading your changelog file.
 
 It is supported for the following git repository providers via APIs:
@@ -46,12 +49,31 @@ major.minor.patch.micro
 
 ***Note: the format must be consistent within the changelog***
 
+## Installation
+
+#### **With Go installed**
+
+If you have go installed, you can install `release` by running the following.
+
+```bash
+go get -u github.com/sanjP10/release
+```
+To find out where `release` was installed you can run `go list -f {{.Target}} github.com/sanjP10/release`
+
+#### **Without Go installed**
+
+You can go to the [releases page](https://github.com/sanjP10/release/releases) and download the binary for your desired operating system and architecture.
+
+For `release` to be used globally add that directory to the `$PATH` environment setting.
+
 # Usage
 
 The two subcommands for release are `validate` and `create`
 * `validate` will interrogate the latest version on the changelog file and if it exists for the repository.
-If it does exist, and the commit hash provided is the same it will return a successful exit code.
-* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. 
+If it does exist, and the commit hash provided is the same it will return a successful exit code. Ideally you put this
+  as part of your testing phase within your CI/CD.
+* `create` will do the same as `validate` and if the tag does not exist it will create the tag for the commit hash provided. You
+use this when you want to create a tag for your repo.
 
 These are the flags when a provider is present
 
@@ -86,35 +108,48 @@ If you use the default **git** provider the release notes are added as annotatio
 This is an example `validate` command via bitbucket
 
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
+release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
 ```
 This is an example `validate` command using default git
 ```
 # HTTPS
-release validate -username $USER -password $ACCESS_TOKEN -email user@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release validate -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 
 # SSH
-release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@cloudreach.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 ```
 
 This is an example `create` command via bitbucket
 
 ```
-release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
+release create -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
 ```
 This is an example `create` command using default git
 ```
 # HTTPS
-release create -username $USER -password $ACCESS_TOKEN -email user@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release create -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 
 # SSH
-release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@cloudreach.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 
 ```
 
 This is an example of `validate` command against a self-hosted bitbucket
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
+release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
+```
+
+# Outputs
+
+Release when returning with a successful exit code will write the desired or created tag as stdout.
+
+You can in turn take that output and use it with other tag based services such as Docker. To do this you can use tee.
+
+An example script would be
+```bash
+release create -username $USER -password $ACCESS_TOKEN -repo owner/repo -changelog CHANGELOG.md -hash $COMMIT_HASH -provider github | tee version.txt
+docker build . -t myContainer:$(cat version.txt) .
+docker push myContainer:${cat version.txt}
 ```
 
 # Bitbucket Pipeline example
@@ -125,17 +160,9 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     name: validate version
     image: golang
     script:
-      - CHANGELOG_FILE=$(pwd)/Changelog.md
-      - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/cloudreach"
-      - mkdir -pv "${PACKAGE_PATH}"
-      - cd "${PACKAGE_PATH}"
-      - git clone https://$USER:$ACCESS_TOKEN@bitbucket.org/cloudreach/release
-      - cd release
-      - go mod download
-      - go install
+      - go get -u github.com/sanjP10/release
       # Test version does not exist
-      - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
-
+      - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
 
 To integrate the `create` use this in the bitbucket pipeline after you merge to master
@@ -147,15 +174,50 @@ To integrate this into bitbucket pipelines you can use the following as steps
     name: create version
     image: golang
     script:
-      - CHANGELOG_FILE=$(pwd)/Changelog.md
-      - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/cloudreach"
-      - mkdir -pv "${PACKAGE_PATH}"
-      - cd "${PACKAGE_PATH}"
-      - git clone https://$USER:$ACCESS_TOKEN@bitbucket.org/cloudreach/release
-      - cd release
-      - go mod download
-      - go install
-      - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
+      - go get -u github.com/sanjP10/release
+      - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
+```
+
+# Github Actions Example
+To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
+
+```
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.7'
+      - run: get -u github.com/sanjP10/release
+      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
+```
+
+To integrate the `create` use this in the bitbucket pipeline after you merge to master
+
+To integrate this into bitbucket pipelines you can use the following as steps
+
+```
+  create:
+    runs-on: ubuntu-latest
+    needs: <A STEP>
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.7'
+      - run: get -u github.com/sanjP10/release
+      - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
 # CodeCommit
@@ -172,7 +234,7 @@ You will need to get the SSH Key ID which can be found in the IAM User console.
 
 This would be the command for using the tool when using SSH.
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
 ```
 
 # GCP
@@ -183,7 +245,7 @@ the username and password for use with HTTPs.
 
 Once you have registered the ssh key within cloud source repositories, the command  would be as follows
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
 ```
 
 # Azure

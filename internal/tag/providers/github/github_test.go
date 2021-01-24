@@ -1,7 +1,7 @@
 package github
 
 import (
-	"bitbucket.org/cloudreach/release/internal/tag"
+	"github.com/sanjP10/release/internal/tag"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 	"net/http"
@@ -19,20 +19,6 @@ func TestValidateTagNotExisting(t *testing.T) {
 	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", ""}}
 	results := repo.ValidateTag()
 	assertTest.True(results.TagDoesntExist)
-	assertTest.False(results.TagExistsWithProvidedHash)
-}
-
-func TestValidateTagUnauthorized(t *testing.T) {
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
-		Reply(http.StatusUnauthorized)
-	assertTest := assert.New(t)
-	// Testing a 403
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", ""}}
-	results := repo.ValidateTag()
-	assertTest.False(results.TagDoesntExist)
 	assertTest.False(results.TagExistsWithProvidedHash)
 }
 
@@ -102,24 +88,6 @@ func TestCreateTagNotFound(t *testing.T) {
 
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", ""}}
-	assertTest.False(repo.CreateTag())
-}
-
-func TestCreateTagUnauthorized(t *testing.T) {
-	// Testing a 401
-	body := Release{TargetCommitish: "hash", Prerelease: false, Draft: false, Body: "hello", TagName: "tag", Name: "tag"}
-	defer gock.Off() // Flush pending mocks after test execution
-
-	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
-		Reply(http.StatusNotFound)
-
-	gock.New("https://api.github.com").
-		Post("/repos/repo/releases").
-		Reply(http.StatusUnauthorized).
-		JSON(body)
-	assertTest := assert.New(t)
-	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{"password", "tag", "hash", "hello"}}
 	assertTest.False(repo.CreateTag())
 }
 

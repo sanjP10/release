@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.1.3
+
+### Added
+* Github actions for CI/CD
+* Github actions for building and providing release assets
+
+### Update
+* Migrated from bitbucket to github repository
+* Removed unauthorized logic for `github` provider as API's provide 404 instead
+* Updated usage documentation
+
 ## 3.1.2
 ### Update
 * Fix bitbucket self hosted for api provided with bitbucket server
