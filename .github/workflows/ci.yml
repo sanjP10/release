@@ -94,7 +94,9 @@ jobs:
           go-version: '^1.15.7'
       - run: go mod download
       - run: go install
-      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
+      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github | tee version_to_create.txt
+      - run: release version | tee version_named.txt
+      - run: diff version_to_create.txt version_named.txt
 
   create:
     runs-on: ubuntu-latest
