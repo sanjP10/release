@@ -41,16 +41,16 @@ func (*Create) Usage() string {
 
 // SetFlags required for create sub command
 func (c *Create) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&c.username, "username", "", "username (gitlab provider does not require this field). If using ssh provide a username is not git")
-	f.StringVar(&c.password, "password", "", "password or api token (gitlab requires an api token). If using ssh provide the password for your ssh key")
-	f.StringVar(&c.email, "email", "", "Required when a provider is not supplied, the email for tag")
-	f.StringVar(&c.repo, "repo", "", "repo name, required when a provider is supplied")
-	f.StringVar(&c.changelog, "changelog", "", "location of changelog markdown file")
-	f.StringVar(&c.hash, "hash", "", "full commit hash")
-	f.StringVar(&c.host, "host", "", "host override for provider specific APIs")
-	f.StringVar(&c.origin, "origin", "", "https or ssh origin of git repository")
-	f.StringVar(&c.provider, "provider", "", "git provider, options are github, gitlab or bitbucket")
-	f.StringVar(&c.ssh, "ssh", "", "ssh private key file location, please provide username and password if required. username defaults to git")
+	f.StringVar(&c.username, "username", "", "Username (gitlab provider does not require this field). If using ssh provide a username is not git")
+	f.StringVar(&c.password, "password", "", "Password or API token (gitlab provider requires an api token). If using a ssh key please provide the password for your ssh key if password protected")
+	f.StringVar(&c.email, "email", "", "Required when the provider flag is not supplied, the email for tag")
+	f.StringVar(&c.repo, "repo", "", "The repo name, this should include the organisation or owner, required when a provider is supplied")
+	f.StringVar(&c.changelog, "changelog", "", "Location of changelog markdown file")
+	f.StringVar(&c.hash, "hash", "", "The Full commit hash")
+	f.StringVar(&c.host, "host", "", "The host for self hosted instances of the allowed providers")
+	f.StringVar(&c.origin, "origin", "", "Https or SSH origin of git repository, to be provided when the provider flag is not provided")
+	f.StringVar(&c.provider, "provider", "", "The Git provider, options are github, gitlab or bitbucket, when providing this flag you will be using their API's")
+	f.StringVar(&c.ssh, "ssh", "", "SSH private key file location, please provide Username and password of the SSH file if required. Username defaults to git. This is to be used when the provider flag is not provided")
 }
 
 // Execute flow for create sub command

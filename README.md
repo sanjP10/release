@@ -1,5 +1,8 @@
 # Release
 
+![Unit test and Integration tests](https://github.com/sanjP10/release/workflows/Unit%20and%20Integration%20Tests/badge.svg?branch=master)
+![Build and Upload](https://github.com/sanjP10/release/workflows/Build%20and%20Upload/badge.svg?branch=master)
+
 Release is a tool that validates and creates tags against git repos by reading your changelog file.
 
 It is supported for the following git repository providers via APIs:
@@ -116,7 +119,6 @@ This is an example of `validate` command against a self-hosted bitbucket
 ```
 release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
 ```
-
 # Bitbucket Pipeline example
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
@@ -125,17 +127,9 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     name: validate version
     image: golang
     script:
-      - CHANGELOG_FILE=$(pwd)/Changelog.md
-      - PACKAGE_PATH="${GOPATH}/src/github.com/sanjP10"
-      - mkdir -pv "${PACKAGE_PATH}"
-      - cd "${PACKAGE_PATH}"
-      - git clone https://$USER:$ACCESS_TOKEN@github.com/sanjP10/release
-      - cd release
-      - go mod download
-      - go install
+      - go get -u github.com/sanjP10/release
       # Test version does not exist
-      - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
-
+      - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
 
 To integrate the `create` use this in the bitbucket pipeline after you merge to master
@@ -147,15 +141,50 @@ To integrate this into bitbucket pipelines you can use the following as steps
     name: create version
     image: golang
     script:
-      - CHANGELOG_FILE=$(pwd)/Changelog.md
-      - PACKAGE_PATH="${GOPATH}/src/github.com/sanjP10"
-      - mkdir -pv "${PACKAGE_PATH}"
-      - cd "${PACKAGE_PATH}"
-      - git clone https://$USER:$ACCESS_TOKEN@github.com/sanjP10/release
-      - cd release
-      - go mod download
-      - go install
-      - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog $CHANGELOG_FILE -hash $BITBUCKET_COMMIT -provider bitbucket
+      - go get -u github.com/sanjP10/release
+      - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
+```
+
+# Github Actions Example
+To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
+
+```
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.7'
+      - run: get -u github.com/sanjP10/release
+      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
+```
+
+To integrate the `create` use this in the bitbucket pipeline after you merge to master
+
+To integrate this into bitbucket pipelines you can use the following as steps
+
+```
+  create:
+    runs-on: ubuntu-latest
+    needs: <A STEP>
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.7'
+      - run: get -u github.com/sanjP10/release
+      - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
 # CodeCommit
