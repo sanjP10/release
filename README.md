@@ -108,35 +108,35 @@ If you use the default **git** provider the release notes are added as annotatio
 This is an example `validate` command via bitbucket
 
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
+release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
 ```
 This is an example `validate` command using default git
 ```
 # HTTPS
-release validate -username $USER -password $ACCESS_TOKEN -email user@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release validate -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 
 # SSH
-release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@cloudreach.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 ```
 
 This is an example `create` command via bitbucket
 
 ```
-release create -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
+release create -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
 ```
 This is an example `create` command using default git
 ```
 # HTTPS
-release create -username $USER -password $ACCESS_TOKEN -email user@cloudreach.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release create -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 
 # SSH
-release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@cloudreach.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
 
 ```
 
 This is an example of `validate` command against a self-hosted bitbucket
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo cloudreach/release -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
+release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
 ```
 
 # Outputs
@@ -234,7 +234,7 @@ You will need to get the SSH Key ID which can be found in the IAM User console.
 
 This would be the command for using the tool when using SSH.
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
 ```
 
 # GCP
@@ -245,7 +245,7 @@ the username and password for use with HTTPs.
 
 Once you have registered the ssh key within cloud source repositories, the command  would be as follows
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@cloudreach.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
 ```
 
 # Azure

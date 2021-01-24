@@ -11,12 +11,12 @@ import (
 	"os"
 )
 
-// Commit Structure of bitbucket tag target
+// Commit Structure of gitlab tag target
 type Commit struct {
 	ID string `json:"id"`
 }
 
-// Tag Structure of bitbucket tag response
+// Tag Structure of gitlab tag response
 type Tag struct {
 	Commit Commit `json:"commit"`
 }
