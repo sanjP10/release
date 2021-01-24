@@ -3,6 +3,8 @@ on:
   release:
     types:
       - created
+      - released
+      - published
 jobs:
   releases-matrix-darwin:
     name: Release Go Binary for darwin (apple mac) based OS
