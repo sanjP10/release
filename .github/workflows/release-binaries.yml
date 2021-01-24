@@ -1,0 +1,52 @@
+name: Build and Upload
+on:
+  release:
+    types:
+      - created
+jobs:
+  releases-matrix-darwin:
+    name: Release Go Binary for darwin (apple mac) based OS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: wangyoucao577/go-release-action@v1.14
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: darwin
+          goarch: amd64
+          sha256sum: true
+          goversion: https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
+
+  releases-matrix-linux:
+    name: Release Go Binary for linux based OS
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: linux/arm64, linux/amd64, linux/386, linux/arm
+        goarch: [arm64, amd64, 386, arm]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: wangyoucao577/go-release-action@v1.14
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: linux
+          goarch: ${{ matrix.goarch }}
+          sha256sum: true
+          goversion: https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
+
+  releases-matrix-windows:
+    name: Release Go Binary for windows based OS
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: windows/amd64, windows/386, windows/arm
+        goarch: [amd64, 386, arm]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: wangyoucao577/go-release-action@v1.14
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: windows
+          goarch: ${{ matrix.goarch }}
+          sha256sum: true
+          goversion: https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
