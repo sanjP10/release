@@ -1,21 +1,67 @@
 name: CI Pipeline
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
-  Unit-Test:
+  Unit-Tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
       - run: go test ./... -cover
-  Lint:
+  Linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
       - run: go get -u golang.org/x/lint/golint
       - run: golint -set_exit_status ./...
+  Github-API-Integration-Tests:
+    runs-on: ubuntu-latest
+    env:
+      GOPATH: ${{ github.workspace }}
+      GO111MODULE: on
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.7'
+      - run: go mod download
+      - run: go install
+      # expecting release to exist and hash to be the same so is fine to pass
+      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider github
+      # expecting release to exist but hash to be different, expecting fail
+      - run: test $(release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog fixtures/FirstChangelog.md -hash ${{ github.sha }} -provider github; echo $?) -eq 1
+      # expecting usage error as file doesn't exist
+      - run: test $(release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog blah.md -hash ${{ github.sha }} -provider github; echo $?) -eq 2
+      # expecting fail due to misuse
+      - run: test $(release validate -username blah -password blah -repo ${{ github.repository }} -changelog fixtures/FirstChangelog.md; echo $?) -eq 2
+      - run: test $(release validate; echo $?) -eq 2
+      # expecting changelog that exists and being recreated to pass
+      - run: test $(release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog fixtures/FirstChangelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider github >> /dev/null; echo $?) -eq 0
+      # expecting fail as unauthorized
+      - run: test $(release create -username blah -password blah -repo ${{ github.repository }} -changelog fixtures/FirstChangelog.md -hash blah -provider github; echo $?) -eq 1
+      # expecting usage error as file doesn't exist
+      - run: test $(release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog blah.md -hash ${{ github.sha }} -provider github; echo $?) -eq 2
+      # expecting fail due to misuse
+      - run: test $(release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }}; echo $?) -eq 2
+      - run: test $(release create; echo $?) -eq 2
