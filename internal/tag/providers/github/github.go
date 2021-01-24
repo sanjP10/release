@@ -88,12 +88,7 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 	if resp.StatusCode == http.StatusNotFound {
 		validTag.TagDoesntExist = true
 	}
-	if resp.StatusCode == http.StatusUnauthorized {
-		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
-		if err != nil {
-			panic("Cannot write to stderr")
-		}
-	}
+
 	if resp.StatusCode == http.StatusOK {
 		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
@@ -142,12 +137,7 @@ func (r *Properties) CreateTag() bool {
 		if err != nil {
 			fmt.Println("Error creating tag", err)
 		}
-		if resp.StatusCode == http.StatusUnauthorized {
-			_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
-			if err != nil {
-				panic("Cannot write to stderr")
-			}
-		}
+
 		if resp.StatusCode == http.StatusNotFound {
 			_, err := os.Stderr.WriteString("Repo not found\n")
 			if err != nil {
