@@ -56,7 +56,7 @@ major.minor.patch.micro
 If you have go installed, you can install `release` by running the following.
 
 ```bash
-go get -u github.com/sanjP10/release
+GO111MODULE=on go get -u github.com/sanjP10/release
 ```
 To find out where `release` was installed you can run `go list -f {{.Target}} github.com/sanjP10/release`
 
@@ -160,7 +160,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     name: validate version
     image: golang
     script:
-      - go get -u github.com/sanjP10/release
+      - GO111MODULE=on go get -u github.com/sanjP10/release
       # Test version does not exist
       - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
@@ -174,7 +174,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
     name: create version
     image: golang
     script:
-      - go get -u github.com/sanjP10/release
+      - GO111MODULE=on go get -u github.com/sanjP10/release
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
 
