@@ -5,6 +5,7 @@
 ### Added
 * Github actions for CI/CD
 * Github actions for building and providing release assets
+* Github actions for code analysis
 
 ### Update
 * Migrated from bitbucket to github repository
