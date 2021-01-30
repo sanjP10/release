@@ -6,7 +6,7 @@
 
 Release is a tool that validates and creates tags against git repos by reading your changelog file.
 
-It is supported for the following git repository providers via APIs:
+It is supported for the following git repository providers via their respective REST API's:
 
 * Github
 * Gitlab
@@ -50,7 +50,7 @@ major.minor.patch.micro
 
 ***Note: the format must be consistent within the changelog***
 
-## Installation
+# Installation
 
 #### **With Go installed**
 
@@ -101,7 +101,7 @@ These are the flags when using the default git functionality
 
 ## Changelog Notes
 The **Github** and **Gitlab** api's also takes the markdown between the version numbers and creates a release with the changelog notes you created.
-If you use the default **git** provider the release notes are added as annotations to the tag, so if you run `git show <desired tag>` you can see the notes associated.
+If you use the default **git** provided or a self-hosted **bitbucket** the release notes are added as annotations to the tag, so if you run `git show <desired tag>` you can see the notes associated.
 **Bitbucket** api does not process any release notes as it is not supported.
 
 
@@ -109,35 +109,35 @@ If you use the default **git** provider the release notes are added as annotatio
 This is an example `validate` command via bitbucket
 
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
+release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash $COMMIT_HASH -provider bitbucket
 ```
 This is an example `validate` command using default git
 ```
 # HTTPS
-release validate -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release validate -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 
 # SSH
-release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 ```
 
 This is an example `create` command via bitbucket
 
 ```
-release create -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -provider bitbucket
+release create -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash $COMMIT_HASH -provider bitbucket
 ```
 This is an example `create` command using default git
 ```
 # HTTPS
-release create -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release create -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 
 # SSH
-release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT
+release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 
 ```
 
 This is an example of `validate` command against a self-hosted bitbucket
 ```
-release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash e1db5e6db25ec6a8592c879d3ff3435c5503d03d -host api.mybitbucket.com -provider bitbucket
+release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -changelog changelog.md -hash $COMMIT_HASH -host api.mybitbucket.com -provider bitbucket
 ```
 
 # Outputs
@@ -153,7 +153,9 @@ docker build . -t myContainer:$(cat version.txt) .
 docker push myContainer:${cat version.txt}
 ```
 
-# Bitbucket Pipeline example
+# CI/CD Integrations
+
+## Bitbucket Pipeline example
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
 ```
@@ -179,7 +181,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
 
-# Github Actions Example
+## Github Actions Example
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
 ```
@@ -188,14 +190,11 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
-      - run: get -u github.com/sanjP10/release
+      - run: GO111MODULE=on get -u github.com/sanjP10/release
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
@@ -210,18 +209,17 @@ To integrate this into bitbucket pipelines you can use the following as steps
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
-      - run: get -u github.com/sanjP10/release
+      - run: GO111MODULE=on get -u github.com/sanjP10/release
       - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
-# CodeCommit
+# Cloud Service Provider Implementations
+
+## CodeCommit
 CodeCommit only supports SSH
 
 As code commit uses credential-helper to create a username and password it is not possible to get
@@ -235,10 +233,10 @@ You will need to get the SSH Key ID which can be found in the IAM User console.
 
 This would be the command for using the tool when using SSH.
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash $COMMIT_HASH
 ```
 
-# GCP
+## GCP Source Repositories
 Cloud Source Repositories only supports SSH
 
 As source repositories uses gitcookie's to create a username and password it is not possible to get
@@ -246,9 +244,11 @@ the username and password for use with HTTPs.
 
 Once you have registered the ssh key within cloud source repositories, the command  would be as follows
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash fb53ed3902bb6ccb0304e28018373033175da272
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash $COMMIT_HASH
 ```
 
-# Azure
+# Known Issues
 
-Unfortunately neither HTTPs nor SSH due to this [issue](https://github.com/go-git/go-git/issues/64)
+## Git provider
+* Azure - Unfortunately neither HTTPs nor SSH due to this [issue](https://github.com/go-git/go-git/issues/64)
+* Github - Unfortunately neither HTTPs nor SSH due to this [issue](https://github.com/go-git/go-git/issues/122), so as an alternative please use `-provider github` which utilises Github's REST API
