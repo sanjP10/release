@@ -194,7 +194,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
-      - run: GO111MODULE=on get -u github.com/sanjP10/release
+      - run: GO111MODULE=on go get -u github.com/sanjP10/release
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
@@ -213,7 +213,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
-      - run: GO111MODULE=on get -u github.com/sanjP10/release
+      - run: GO111MODULE=on go get -u github.com/sanjP10/release
       - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
