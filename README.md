@@ -182,7 +182,16 @@ To integrate this into bitbucket pipelines you can use the following as steps
 ```
 
 ## Github Actions Example
-To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
+
+### Public Github
+
+For public github you can use the [relase-action](https://github.com/sanjP10/release-action) github action.
+
+Alternatively you could use the code below without the `-host` flag.
+
+### Self hosted github enterprise server using github actions
+
+To integrate the `validate` use this in github actions you can use the following as steps
 
 ```
   validate:
@@ -195,12 +204,12 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
         with:
           go-version: '^1.15.7'
       - run: GO111MODULE=on go get -u github.com/sanjP10/release
-      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
+      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github -host <your host>
 ```
 
 To integrate the `create` use this in the bitbucket pipeline after you merge to master
 
-To integrate this into bitbucket pipelines you can use the following as steps
+To integrate this into github actions you can use the following as steps
 
 ```
   create:
@@ -214,7 +223,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
         with:
           go-version: '^1.15.7'
       - run: GO111MODULE=on go get -u github.com/sanjP10/release
-      - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
+      - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github -host <your host>
 ```
 
 # Cloud Service Provider Implementations
