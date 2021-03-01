@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.4
+
+### Updated
+* Updated the readme to reference github action
+
 ## 3.1.3
 
 ### Added
