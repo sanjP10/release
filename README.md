@@ -183,13 +183,12 @@ To integrate this into bitbucket pipelines you can use the following as steps
 
 ## Github Actions Example
 
-### Public Github
+### Using release-action github action
 
-For public github you can use the [relase-action](https://github.com/sanjP10/release-action) github action.
+For github actions you can use the [relase-action](https://github.com/sanjP10/release-action).
 
-Alternatively you could use the code below without the `-host` flag.
 
-### Self hosted github enterprise server using github actions
+### Directly installing the tool into your job
 
 To integrate the `validate` use this in github actions you can use the following as steps
 
@@ -204,7 +203,7 @@ To integrate the `validate` use this in github actions you can use the following
         with:
           go-version: '^1.15.7'
       - run: GO111MODULE=on go get -u github.com/sanjP10/release
-      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github -host <your host>
+      - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
 To integrate the `create` use this in the bitbucket pipeline after you merge to master
@@ -223,7 +222,7 @@ To integrate this into github actions you can use the following as steps
         with:
           go-version: '^1.15.7'
       - run: GO111MODULE=on go get -u github.com/sanjP10/release
-      - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github -host <your host>
+      - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
 # Cloud Service Provider Implementations
