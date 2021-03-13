@@ -144,13 +144,13 @@ release validate -username $USER -password $ACCESS_TOKEN -repo owner/repo_name -
 
 Release when returning with a successful exit code will write the desired or created tag as stdout.
 
-You can in turn take that output and use it with other tag based services such as Docker. To do this you can use tee.
+You can in turn take that output and use it with other tag based services such as Docker.
 
 An example script would be
 ```bash
-release create -username $USER -password $ACCESS_TOKEN -repo owner/repo -changelog CHANGELOG.md -hash $COMMIT_HASH -provider github | tee version.txt
-docker build . -t myContainer:$(cat version.txt) .
-docker push myContainer:${cat version.txt}
+version=$(release create -username $USER -password $ACCESS_TOKEN -repo owner/repo -changelog CHANGELOG.md -hash $COMMIT_HASH -provider github) || exit $?
+docker build -t myContainer:$version .
+docker push myContainer:$version
 ```
 
 # CI/CD Integrations
