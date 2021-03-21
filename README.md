@@ -50,6 +50,17 @@ major.minor.patch.micro
 
 ***Note: the format must be consistent within the changelog***
 
+# Validation/Release Flows
+
+### Require version bumps
+![Release Require version bump](./drawio/Release-Flows-Require-Version-Bump.png)
+
+### Valid release
+![Valid Release](./drawio/Release-Flows-Valid-Release.png)
+
+### Create Release
+![Create Release](./drawio/Release-Flows-Creation-Flow.png)
+
 # Installation
 
 #### **With Go installed**
@@ -152,11 +163,6 @@ version=$(release create -username $USER -password $ACCESS_TOKEN -repo owner/rep
 docker build -t myContainer:$version .
 docker push myContainer:$version
 ```
-
-# Release Flow
-
-### Require version bumps
-![Release Require version bump](./drawio/Release-Flows-Require-Version-Bump.png)
 
 # CI/CD Integrations
 
