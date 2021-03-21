@@ -156,7 +156,7 @@ docker push myContainer:$version
 # Release Flow
 
 ### Require version bumps
-![Release Require version bump](./drawio/Release-Flows-Require-Version-Bump.svg)
+![Release Require version bump](./drawio/Release-Flows-Require-Version-Bump.png)
 
 # CI/CD Integrations
 
