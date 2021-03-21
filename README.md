@@ -153,6 +153,11 @@ docker build -t myContainer:$version .
 docker push myContainer:$version
 ```
 
+# Release Flow
+
+### Require version bumps
+![Release Require version bump](./drawio/Release-Flows-Require-Version-Bump.svg)
+
 # CI/CD Integrations
 
 ## Bitbucket Pipeline example
