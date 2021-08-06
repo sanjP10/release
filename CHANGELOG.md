@@ -4,6 +4,7 @@
 ### Updated
 * Updated test dependencies gock and testify
 * Update dependencies go-version and go-git
+* Send go report card
 
 ## 3.1.5
 
