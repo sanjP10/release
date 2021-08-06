@@ -160,6 +160,9 @@ func (r *Properties) CreateTag() bool {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
+			if err != nil {
+				fmt.Println("Error unmarshalling response")
+			}
 			_, errorWriting := os.Stderr.WriteString(res.Message)
 			if errorWriting != nil {
 				panic("Cannot write to stderr")
@@ -182,7 +185,7 @@ func (r *Properties) createRelease() bool {
 	if err != nil {
 		fmt.Println("error marshalling object:", err)
 	}
-	request, err := http.NewRequest("POST", release, bytes.NewBuffer(jsonBody))
+	request, _ := http.NewRequest("POST", release, bytes.NewBuffer(jsonBody))
 	if request == nil {
 		_, err := os.Stderr.WriteString("Error creating request\n")
 		if err != nil {
@@ -218,6 +221,9 @@ func (r *Properties) createRelease() bool {
 			fmt.Println("Error reading body of error response")
 		}
 		err = json.Unmarshal(body, &res)
+		if err != nil {
+			fmt.Println("Error unmarshalling response")
+		}
 		_, errorWriting := os.Stderr.WriteString(res.Message)
 		if errorWriting != nil {
 			panic("Cannot write to stderr")

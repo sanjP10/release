@@ -169,6 +169,9 @@ func (r *Properties) CreateTag() bool {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
+			if err != nil {
+				fmt.Println("Error unmarshalling response")
+			}
 			_, errorWriting := os.Stderr.WriteString(res.Error.Message)
 			if errorWriting != nil {
 				panic("Cannot write to stderr")
@@ -181,7 +184,6 @@ func (r *Properties) CreateTag() bool {
 func createBody(r *Properties, isCloud bool) []byte {
 	var jsonBody []byte
 	var err error
-	err = nil
 	if isCloud {
 		target := Target{r.Hash}
 		body := &Tag{Name: r.Tag, Target: target}

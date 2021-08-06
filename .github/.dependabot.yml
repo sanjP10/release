@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Europe/London"
+    commit-message:
+      prefix: "gomod"
+      include: "scope"
+    labels:
+      - "dependencies"
+    pull-request-branch-name:
+      separator: "-"
+    reviewers:
+      - "sanjP10"
+    target-branch: "main"

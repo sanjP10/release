@@ -3,6 +3,7 @@
 ![Unit test and Integration tests](https://github.com/sanjP10/release/workflows/Unit%20and%20Integration%20Tests/badge.svg?branch=master)
 ![Build and Upload](https://github.com/sanjP10/release/workflows/Build%20and%20Upload/badge.svg)
 ![CodeQL](https://github.com/sanjP10/release/workflows/CodeQL/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sanjP10/release)](https://goreportcard.com/report/github.com/sanjP10/release)
 
 Release is a tool that validates and creates tags against git repos by reading your changelog file.
 
