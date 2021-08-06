@@ -61,7 +61,6 @@ func (c *Properties) RetrieveChanges(changelog string) {
 			continue
 		}
 		if c.previous != "" && scanner.Text() == c.previous {
-			startRecording = false
 			break
 		}
 		if startRecording && scanner.Text() != "" {

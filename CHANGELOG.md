@@ -1,4 +1,15 @@
 # Changelog
+## 3.1.5
+
+### Added
+* dependabot configuration
+* go report icon to README
+
+### Updated
+* Renamed `master` branch to `main`
+
+### Fixed
+* Updated some unassigned variables to be used
 
 ## 3.1.4
 
