@@ -7,5 +7,5 @@ require (
 	github.com/google/subcommands v1.2.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/stretchr/testify v1.6.1
-	gopkg.in/h2non/gock.v1 v1.0.15
+	gopkg.in/h2non/gock.v1 v1.1.2
 )
