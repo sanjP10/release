@@ -3,6 +3,7 @@
 ## 3.1.6
 ### Updated
 * Updated test dependencies gock and testify
+* Update dependencies go-version and go-git
 
 ## 3.1.5
 

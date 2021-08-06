@@ -129,7 +129,7 @@ This is an example `validate` command using default git
 release validate -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 
 # SSH
-release validate -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
+release validate -ssh $PATH_TO_PRIVATEKEY -password $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 ```
 
 This is an example `create` command via bitbucket
