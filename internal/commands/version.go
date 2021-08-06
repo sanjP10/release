@@ -30,7 +30,7 @@ func (*Version) Usage() string {
 //Execute flow of subcommand
 func (*Version) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	exit := subcommands.ExitSuccess
-	_, err := os.Stdout.WriteString(strings.TrimSpace("3.1.6") + "\n")
+	_, err := os.Stdout.WriteString(strings.TrimSpace("3.1.7") + "\n")
 	if err != nil {
 		panic("Cannot write to stderr")
 	}

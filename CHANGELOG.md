@@ -1,4 +1,8 @@
 # Changelog
+## 3.1.7
+
+#### Updated
+* logic from if statements to switch case
 
 ## 3.1.6
 ### Updated

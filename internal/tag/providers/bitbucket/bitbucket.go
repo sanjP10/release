@@ -60,7 +60,7 @@ type ServerTagBody struct {
 
 //ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
-	isCloud := true // Using bitbucket cloud offering otherwise self hosted
+	isCloud := true // Using bitbucket cloud offering otherwise self-hosted
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	url := ""
@@ -95,16 +95,15 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 		}
 		return validTag
 	}
-	if resp.StatusCode == http.StatusNotFound {
+	switch resp.StatusCode {
+	case http.StatusNotFound:
 		validTag.TagDoesntExist = true
-	}
-	if resp.StatusCode == http.StatusUnauthorized {
+	case http.StatusUnauthorized:
 		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-	}
-	if resp.StatusCode == http.StatusOK {
+	case http.StatusOK:
 		validTag.TagExistsWithProvidedHash = checkResponse(resp, r.Hash, isCloud)
 	}
 	return validTag
@@ -117,7 +116,7 @@ func (r *Properties) CreateTag() bool {
 	if validTagState.TagExistsWithProvidedHash {
 		createTag = true
 	} else if validTagState.TagDoesntExist {
-		isCloud := true // Using bitbucket cloud offering otherwise self hosted
+		isCloud := true // Using bitbucket cloud offering otherwise self-hosted
 		url := ""
 		if r.Host == "" {
 			url = fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/refs/tags", r.Repo)
@@ -140,29 +139,16 @@ func (r *Properties) CreateTag() bool {
 		if err != nil {
 			fmt.Println("Error creating tag", err)
 		}
-		if resp.StatusCode == http.StatusUnauthorized {
+
+		switch resp.StatusCode {
+		case http.StatusUnauthorized, http.StatusNotFound:
 			_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 			if err != nil {
 				panic("Cannot write to stderr")
 			}
-		}
-		if resp.StatusCode == http.StatusNotFound {
-			_, err := os.Stderr.WriteString("Repo not found\n")
-			if err != nil {
-				panic("Cannot write to stderr")
-			}
-		}
-
-		expectedStatusCode := http.StatusOK
-		if isCloud {
-			expectedStatusCode = http.StatusCreated
-		}
-
-		if resp.StatusCode == expectedStatusCode {
+		case http.StatusOK, http.StatusCreated:
 			createTag = true
-		}
-
-		if resp.StatusCode == http.StatusBadRequest {
+		case http.StatusBadRequest:
 			res := BadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
@@ -177,6 +163,7 @@ func (r *Properties) CreateTag() bool {
 				panic("Cannot write to stderr")
 			}
 		}
+
 	}
 	return createTag
 }
