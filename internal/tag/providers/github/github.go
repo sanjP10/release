@@ -156,7 +156,9 @@ func (r *Properties) CreateTag() bool {
 				fmt.Println("Error reading body of error response")
 			}
 			err = json.Unmarshal(body, &res)
-
+			if err != nil {
+				fmt.Println("Error unmarshalling response")
+			}
 			_, errorWriting := os.Stderr.WriteString(res.Errors[0].Code)
 			if errorWriting != nil {
 				panic("Cannot write to stderr")
