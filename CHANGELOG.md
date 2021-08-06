@@ -1,4 +1,9 @@
 # Changelog
+
+## 3.1.6
+### Updated
+* Updated test dependencies gock and testify
+
 ## 3.1.5
 
 ### Added
