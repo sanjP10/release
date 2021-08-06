@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/google/subcommands v1.2.0
-	github.com/hashicorp/go-version v1.2.1
+	github.com/hashicorp/go-version v1.3.0
+	gopkg.in/h2non/gock.v1 v1.1.2
 	github.com/stretchr/testify v1.7.0
-	gopkg.in/h2non/gock.v1 v1.0.15
 )
