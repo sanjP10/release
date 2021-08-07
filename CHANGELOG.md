@@ -2,7 +2,7 @@
 ## 3.1.7
 
 #### Updated
-* logic from if statements to switch case
+* Fix up any goreport card issues
 
 ## 3.1.6
 ### Updated

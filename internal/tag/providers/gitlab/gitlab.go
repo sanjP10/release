@@ -112,20 +112,13 @@ func (r *Properties) CreateTag() bool {
 		}
 
 		request, err := http.NewRequest("POST", url, nil)
-		if request == nil {
-			_, err := os.Stderr.WriteString("Error creating request\n")
-			if err != nil {
-				panic("Cannot write to stderr")
-			}
-			return false
+		if err != nil {
+			fmt.Println("Error creating tag request", err)
 		}
 		q := request.URL.Query()
 		q.Add("tag_name", r.Tag)
 		q.Add("ref", r.Hash)
 		request.URL.RawQuery = q.Encode()
-		if err != nil {
-			fmt.Println("Error creating tag request", err)
-		}
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("PRIVATE-TOKEN", r.Password)
 		client := &http.Client{}
