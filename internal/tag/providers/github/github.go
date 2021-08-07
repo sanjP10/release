@@ -20,7 +20,7 @@ type Tag struct {
 	Object Object `json:"object"`
 }
 
-// Release struct format required for github release api
+// Release struct format required for GitHub release api
 type Release struct {
 	TagName         string `json:"tag_name"`
 	TargetCommitish string `json:"target_commitish"`
@@ -85,11 +85,10 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 		return validTag
 	}
 
-	if resp.StatusCode == http.StatusNotFound {
+	switch resp.StatusCode {
+	case http.StatusNotFound:
 		validTag.TagDoesntExist = true
-	}
-
-	if resp.StatusCode == http.StatusOK {
+	case http.StatusOK:
 		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -138,18 +137,15 @@ func (r *Properties) CreateTag() bool {
 			fmt.Println("Error creating tag", err)
 		}
 
-		if resp.StatusCode == http.StatusNotFound {
+		switch resp.StatusCode {
+		case http.StatusNotFound:
 			_, err := os.Stderr.WriteString("Repo not found\n")
 			if err != nil {
 				panic("Cannot write to stderr")
 			}
-		}
-
-		if resp.StatusCode == http.StatusCreated {
+		case http.StatusCreated:
 			createTag = true
-		}
-
-		if resp.StatusCode == http.StatusUnprocessableEntity {
+		case http.StatusUnprocessableEntity:
 			res := BadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {

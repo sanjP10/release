@@ -28,66 +28,65 @@ func Test_checkCreateFlagsGit(t *testing.T) {
 	createCmd := &Create{}
 	errors := checkCreateFlags(createCmd)
 	expected := []string{
-		"-username required",
-		"-password required",
-		"-changelog required",
-		"-hash required",
-		"-email required",
 		"-origin required",
-	}
+		"-username or -ssh required, for CodeCommit or GCP Source repositories both are required",
+		"-password required",
+		"-email required",
+		"-changelog required",
+		"-hash required"}
 	assertTest := assert.New(t)
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
-	createCmd.username = "testuser"
+	createCmd.username = "tester"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
+		"-origin required",
 		"-password required",
-		"-changelog required",
-		"-hash required",
 		"-email required",
-		"-origin required"}
-	assertTest.Equal(errors, expected)
+		"-changelog required",
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.password = "password"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-changelog required",
-		"-hash required",
+		"-origin required",
 		"-email required",
-		"-origin required"}
-	assertTest.Equal(errors, expected)
+		"-changelog required",
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.repo = "repo"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-changelog required",
-		"-hash required",
+		"-origin required",
 		"-email required",
-		"-origin required"}
-	assertTest.Equal(errors, expected)
+		"-changelog required",
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.changelog = "changelog"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-hash required",
+		"-origin required",
 		"-email required",
-		"-origin required"}
-	assertTest.Equal(errors, expected)
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.hash = "hash"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-email required",
-		"-origin required"}
-	assertTest.Equal(errors, expected)
+		"-origin required",
+		"-email required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.email = "an-email@abc.com"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-origin required"}
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
-	createCmd.origin = "http://an-origin.com/repo.git"
+	createCmd.origin = "https://an-origin.com/repo.git"
 	validCreate := checkCreateFlags(createCmd)
 	assertTest.Empty(validCreate)
 }
@@ -96,37 +95,36 @@ func Test_checkCreateFlagsGitSSH(t *testing.T) {
 	createCmd := &Create{}
 	errors := checkCreateFlags(createCmd)
 	expected := []string{
-		"-username required",
-		"-password required",
-		"-changelog required",
-		"-hash required",
-		"-email required",
 		"-origin required",
-	}
+		"-username or -ssh required, for CodeCommit or GCP Source repositories both are required",
+		"-password required",
+		"-email required",
+		"-changelog required",
+		"-hash required"}
 	assertTest := assert.New(t)
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
 	createCmd.ssh = "ssh-file"
-	createCmd.origin = "http://an-origin.com/repo.git"
+	createCmd.origin = "https://an-origin.com/repo.git"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
+		"-email required",
 		"-changelog required",
-		"-hash required",
-		"-email required"}
-	assertTest.Equal(errors, expected)
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.changelog = "changelog"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
-		"-hash required",
-		"-email required"}
-	assertTest.Equal(errors, expected)
+		"-email required",
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	createCmd.hash = "hash"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-email required"}
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
 	createCmd.email = "an-email@abc.com"
 	validCreate := checkCreateFlags(createCmd)
@@ -139,13 +137,10 @@ func TestCreate_SetFlags(t *testing.T) {
 	createCmd.provider = "svn"
 	errors := checkCreateFlags(createCmd)
 	expected := []string{
-		"-username required",
-		"-password required",
-		"-repo required",
+		"-provider valid values are github, gitlab, bitbucket",
 		"-changelog required",
-		"-hash required",
-		"-provider required, valid values are github, gitlab, bitbucket"}
-	assertTest.Equal(errors, expected)
+		"-hash required"}
+	assertTest.Equal(expected, errors)
 
 	for _, provider := range providers {
 		createCmd.provider = provider
@@ -159,10 +154,10 @@ func TestCreate_SetFlags(t *testing.T) {
 		if provider == "gitlab" {
 			expected = append(expected[:0], expected[1:]...)
 		}
-		assertTest.Equal(errors, expected)
+		assertTest.Equal(expected, errors)
 	}
 
-	createCmd.username = "testuser"
+	createCmd.username = "tester"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-password required",
@@ -170,7 +165,7 @@ func TestCreate_SetFlags(t *testing.T) {
 		"-changelog required",
 		"-hash required",
 	}
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
 	createCmd.password = "password"
 	errors = checkCreateFlags(createCmd)
@@ -178,20 +173,20 @@ func TestCreate_SetFlags(t *testing.T) {
 		"-repo required",
 		"-changelog required",
 		"-hash required"}
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
 	createCmd.repo = "repo"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-changelog required",
 		"-hash required"}
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
 	createCmd.changelog = "changelog"
 	errors = checkCreateFlags(createCmd)
 	expected = []string{
 		"-hash required"}
-	assertTest.Equal(errors, expected)
+	assertTest.Equal(expected, errors)
 
 	createCmd.hash = "hash"
 	assertTest.Empty(checkCreateFlags(createCmd))

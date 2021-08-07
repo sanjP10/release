@@ -61,13 +61,13 @@ func (r *Properties) InitializeRepository() error {
 //ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
-	tagref, err := repository.Tag(r.Tag)
+	tagRef, err := repository.Tag(r.Tag)
 	if err != nil {
 		if err.Error() == "tag not found" {
 			validTag.TagDoesntExist = true
 		}
 	} else {
-		tagObject, err := repository.TagObject(tagref.Hash())
+		tagObject, err := repository.TagObject(tagRef.Hash())
 		if err != nil {
 			fmt.Println("Error retrieving tag details", err)
 		}

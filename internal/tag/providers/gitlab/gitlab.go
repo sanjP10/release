@@ -72,17 +72,15 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 		}
 		return validTag
 	}
-
-	if resp.StatusCode == http.StatusNotFound {
+	switch resp.StatusCode {
+	case http.StatusNotFound:
 		validTag.TagDoesntExist = true
-	}
-	if resp.StatusCode == http.StatusUnauthorized {
+	case http.StatusUnauthorized:
 		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-	}
-	if resp.StatusCode == http.StatusOK {
+	case http.StatusOK:
 		res := Tag{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -114,20 +112,13 @@ func (r *Properties) CreateTag() bool {
 		}
 
 		request, err := http.NewRequest("POST", url, nil)
-		if request == nil {
-			_, err := os.Stderr.WriteString("Error creating request\n")
-			if err != nil {
-				panic("Cannot write to stderr")
-			}
-			return false
+		if err != nil {
+			fmt.Println("Error creating tag request", err)
 		}
 		q := request.URL.Query()
 		q.Add("tag_name", r.Tag)
 		q.Add("ref", r.Hash)
 		request.URL.RawQuery = q.Encode()
-		if err != nil {
-			fmt.Println("Error creating tag request", err)
-		}
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("PRIVATE-TOKEN", r.Password)
 		client := &http.Client{}
@@ -135,25 +126,22 @@ func (r *Properties) CreateTag() bool {
 		if err != nil {
 			fmt.Println("Error creating tag", err)
 		}
-		if resp.StatusCode == http.StatusUnauthorized {
+
+		switch resp.StatusCode {
+		case http.StatusUnauthorized:
 			_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 			if err != nil {
 				panic("Cannot write to stderr")
 			}
-		}
-		if resp.StatusCode == http.StatusNotFound {
+		case http.StatusNotFound:
 			_, err := os.Stderr.WriteString("Repo not found\n")
 			if err != nil {
 				panic("Cannot write to stderr")
 			}
-		}
-
-		if resp.StatusCode == http.StatusCreated {
+		case http.StatusCreated:
 			// Create release notes with tag
 			createTag = r.createRelease()
-		}
-
-		if resp.StatusCode == http.StatusBadRequest {
+		case http.StatusBadRequest:
 			res := BadResponse{}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
@@ -201,20 +189,18 @@ func (r *Properties) createRelease() bool {
 		fmt.Println("Error creating tag", err)
 	}
 
-	if resp.StatusCode == http.StatusUnauthorized {
+	switch resp.StatusCode {
+	case http.StatusUnauthorized:
 		_, err := os.Stderr.WriteString("Unauthorised, please check credentials\n")
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-	}
-	if resp.StatusCode == http.StatusNotFound {
+	case http.StatusNotFound:
 		_, err := os.Stderr.WriteString("Repo not found\n")
 		if err != nil {
 			panic("Cannot write to stderr")
 		}
-	}
-
-	if resp.StatusCode == http.StatusConflict {
+	case http.StatusConflict:
 		res := BadResponse{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -228,10 +214,9 @@ func (r *Properties) createRelease() bool {
 		if errorWriting != nil {
 			panic("Cannot write to stderr")
 		}
-	}
-
-	if resp.StatusCode == http.StatusCreated {
+	case http.StatusCreated:
 		createdRelease = true
 	}
+
 	return createdRelease
 }
