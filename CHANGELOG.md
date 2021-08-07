@@ -3,6 +3,8 @@
 
 #### Updated
 * Fix up any goreport card issues
+* General cleanup
+* Updated tests as needed
 
 ## 3.1.6
 ### Updated

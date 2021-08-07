@@ -131,12 +131,11 @@ func checkCreateFlags(c *Create) []string {
 		if len(c.username) == 0 && strings.ToLower(c.provider) != "gitlab" {
 			errors = append(errors, "-username required")
 		}
-		if len(c.repo) == 0 {
-			errors = append(errors, "-repo required")
-		}
-
 		if len(c.password) == 0 {
 			errors = append(errors, "-password required")
+		}
+		if len(c.repo) == 0 {
+			errors = append(errors, "-repo required")
 		}
 	} else {
 		// valid provider values

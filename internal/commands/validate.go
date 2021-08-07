@@ -130,12 +130,11 @@ func checkValidateFlags(v *Validate) []string {
 		if len(v.username) == 0 && strings.ToLower(v.provider) != "gitlab" {
 			errors = append(errors, "-username required")
 		}
-		if len(v.repo) == 0 {
-			errors = append(errors, "-repo required")
-		}
-
 		if len(v.password) == 0 {
 			errors = append(errors, "-password required")
+		}
+		if len(v.repo) == 0 {
+			errors = append(errors, "-repo required")
 		}
 	} else {
 		// valid provider values
