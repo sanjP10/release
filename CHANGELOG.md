@@ -1,4 +1,12 @@
 # Changelog
+## 3.2.0
+
+#### Updated
+* Fix up any goreport card issues
+* General cleanup
+* Updated tests as needed
+* CI/CD to run go report card
+* Send go report card only on master
 
 ## 3.1.6
 ### Updated

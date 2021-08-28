@@ -112,33 +112,41 @@ func (c *Create) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) s
 
 func checkCreateFlags(c *Create) []string {
 	var errors []string
-	if len(c.username) == 0 && (c.provider != "gitlab" && len(c.origin) >= 0 && len(c.ssh) == 0) {
-		errors = append(errors, "-username required")
+	if len(c.provider) == 0 {
+		// Use regular git. Check for origin, username/ssh and email
+		if len(c.origin) == 0 {
+			errors = append(errors, "-origin required")
+		}
+		if len(c.username) == 0 && len(c.ssh) == 0 {
+			errors = append(errors, "-username or -ssh required, for CodeCommit or GCP Source repositories both are required")
+		}
+		if len(c.password) == 0 && len(c.ssh) == 0 {
+			errors = append(errors, "-password required")
+		}
+		if len(c.email) == 0 {
+			errors = append(errors, "-email required")
+		}
+	} else if ValidProvider(c.provider) {
+		// for valid providers check for username and repo
+		if len(c.username) == 0 && strings.ToLower(c.provider) != "gitlab" {
+			errors = append(errors, "-username required")
+		}
+		if len(c.password) == 0 {
+			errors = append(errors, "-password required")
+		}
+		if len(c.repo) == 0 {
+			errors = append(errors, "-repo required")
+		}
+	} else {
+		// valid provider values
+		errors = append(errors, "-provider valid values are "+strings.Join(providers[:], ", "))
 	}
-	if len(c.password) == 0 && (ValidProvider(c.provider) ||
-		!ValidProvider(c.provider) && len(c.ssh) == 0 ||
-		c.provider == "" && (len(c.origin) > 0 && len(c.ssh) == 0)) {
-		errors = append(errors, "-password required")
-	}
-	if len(c.provider) > 0 && len(c.repo) == 0 {
-		errors = append(errors, "-repo required")
-	}
+	// changelog and hash are mandatory
 	if len(c.changelog) == 0 {
 		errors = append(errors, "-changelog required")
 	}
 	if len(c.hash) == 0 {
 		errors = append(errors, "-hash required")
-	}
-	if len(c.provider) > 0 && !ValidProvider(c.provider) {
-		errors = append(errors, "-provider required, valid values are "+strings.Join(providers[:], ", "))
-	}
-	if len(c.provider) == 0 {
-		if len(c.email) == 0 {
-			errors = append(errors, "-email required")
-		}
-		if len(c.origin) == 0 {
-			errors = append(errors, "-origin required")
-		}
 	}
 	return errors
 }

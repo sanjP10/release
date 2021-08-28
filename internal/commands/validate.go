@@ -111,33 +111,41 @@ func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{})
 
 func checkValidateFlags(v *Validate) []string {
 	var errors []string
-	if len(v.username) == 0 && (v.provider != "gitlab" && len(v.origin) >= 0 && len(v.ssh) == 0) {
-		errors = append(errors, "-username required")
+	if len(v.provider) == 0 {
+		// Use regular git. Check for origin, username/ssh and email
+		if len(v.origin) == 0 {
+			errors = append(errors, "-origin required")
+		}
+		if len(v.username) == 0 && len(v.ssh) == 0 {
+			errors = append(errors, "-username or -ssh required, for CodeCommit or GCP Source repositories both are required")
+		}
+		if len(v.password) == 0 && len(v.ssh) == 0 {
+			errors = append(errors, "-password required")
+		}
+		if len(v.email) == 0 {
+			errors = append(errors, "-email required")
+		}
+	} else if ValidProvider(v.provider) {
+		// for valid providers check for username and repo
+		if len(v.username) == 0 && strings.ToLower(v.provider) != "gitlab" {
+			errors = append(errors, "-username required")
+		}
+		if len(v.password) == 0 {
+			errors = append(errors, "-password required")
+		}
+		if len(v.repo) == 0 {
+			errors = append(errors, "-repo required")
+		}
+	} else {
+		// valid provider values
+		errors = append(errors, "-provider valid values are "+strings.Join(providers[:], ", "))
 	}
-	if len(v.password) == 0 && (ValidProvider(v.provider) ||
-		!ValidProvider(v.provider) && len(v.ssh) == 0 ||
-		v.provider == "" && (len(v.origin) > 0 && len(v.ssh) == 0)) {
-		errors = append(errors, "-password required")
-	}
-	if len(v.provider) > 0 && len(v.repo) == 0 {
-		errors = append(errors, "-repo required")
-	}
+	// changelog and hash are mandatory
 	if len(v.changelog) == 0 {
 		errors = append(errors, "-changelog required")
 	}
 	if len(v.hash) == 0 {
 		errors = append(errors, "-hash required")
-	}
-	if len(v.provider) > 0 && !ValidProvider(v.provider) {
-		errors = append(errors, "-provider required, valid values are "+strings.Join(providers[:], ", "))
-	}
-	if len(v.provider) == 0 {
-		if len(v.email) == 0 {
-			errors = append(errors, "-email required")
-		}
-		if len(v.origin) == 0 {
-			errors = append(errors, "-origin required")
-		}
 	}
 	return errors
 }
