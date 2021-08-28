@@ -253,7 +253,7 @@ You will need to get the SSH Key ID which can be found in the IAM User console.
 
 This would be the command for using the tool when using SSH.
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash $COMMIT_HASH
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$AWS_SSH_KEY_ID@git-codecommit.eu-west-1.amazonaws.com/v1/repos/$REPO_NAME -username $AWS_SSH_KEY_ID -changelog CHANGELOG.md -hash $COMMIT_HASH
 ```
 
 ## GCP Source Repositories
@@ -264,7 +264,7 @@ the username and password for use with HTTPs.
 
 Once you have registered the ssh key within cloud source repositories, the command  would be as follows
 ```
-release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$ACCOUNT_EMAIL@git-codecommit.eu-west-1.amazonaws.com/v1/repos/test -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash $COMMIT_HASH
+release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$ACCOUNT_EMAIL@source.developers.google.com/p/$PROJECT_ID/r/$REPO_NAME -username $ACCOUNT_EMAIL -changelog CHANGELOG.md -hash $COMMIT_HASH
 ```
 
 # Known Issues
