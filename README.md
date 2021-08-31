@@ -170,7 +170,7 @@ docker push myContainer:$version
 ## Bitbucket Pipeline example
 To integrate the `validate` use this in bitbucket pipelines you can use the following as steps
 
-```
+```yaml
 - step:
     name: validate version
     image: golang
@@ -184,7 +184,7 @@ To integrate the `create` use this in the bitbucket pipeline after you merge to 
 
 To integrate this into bitbucket pipelines you can use the following as steps
 
-```
+```yaml
 - step:
     name: create version
     image: golang
@@ -199,12 +199,11 @@ To integrate this into bitbucket pipelines you can use the following as steps
 
 For github actions you can use the [relase-action](https://github.com/sanjP10/release-action).
 
-
 ### Directly installing the tool into your job
 
 To integrate the `validate` use this in github actions you can use the following as steps
 
-```
+```yaml
   validate:
     runs-on: ubuntu-latest
     steps:
@@ -222,7 +221,7 @@ To integrate the `create` use this in the bitbucket pipeline after you merge to 
 
 To integrate this into github actions you can use the following as steps
 
-```
+```yaml
   create:
     runs-on: ubuntu-latest
     needs: <A STEP>
@@ -235,6 +234,37 @@ To integrate this into github actions you can use the following as steps
           go-version: '^1.15.7'
       - run: GO111MODULE=on go get -u github.com/sanjP10/release
       - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
+```
+
+## Circle CI Orb
+
+### Using release circle ci orb
+
+For github actions you can use the [relase](https://circleci.com/developer/orbs/orb/sanjp10/release) orb.
+
+### Directly installing the tool into your job (require's golang executor)
+
+```yaml
+jobs:
+  # Define one or more jobs which will utilize your orb's commands and parameters to validate your changes.
+  validate:
+    executor: release/default
+    steps:
+      - checkout
+      - run:
+          name: Create tag
+          command: |
+            GO111MODULE=on go get -u github.com/sanjP10/release
+            release validate -username << parameters.username >> -password << parameters.password >> -repo << parameters.repo >> -changelog << parameters.changelog-file-location >> -hash $CIRCLE_SHA1 -provider << parameters.provider >>
+  create:
+    executor: release/default
+    steps:
+      - checkout
+      - run:
+          name: Create tag
+          command: |
+            GO111MODULE=on go get -u github.com/sanjP10/release
+            release create -username << parameters.username >> -password << parameters.password >> -repo << parameters.repo >> -changelog << parameters.changelog-file-location >> -hash $CIRCLE_SHA1 -provider << parameters.provider >>
 ```
 
 # Cloud Service Provider Implementations

@@ -7,6 +7,7 @@
 * Updated tests as needed
 * CI/CD to run go report card
 * Send go report card only on master
+* Readme to include CircleCi Orb
 
 ## 3.1.6
 ### Updated
