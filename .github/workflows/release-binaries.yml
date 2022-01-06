@@ -16,6 +16,8 @@ jobs:
           goarch: amd64
           sha256sum: true
           goversion: https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
+          retry: 10
+          overwrite: true
 
   releases-matrix-linux:
     name: Release Go Binary for linux based OS
@@ -33,6 +35,8 @@ jobs:
           goarch: ${{ matrix.goarch }}
           sha256sum: true
           goversion: https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
+          retry: 10
+          overwrite: true
 
   releases-matrix-windows:
     name: Release Go Binary for windows based OS
@@ -50,3 +54,5 @@ jobs:
           goarch: ${{ matrix.goarch }}
           sha256sum: true
           goversion: https://golang.org/dl/go1.15.7.linux-amd64.tar.gz
+          retry: 10
+          overwrite: true
