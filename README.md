@@ -7,7 +7,7 @@
 
 Release is a tool that validates and creates tags against git repos by reading your changelog file.
 
-It is supported for the following git repository providers via their respective REST API's:
+It is supported for the following git repository providers via their respective REST APIs:
 
 * Github
 * Gitlab
@@ -69,7 +69,7 @@ major.minor.patch.micro
 If you have go installed, you can install `release` by running the following.
 
 ```bash
-go install github.com/sanjP10/release
+go install github.com/sanjP10/release@latest
 ```
 To find out where `release` was installed you can run `go list -f {{.Target}} github.com/sanjP10/release`
 
@@ -112,7 +112,7 @@ These are the flags when using the default git functionality
 ```
 
 ## Changelog Notes
-The **Github** and **Gitlab** api's also takes the markdown between the version numbers and creates a release with the changelog notes you created.
+The **GitHub** and **Gitlab** APIs also takes the markdown between the version numbers and creates a release with the changelog notes you created.
 If you use the default **git** provided or a self-hosted **bitbucket** the release notes are added as annotations to the tag, so if you run `git show <desired tag>` you can see the notes associated.
 **Bitbucket** api does not process any release notes as it is not supported.
 
@@ -175,7 +175,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     name: validate version
     image: golang
     script:
-      - go install github.com/sanjP10/release
+      - go install github.com/sanjP10/release@latest
       # Test version does not exist
       - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
@@ -189,19 +189,19 @@ To integrate this into bitbucket pipelines you can use the following as steps
     name: create version
     image: golang
     script:
-      - go install github.com/sanjP10/release
+      - go install github.com/sanjP10/release@latest
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
 
-## Github Actions Example
+## GitHub Actions Example
 
-### Using release-action github action
+### Using release-action GitHub action
 
-For github actions you can use the [relase-action](https://github.com/sanjP10/release-action).
+For GitHub actions you can use the [release-action](https://github.com/sanjP10/release-action).
 
 ### Directly installing the tool into your job
 
-To integrate the `validate` use this in github actions you can use the following as steps
+To integrate the `validate` use this in GitHub actions you can use the following as steps
 
 ```yaml
   validate:
@@ -212,14 +212,14 @@ To integrate the `validate` use this in github actions you can use the following
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
-      - run: go install github.com/sanjP10/release
+          go-version: '^1.18'
+      - run: go install github.com/sanjP10/release@latest
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
 To integrate the `create` use this in the bitbucket pipeline after you merge to master
 
-To integrate this into github actions you can use the following as steps
+To integrate this into GitHub actions you can use the following as steps
 
 ```yaml
   create:
@@ -231,8 +231,8 @@ To integrate this into github actions you can use the following as steps
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
-      - run: go install github.com/sanjP10/release
+          go-version: '^1.18'
+      - run: go install github.com/sanjP10/release@latest
       - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
@@ -240,9 +240,9 @@ To integrate this into github actions you can use the following as steps
 
 ### Using release circle ci orb
 
-For github actions you can use the [relase](https://circleci.com/developer/orbs/orb/sanjp10/release) orb.
+For GitHub actions you can use the [release](https://circleci.com/developer/orbs/orb/sanjp10/release) orb.
 
-### Directly installing the tool into your job (require's golang executor)
+### Directly installing the tool into your job (requires golang executor)
 
 ```yaml
 jobs:
@@ -254,7 +254,7 @@ jobs:
       - run:
           name: Create tag
           command: |
-            go install github.com/sanjP10/release
+            go install github.com/sanjP10/release@latest
             release validate -username << parameters.username >> -password << parameters.password >> -repo << parameters.repo >> -changelog << parameters.changelog-file-location >> -hash $CIRCLE_SHA1 -provider << parameters.provider >>
   create:
     executor: release/default
@@ -263,7 +263,7 @@ jobs:
       - run:
           name: Create tag
           command: |
-            go install github.com/sanjP10/release
+            go install github.com/sanjP10/release@latest
             release create -username << parameters.username >> -password << parameters.password >> -repo << parameters.repo >> -changelog << parameters.changelog-file-location >> -hash $CIRCLE_SHA1 -provider << parameters.provider >>
 ```
 
@@ -277,7 +277,7 @@ the username and password for use with HTTPs.
 
 It's required that you use SSH which is only available via IAM Users.
 
-After following the steps in the AWS Documentation of setting up a ssh key as documented [here](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-ssh-unixes.html#setting-up-ssh-unixes-keys)
+After following the steps in the AWS Documentation of setting up an ssh key as documented [here](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-ssh-unixes.html#setting-up-ssh-unixes-keys)
 
 You will need to get the SSH Key ID which can be found in the IAM User console.
 
@@ -289,7 +289,7 @@ release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$
 ## GCP Source Repositories
 Cloud Source Repositories only supports SSH
 
-As source repositories uses gitcookie's to create a username and password it is not possible to get
+As source repositories uses git-cookies to create a username and password it is not possible to get
 the username and password for use with HTTPs.
 
 Once you have registered the ssh key within cloud source repositories, the command  would be as follows
@@ -301,4 +301,4 @@ release validate -ssh $PATH_TO_PRIVATEKEY -email user@domain.com -origin ssh://$
 
 ## Git provider
 * Azure - Unfortunately neither HTTPs nor SSH due to this [issue](https://github.com/go-git/go-git/issues/64)
-* Github - Unfortunately neither HTTPs nor SSH due to this [issue](https://github.com/go-git/go-git/issues/122), so as an alternative please use `-provider github` which utilises Github's REST API
+* GitHub - Unfortunately neither HTTPs nor SSH due to this [issue](https://github.com/go-git/go-git/issues/122), so as an alternative please use `-provider github` which utilises GitHub's REST API
