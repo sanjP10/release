@@ -15,7 +15,7 @@ type Object struct {
 	Sha string `json:"sha"`
 }
 
-// Tag Structure of github tag response
+// Tag Structure of GitHub tag response
 type Tag struct {
 	Object Object `json:"object"`
 }

@@ -48,8 +48,8 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.changelog, "changelog", "", "Location of changelog markdown file")
 	f.StringVar(&v.hash, "hash", "", "The Full commit hash")
 	f.StringVar(&v.host, "host", "", "The host for self hosted instances of the allowed providers")
-	f.StringVar(&v.origin, "origin", "", "Https or SSH origin of git repository, to be provided when the provider flag is not provided")
-	f.StringVar(&v.provider, "provider", "", "The Git provider, options are github, gitlab or bitbucket, when providing this flag you will be using their API's")
+	f.StringVar(&v.origin, "origin", "", "HTTPS or SSH origin of git repository, to be provided when the provider flag is not provided")
+	f.StringVar(&v.provider, "provider", "", "The Git provider, options are github, gitlab or bitbucket, when providing this flag you will be using their APIs")
 	f.StringVar(&v.ssh, "ssh", "", "SSH private key file location, please provide Username and password of the SSH file if required. Username defaults to git. This is to be used when the provider flag is not provided")
 }
 

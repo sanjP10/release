@@ -9,4 +9,4 @@
 * [ ] I have added tests to cover my changes.
 * [ ] I have updated the CHANGELOG.md and `version` subcommands to the next logical semantic version
 * [ ] All new and existing tests passed.
-* [ ] All required Github Actions for PR have passed.
+* [ ] All required GitHub Actions for PR have passed.

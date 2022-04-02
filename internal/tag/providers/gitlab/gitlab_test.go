@@ -151,22 +151,22 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	body := Release{"hello"}
 	defer gock.Off() // Flush pending mocks after test execution
 
-	gock.New("http://personal-gitlab.com/").
+	gock.New("https://personal-gitlab.com/").
 		Get("api/v4/projects/org/repo/repository/tags/tag").
 		Reply(http.StatusNotFound)
 
-	gock.New("http://personal-gitlab.com/").
+	gock.New("https://personal-gitlab.com/").
 		Post("api/v4/projects/org/repo/repository/tags").
 		MatchParam("tag_name", "tag").
 		MatchParam("ref", "hash").
 		Reply(http.StatusCreated)
 
-	gock.New("http://personal-gitlab.com/").
+	gock.New("https://personal-gitlab.com/").
 		Post("api/v4/projects/org/repo/repository/tags/tag/release").
 		Reply(http.StatusCreated).
 		JSON(body)
 	assertTest := assert.New(t)
-	repo := Properties{Repo: "org/repo", Host: "http://personal-gitlab.com", RepoProperties: tag.RepoProperties{Password: "token", Tag: "tag", Hash: "hash", Body: "hello"}}
+	repo := Properties{Repo: "org/repo", Host: "https://personal-gitlab.com", RepoProperties: tag.RepoProperties{Password: "token", Tag: "tag", Hash: "hash", Body: "hello"}}
 	assertTest.True(repo.CreateTag())
 }
 

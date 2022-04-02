@@ -48,8 +48,8 @@ func (c *Create) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.changelog, "changelog", "", "Location of changelog markdown file")
 	f.StringVar(&c.hash, "hash", "", "The Full commit hash")
 	f.StringVar(&c.host, "host", "", "The host for self hosted instances of the allowed providers")
-	f.StringVar(&c.origin, "origin", "", "Https or SSH origin of git repository, to be provided when the provider flag is not provided")
-	f.StringVar(&c.provider, "provider", "", "The Git provider, options are github, gitlab or bitbucket, when providing this flag you will be using their API's")
+	f.StringVar(&c.origin, "origin", "", "HTTPs or SSH origin of git repository, to be provided when the provider flag is not provided")
+	f.StringVar(&c.provider, "provider", "", "The Git provider, options are github, gitlab or bitbucket, when providing this flag you will be using their APIs")
 	f.StringVar(&c.ssh, "ssh", "", "SSH private key file location, please provide Username and password of the SSH file if required. Username defaults to git. This is to be used when the provider flag is not provided")
 }
 
