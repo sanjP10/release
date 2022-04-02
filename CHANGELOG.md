@@ -35,23 +35,23 @@
 ## 3.1.4
 
 ### Updated
-* Updated the readme to reference github action
+* Updated the readme to reference GitHub action
 
 ## 3.1.3
 
 ### Added
-* Github actions for CI/CD
-* Github actions for building and providing release assets
-* Github actions for code analysis
+* GitHub actions for CI/CD
+* GitHub actions for building and providing release assets
+* GitHub actions for code analysis
 
 ### Update
-* Migrated from bitbucket to github repository
-* Removed unauthorized logic for `github` provider as API's provide 404 instead
+* Migrated from bitbucket to GitHub repository
+* Removed unauthorized logic for `github` provider as APIs provide 404 instead
 * Updated usage documentation
 
 ## 3.1.2
 ### Update
-* Fix bitbucket self hosted for api provided with bitbucket server
+* Fix bitbucket self-hosted for api provided with bitbucket server
 
 ## 3.1.1
 ### Update
@@ -70,7 +70,7 @@
 ## 3.0.0
 
 ### Added
-* Github and Gitlab support
+* GitHub and Gitlab support
 
 ## 2.0.4
 
@@ -110,7 +110,7 @@
 ## 1.6.0
 
 ### Added
-* Add `-host` flag to allow for use with self hosted bitbucket
+* Add `-host` flag to allow for use with self-hosted bitbucket
 
 ## 1.5.0
 
