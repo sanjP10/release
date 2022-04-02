@@ -12,7 +12,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
+          go-version: '^1.18'
       - run: go test ./... -cover
 
   linting:
@@ -25,11 +25,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
-      - run: go get -u golang.org/x/lint/golint
-      - run: golint -set_exit_status ./...
+          go-version: '^1.18'
+      - run: go vet
       # install goreportcard and dependencies
-      - run: go get -u github.com/client9/misspell/cmd/misspell
       - run: git clone https://github.com/gojp/goreportcard.git
       - run: cd goreportcard && ./scripts/make-install.sh && go install ./cmd/goreportcard-cli
       - run: rm -rf goreportcard
@@ -56,7 +54,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
+          go-version: '^1.18'
       - run: go mod download
       - run: go install
       # expecting release to exist and hash to be the same so is fine to pass
@@ -98,7 +96,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
+          go-version: '^1.18'
       - run: go mod download
       - run: go install
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.PERSONAL_ACCESS_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github | tee version_to_create.txt
@@ -126,7 +124,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15.7'
+          go-version: '^1.18'
       - run: go mod download
       - run: go install
       - run: release create -username ${{ github.actor }} -password ${{ secrets.PERSONAL_ACCESS_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github

@@ -1,4 +1,9 @@
 # Changelog
+## 3.2.1
+
+#### Updated
+* Bump to be used with golang 1.18 and above
+
 ## 3.2.0
 
 #### Updated
