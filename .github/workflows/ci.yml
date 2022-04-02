@@ -28,7 +28,6 @@ jobs:
           go-version: '^1.18'
       - run: go vet
       # install goreportcard and dependencies
-      - run: go install github.com/client9/misspell/cmd/misspell
       - run: git clone https://github.com/gojp/goreportcard.git
       - run: cd goreportcard && ./scripts/make-install.sh && go install ./cmd/goreportcard-cli
       - run: rm -rf goreportcard
