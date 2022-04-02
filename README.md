@@ -69,7 +69,7 @@ major.minor.patch.micro
 If you have go installed, you can install `release` by running the following.
 
 ```bash
-GO111MODULE=on go get -u github.com/sanjP10/release
+go install github.com/sanjP10/release
 ```
 To find out where `release` was installed you can run `go list -f {{.Target}} github.com/sanjP10/release`
 
@@ -143,7 +143,7 @@ This is an example `create` command using default git
 release create -username $USER -password $ACCESS_TOKEN -email user@domain.com -origin https://$USER@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 
 # SSH
-release create -ssh $PATH_TO_PRIVATEKEY $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
+release create -ssh $PATH_TO_PRIVATEKEY -password $ACCESS_TOKEN -email user@domain.com -origin git@bitbucket.org/$BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG.git -changelog CHANGELOG.md -hash $COMMIT_HASH
 
 ```
 
@@ -175,7 +175,7 @@ To integrate the `validate` use this in bitbucket pipelines you can use the foll
     name: validate version
     image: golang
     script:
-      - GO111MODULE=on go get -u github.com/sanjP10/release
+      - go install github.com/sanjP10/release
       # Test version does not exist
       - release validate -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
@@ -189,7 +189,7 @@ To integrate this into bitbucket pipelines you can use the following as steps
     name: create version
     image: golang
     script:
-      - GO111MODULE=on go get -u github.com/sanjP10/release
+      - go install github.com/sanjP10/release
       - release create -username $USER -password $ACCESS_TOKEN -repo $BITBUCKET_REPO_OWNER/$BITBUCKET_REPO_SLUG -changelog CHANGELOG.md -hash $BITBUCKET_COMMIT -provider bitbucket
 ```
 
@@ -213,7 +213,7 @@ To integrate the `validate` use this in github actions you can use the following
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
-      - run: GO111MODULE=on go get -u github.com/sanjP10/release
+      - run: go install github.com/sanjP10/release
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
@@ -232,7 +232,7 @@ To integrate this into github actions you can use the following as steps
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15.7'
-      - run: GO111MODULE=on go get -u github.com/sanjP10/release
+      - run: go install github.com/sanjP10/release
       - run: release create -username ${{ github.actor }} -password ${{ secrets.GITHUB_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
 ```
 
@@ -254,7 +254,7 @@ jobs:
       - run:
           name: Create tag
           command: |
-            GO111MODULE=on go get -u github.com/sanjP10/release
+            go install github.com/sanjP10/release
             release validate -username << parameters.username >> -password << parameters.password >> -repo << parameters.repo >> -changelog << parameters.changelog-file-location >> -hash $CIRCLE_SHA1 -provider << parameters.provider >>
   create:
     executor: release/default
@@ -263,7 +263,7 @@ jobs:
       - run:
           name: Create tag
           command: |
-            GO111MODULE=on go get -u github.com/sanjP10/release
+            go install github.com/sanjP10/release
             release create -username << parameters.username >> -password << parameters.password >> -repo << parameters.repo >> -changelog << parameters.changelog-file-location >> -hash $CIRCLE_SHA1 -provider << parameters.provider >>
 ```
 
