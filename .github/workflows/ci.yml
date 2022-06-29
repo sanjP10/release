@@ -6,26 +6,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: '^1.18'
+          go-version-file: './go.mod'
       - run: go test ./... -cover
 
   linting:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: '^1.18'
+          go-version-file: './go.mod'
       - run: go vet
       # install goreportcard and dependencies
       - run: git clone https://github.com/gojp/goreportcard.git
@@ -41,20 +37,18 @@ jobs:
       - linting
     env:
       GOPATH: ${{ github.workspace }}
-      GO111MODULE: on
     defaults:
       run:
         working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-          fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: '^1.18'
+          go-version-file: './go.mod'
       - run: go mod download
       - run: go install
       # expecting release to exist and hash to be the same so is fine to pass
@@ -83,20 +77,18 @@ jobs:
       - linting
     env:
       GOPATH: ${{ github.workspace }}
-      GO111MODULE: on
     defaults:
       run:
         working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-          fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: '^1.18'
+          go-version-file: './go.mod'
       - run: go mod download
       - run: go install
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.PERSONAL_ACCESS_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github | tee version_to_create.txt
@@ -111,20 +103,18 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     env:
       GOPATH: ${{ github.workspace }}
-      GO111MODULE: on
     defaults:
       run:
         working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-          fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: '^1.18'
+          go-version-file: './go.mod'
       - run: go mod download
       - run: go install
       - run: release create -username ${{ github.actor }} -password ${{ secrets.PERSONAL_ACCESS_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
