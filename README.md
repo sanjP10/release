@@ -208,9 +208,9 @@ To integrate the `validate` use this in GitHub actions you can use the following
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '^1.18'
       - run: go install github.com/sanjP10/release@latest
@@ -227,9 +227,9 @@ To integrate this into GitHub actions you can use the following as steps
     needs: <A STEP>
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '^1.18'
       - run: go install github.com/sanjP10/release@latest
