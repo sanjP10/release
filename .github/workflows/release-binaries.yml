@@ -8,14 +8,14 @@ jobs:
     name: Release Go Binary for darwin (apple mac) based OS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.22
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.29
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: darwin
           goarch: amd64
           sha256sum: true
-          goversion: https://go.dev/dl/go1.18.3.linux-amd64.tar.gz
+          goversion: 1.18
           retry: 10
           overwrite: true
 
@@ -28,13 +28,13 @@ jobs:
         goarch: [arm64, amd64, 386, arm]
     steps:
       - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.22
+      - uses: wangyoucao577/go-release-action@v1.29
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: linux
           goarch: ${{ matrix.goarch }}
           sha256sum: true
-          goversion: https://go.dev/dl/go1.18.3.linux-amd64.tar.gz
+          goversion: 1.18
           retry: 10
           overwrite: true
 
@@ -47,12 +47,12 @@ jobs:
         goarch: [amd64, 386, arm]
     steps:
       - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.22
+      - uses: wangyoucao577/go-release-action@v1.29
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: windows
           goarch: ${{ matrix.goarch }}
           sha256sum: true
-          goversion: https://go.dev/dl/go1.18.3.linux-amd64.tar.gz
+          goversion: 1.18
           retry: 10
           overwrite: true
