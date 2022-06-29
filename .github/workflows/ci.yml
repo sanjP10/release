@@ -48,7 +48,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version-file: './go.mod'
+          go-version-file: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}/go.mod
       - run: go mod download
       - run: go install
       # expecting release to exist and hash to be the same so is fine to pass
@@ -88,7 +88,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version-file: './go.mod'
+          go-version-file: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}/go.mod
       - run: go mod download
       - run: go install
       - run: release validate -username ${{ github.actor }} -password ${{ secrets.PERSONAL_ACCESS_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github | tee version_to_create.txt
@@ -114,7 +114,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version-file: './go.mod'
+          go-version-file: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}/go.mod
       - run: go mod download
       - run: go install
       - run: release create -username ${{ github.actor }} -password ${{ secrets.PERSONAL_ACCESS_TOKEN }} -repo ${{ github.repository }} -changelog CHANGELOG.md -hash ${{ github.sha }} -provider github
