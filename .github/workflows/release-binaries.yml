@@ -47,7 +47,7 @@ jobs:
         goarch: [amd64, 386, arm]
     steps:
       - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.22
+      - uses: wangyoucao577/go-release-action@v1.29
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: windows
