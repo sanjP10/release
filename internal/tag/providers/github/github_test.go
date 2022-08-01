@@ -13,7 +13,7 @@ func TestValidateTagNotExisting(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusNotFound)
 	assertTest := assert.New(t)
 	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{Password: "password", Tag: "tag", Hash: "hash"}}
@@ -28,7 +28,7 @@ func TestValidateTagExistingSameHash(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusOK).
 		JSON(response)
 
@@ -48,7 +48,7 @@ func TestValidateTagExistingMismatchHash(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusOK).
 		JSON(response)
 	repo := Properties{Username: "username", Repo: "repo", Host: "", RepoProperties: tag.RepoProperties{Password: "password", Tag: "tag", Hash: "not_hash"}}
@@ -61,7 +61,7 @@ func TestValidateTagOtherError(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusServiceUnavailable)
 	assertTest := assert.New(t)
 	// Testing a 403
@@ -78,7 +78,7 @@ func TestCreateTagNotFound(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusNotFound)
 
 	gock.New("https://api.github.com").
@@ -97,7 +97,7 @@ func TestCreateTagSuccessful(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusNotFound)
 
 	gock.New("https://api.github.com").
@@ -115,11 +115,11 @@ func TestCreateTagSuccessfulWithHostOverride(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 
 	gock.New("https://api.personal-github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/api/v3/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusNotFound)
 
 	gock.New("https://api.personal-github.com").
-		Post("/repos/repo/releases").
+		Post("/api/v3/repos/repo/releases").
 		Reply(http.StatusCreated).
 		JSON(body)
 	assertTest := assert.New(t)
@@ -147,7 +147,7 @@ func TestCreateError(t *testing.T) {
 	errorResponse := BadResponse{Errors: []Error{errorMessage}}
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusNotFound).
 		JSON(response)
 	gock.New("https://api.github.com").
@@ -164,7 +164,7 @@ func TestCreateTagOtherError(t *testing.T) {
 	response := BadResponse{Errors: []Error{errorMessage}}
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusOK)
 	gock.New("https://api.github.com").
 		Post("/repos/repo/releases").
@@ -179,7 +179,7 @@ func TestCreateTagOtherError(t *testing.T) {
 func TestCreateTagOtherErrorResponse(t *testing.T) {
 	defer gock.Off() // Flush pending mocks after test execution
 	gock.New("https://api.github.com").
-		Get("/repos/repo/git/refs/tags").
+		Get("/repos/repo/git/refs/tags/tag").
 		Reply(http.StatusOK)
 	gock.New("https://api.github.com").
 		Post("/repos/repo/releases").
