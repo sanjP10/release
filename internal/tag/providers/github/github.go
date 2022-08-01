@@ -57,7 +57,7 @@ func (r *Properties) ValidateTag() tag.ValidTagState {
 	if r.Host == "" {
 		url = fmt.Sprintf("https://api.github.com/repos/%s/git/refs/tags/%s", r.Repo, r.Tag)
 	} else {
-		url = fmt.Sprintf("%s/repos/%s/git/refs/tags/%s", r.Host, r.Repo, r.Tag)
+		url = fmt.Sprintf("%s/api/v3/repos/%s/git/refs/tags/%s", r.Host, r.Repo, r.Tag)
 	}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -116,7 +116,7 @@ func (r *Properties) CreateTag() bool {
 		if r.Host == "" {
 			url = fmt.Sprintf("https://api.github.com/repos/%s/releases", r.Repo)
 		} else {
-			url = fmt.Sprintf("%s/repos/%s/releases", r.Host, r.Repo)
+			url = fmt.Sprintf("%s/api/v3/repos/%s/releases", r.Host, r.Repo)
 		}
 
 		body := Release{Name: r.Tag, TagName: r.Tag, Body: r.Body, Draft: false, Prerelease: false, TargetCommitish: r.Hash}
