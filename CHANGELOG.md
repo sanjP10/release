@@ -1,4 +1,8 @@
 # Changelog
+## 3.2.2
+### Updated
+* Updated self-hosted github
+
 ## 3.2.1
 
 #### Updated
