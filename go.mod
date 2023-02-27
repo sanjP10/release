@@ -6,7 +6,7 @@ require (
 	github.com/go-git/go-git/v5 v5.5.1
 	github.com/google/subcommands v1.2.0
 	github.com/hashicorp/go-version v1.6.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	gopkg.in/h2non/gock.v1 v1.1.2
 )
 
