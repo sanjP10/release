@@ -1,7 +1,8 @@
 # Release
 
-![Unit test and Integration tests](https://github.com/sanjP10/release/workflows/Unit%20and%20Integration%20Tests/badge.svg?branch=master)
-![Build and Upload](https://github.com/sanjP10/release/workflows/Build%20and%20Upload/badge.svg)
+
+![Unit and Integration Tests](https://github.com/sanjP10/release/actions/workflows/ci.yml/badge.svg)
+![Build and Upload](https://github.com/sanjP10/release/actions/workflows/release-binaries.yml/badge.svg)
 ![CodeQL](https://github.com/sanjP10/release/workflows/CodeQL/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sanjP10/release)](https://goreportcard.com/report/github.com/sanjP10/release)
 
@@ -9,7 +10,7 @@ Release is a tool that validates and creates tags against git repos by reading y
 
 It is supported for the following git repository providers via their respective REST APIs:
 
-* Github
+* GitHub
 * Gitlab
 * Bitbucket
 
@@ -17,7 +18,7 @@ If a provider isn't provided to the command it will default to the in built git 
 
 It requires a markdown formatted changelog, with the most recent changes at the top.
 
-The that consists of a version must start with a `h2` markup and have a number afterwards.
+The that consists of a version must start with a `h2` markup and have a number afterward.
 
 An example changelog would be 
 
