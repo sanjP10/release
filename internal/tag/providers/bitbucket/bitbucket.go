@@ -58,7 +58,7 @@ type ServerTagBody struct {
 	Message    string `json:"message"`
 }
 
-//ValidateTag checks a tag does not exist or has the same hash
+// ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
 	isCloud := true // Using bitbucket cloud offering otherwise self-hosted
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same

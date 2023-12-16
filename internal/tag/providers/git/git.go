@@ -58,7 +58,7 @@ func (r *Properties) InitializeRepository() error {
 	return err
 }
 
-//ValidateTag checks a tag does not exist or has the same hash
+// ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
 	tagRef, err := repository.Tag(r.Tag)

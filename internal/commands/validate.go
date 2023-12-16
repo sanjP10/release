@@ -53,7 +53,7 @@ func (v *Validate) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&v.ssh, "ssh", "", "SSH private key file location, please provide Username and password of the SSH file if required. Username defaults to git. This is to be used when the provider flag is not provided")
 }
 
-//Execute flow of subcommand
+// Execute flow of subcommand
 func (v *Validate) Execute(_ context.Context, _ *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	exit := subcommands.ExitSuccess
 	errors := checkValidateFlags(v)
