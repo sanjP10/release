@@ -49,7 +49,7 @@ type Properties struct {
 	Host     string
 }
 
-//ValidateTag checks a tag does not exist or has the same hash
+// ValidateTag checks a tag does not exist or has the same hash
 func (r *Properties) ValidateTag() tag.ValidTagState {
 	// Check tag exists, if 404 gd, 403 auth error, 200 exists and check hash is the same
 	validTag := tag.ValidTagState{TagDoesntExist: false, TagExistsWithProvidedHash: false}
