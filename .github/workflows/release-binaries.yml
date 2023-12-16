@@ -15,7 +15,7 @@ jobs:
           goos: darwin
           goarch: amd64
           sha256sum: true
-          goversion: 1.18
+          goversion: 1.21
           retry: 10
           overwrite: true
 
@@ -34,7 +34,7 @@ jobs:
           goos: linux
           goarch: ${{ matrix.goarch }}
           sha256sum: true
-          goversion: 1.18
+          goversion: 1.21
           retry: 10
           overwrite: true
 
@@ -53,6 +53,6 @@ jobs:
           goos: windows
           goarch: ${{ matrix.goarch }}
           sha256sum: true
-          goversion: 1.18
+          goversion: 1.21
           retry: 10
           overwrite: true
