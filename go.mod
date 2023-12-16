@@ -1,6 +1,6 @@
 module github.com/sanjP10/release
 
-go 1.18
+go 1.21
 
 require (
 	github.com/go-git/go-git/v5 v5.11.0
