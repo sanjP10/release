@@ -2,7 +2,6 @@
 
 
 ![Unit and Integration Tests](https://github.com/sanjP10/release/actions/workflows/ci.yml/badge.svg)
-![Build and Upload](https://github.com/sanjP10/release/actions/workflows/release-binaries.yml/badge.svg)
 ![CodeQL](https://github.com/sanjP10/release/workflows/CodeQL/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sanjP10/release)](https://goreportcard.com/report/github.com/sanjP10/release)
 
