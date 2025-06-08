@@ -8,7 +8,7 @@ jobs:
     name: Release Go Binary for darwin (apple mac) based OS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +27,7 @@ jobs:
         # build and publish in parallel: linux/arm64, linux/amd64, linux/386, linux/arm
         goarch: [arm64, amd64, 386, arm]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
         # build and publish in parallel: windows/amd64, windows/386, windows/arm
         goarch: [amd64, 386, arm]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: wangyoucao577/go-release-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
