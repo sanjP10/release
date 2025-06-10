@@ -2,10 +2,8 @@ module github.com/sanjP10/release
 
 go 1.24.0
 
-toolchain go1.24
-
 require (
-	github.com/go-git/go-git/v5 v5.16.1
+	github.com/go-git/go-git/v5 v5.16.2
 	github.com/google/subcommands v1.2.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/stretchr/testify v1.10.0
